@@ -42,7 +42,7 @@ jobs:
   - script: |
       . $CONDA/etc/profile.d/conda.sh
       conda activate starry_process
-      cd $(Build.SourcesDirectory)/paper2
+      cd $(Build.SourcesDirectory)/paper1
       make
     displayName: 'Build the paper'
     env:
@@ -50,13 +50,13 @@ jobs:
     condition: always()
 
   - script: |
-      cd $(Build.SourcesDirectory)/paper2
-      git checkout --orphan paper2-pdf
+      cd $(Build.SourcesDirectory)/paper1
+      git checkout --orphan paper1-pdf
       git add -f ms.pdf
       git add -f figures/*.pdf
       git add -f figures/*.png
       git -c user.name='azure' -c user.email='azure' commit -m "building the paper"
-      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/rodluger/mapping_stellar_surfaces paper2-pdf >/dev/null 2>&1
+      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/rodluger/mapping_stellar_surfaces paper1-pdf >/dev/null 2>&1
     displayName: 'Upload the paper'
     env:
       GITHUB_API_KEY: $(GITHUB_API_KEY)
