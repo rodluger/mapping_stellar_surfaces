@@ -35,7 +35,7 @@ jobs:
       pip install -U dynesty
       pip install -U emcee
       pip install -U corner
-      pip install git+git://github.com/rodluger/starry_process.git#v0.9.0 -e ".[app,tests]"
+      pip install "git+git://github.com/rodluger/starry_process.git#v0.9.0[app,tests]"
     displayName: 'Install dependencies'
 
   - script: |
