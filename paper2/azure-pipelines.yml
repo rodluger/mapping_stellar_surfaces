@@ -4,6 +4,9 @@ trigger:
   branches:
     include:
     - master
+  paths:
+    include:
+    - 'paper2/*'
 
 jobs:
 - job: Default
