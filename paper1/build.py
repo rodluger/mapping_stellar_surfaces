@@ -8,9 +8,7 @@ import sys
 import shutil
 
 
-DATA_URL = (
-    "https://users.flatironinstitute.org/~rluger/starry_process/data.tar.gz"
-)
+DATA_URL = "https://users.flatironinstitute.org/~rluger/starry_process/data_paper1.tar.gz"
 
 
 def generate_github_links():
