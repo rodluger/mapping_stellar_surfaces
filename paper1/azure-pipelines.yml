@@ -50,6 +50,7 @@ jobs:
       pip install -U starry@git+https://github.com/rodluger/starry@master
       pip install -U healpy
       pip install -U xarray==0.16.0
+      pip install -U theano==1.0.5
       pip install git+git://github.com/rodluger/starry_process.git#v0.9.0
     displayName: 'Install dependencies'
 
