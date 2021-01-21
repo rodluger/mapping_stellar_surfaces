@@ -53,7 +53,7 @@ def download_data(clobber=False):
     if clobber or not os.path.exists("figures/data"):
 
         # Download the tarball
-        subprocess.check_output(["wget", DATA_URL, "-O", "data.tar.gz"])
+        subprocess.check_output(["wget", "-q", DATA_URL, "-O", "data.tar.gz"])
 
         # Extract it
         subprocess.check_output(
