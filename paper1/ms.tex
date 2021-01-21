@@ -24,7 +24,7 @@
 \title{%
     \textbf{
         Mapping stellar surfaces\\
-        I: Nullspace, degeneracies, and the unknowable
+        I: Degeneracies in the light curve problem
     }
 }
 
@@ -42,12 +42,12 @@
 \affil{NASA~Ames~Research~Center,~Moffett~Field,~CA}
 %
 
-\keywords{time series analysis --- starspots}
+\keywords{time series analysis --- light curves --- stellar surfaces --- starspots}
 
 \features{open-source figures \codeicon; equation unit tests: \input{tests/tally}}
 
 \begin{abstract}
-    Abstract here.
+    \xxx{Abstract here.}
 \end{abstract}
 
 \section{Introduction}
@@ -134,8 +134,8 @@ to its rotational light curve is so degenerate that there exist an infinite numb
 to the inverse problem. This fact has been pointed out recently in different contexts
 \citep[e.g.,][]{Cowan2013,Luger2019,Basri2020}, but it dates back at least to
 \citet{Russell1906}, who demonstrated it by expanding the surface
-intensity of a celestial body in terms of spherical harmonics
-(see \S\ref{sec:main} and Figure~\ref{fig:ylms}). \citet{Russell1906} showed
+intensity of a celestial body in terms of spherical harmonics.
+(see Figure~\ref{fig:ylms}). \citet{Russell1906} showed
 that many of the modes comprising the intensity profile of a spherical
 object are in the \emph{null space}, the set of surface features that have identically
 zero effect on the light curve. In fact,
@@ -143,6 +143,21 @@ the \emph{vast majority} of the modes are in the null space for rotational
 light curves of stars (\S\ref{sec:nullspace}). This is what allows us to construct pathological
 scenarios like that shown in Figure~\ref{fig:degeneracies}, where the light curve
 could be explained by any number of spots atop a heterogeneous bright background.
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/ylms.pdf}
+        \oscaption{ylms}{%
+            The real spherical harmonics in the polar frame up to
+            $l = 5$, where dark colors correspond to negative intensity
+            and bright colors to positive intensity.
+            Rows correspond to the degree $l$ and columns to
+            the order $m$. The set of all spherical harmonics forms a
+            complete, orthogonal basis on the sphere.
+            \label{fig:ylms}
+        }
+    \end{centering}
+\end{figure}
 
 Stellar mapping studies tackle these degeneracies in different ways, but
 it usually comes down to a choice of prior: when the data is not
@@ -167,25 +182,27 @@ will in general vary, but in principle it could be quite significant.
 % Add to this photometric noise, the generally unknown stellar inclination,
 % the poorly constrained limb darkening parameters, and you get ... a mess.
 
-Fortunately, although individual light curves are not very constraining,
-we have \emph{a lot of them} thanks to missions like \emph{Kepler} and \emph{TESS}.
-In this paper, we will thoroughly explore the power of ensemble analyses
-in breaking the degeneracies inherent to the light curve mapping problem.
-By jointly analyzing the light curves of many stars, we will show that it
-is often possible to uniquely constrain statistical properties about their
-surfaces. This idea was recently explored to some extent
-in \citet{Morris2020}, who used ensemble analyses to derive constraints on
-spot coverage areas as a function of stellar age (see \S\ref{sec:other-work}).
+% Fortunately, although individual light curves are not very constraining,
+% we have \emph{a lot of them} thanks to missions like \emph{Kepler} and \emph{TESS}.
+% In this paper, we will thoroughly explore the power of ensemble analyses
+% in breaking the degeneracies inherent to the light curve mapping problem.
+% By jointly analyzing the light curves of many stars, we will show that it
+% is often possible to uniquely constrain statistical properties about their
+% surfaces. This idea was recently explored to some extent
+% in \citet{Morris2020}, who used ensemble analyses to derive constraints on
+% spot coverage areas as a function of stellar age (see \S\ref{sec:other-work}).
 
+\xxx{In this paper...}
 
-
-\subsection{The null space}
+\section{The null space}
 \label{sec:nullspace}
 
 \begin{figure}[p!]
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/nullspace_0.pdf}
+        \\[1em]
         \includegraphics[width=\linewidth]{figures/nullspace_1.pdf}
+        \\[1em]
         \includegraphics[width=\linewidth]{figures/nullspace_2.pdf}
         \oscaption{nullspace}{%
             The nullspace decomposition.
@@ -214,6 +231,117 @@ the set of modes on the surface that do not contribute to the observed
 light curve and therefore cannot be probed from photometry.
 As we will see below, the vast majority of the surface modes lie at least in part in the null
 space.
+
+\xxx{A little linear algebra here:}
+
+%
+Linear mapping:
+%
+\begin{align}
+    \mathbf{f} = \mathbf{A} \mathbf{y}
+\end{align}
+%
+SVD:
+%
+\begin{align}
+    \mathbf{A} = \mathbf{U} \mathbf{S} \mathbf{V}^\top
+\end{align}
+%
+where $\mathbf{U}$ and $\mathbf{V}$ are
+$(K \times N)$ orthogonal matrices
+and $\mathbf{S}$ is a $(N \times N)$ diagonal matrix
+containing the $R$ nonzero singular values as well as
+$N - R$ zeros.
+%
+Write
+%
+\begin{align}
+    \mathbf{A} =
+    \begin{pmatrix}
+        \mathbf{U}_\bullet & \mathbf{U}_\circ
+    \end{pmatrix}
+    \begin{pmatrix}
+        \mathbf{S} &            \\
+                   & \mathbf{0}
+    \end{pmatrix}
+    \begin{pmatrix}
+        \mathbf{V}_\bullet^\top \\
+        \mathbf{V}_\circ^\top
+    \end{pmatrix}
+\end{align}
+%
+Note that because $\mathbf{V}$ is orthogonal,
+%
+\begin{align}
+    \mathbf{V}^\top \mathbf{V} = \mathbf{I}
+\end{align}
+%
+and further
+%
+\begin{align}
+    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet = \mathbf{I}
+\end{align}
+%
+and
+\begin{align}
+    \mathbf{V}_\circ^\top \mathbf{V}_\circ = \mathbf{I}
+\end{align}
+%
+Then
+%
+\begin{align}
+    \mathbf{f} & = \mathbf{A} \mathbf{y}
+    \\
+               & =
+    \begin{pmatrix}
+        \mathbf{U}_\bullet & \mathbf{U}_\circ
+    \end{pmatrix}
+    \begin{pmatrix}
+        \mathbf{S} &            \\
+                   & \mathbf{0}
+    \end{pmatrix}
+    \begin{pmatrix}
+        \mathbf{V}_\bullet^\top \\
+        \mathbf{V}_\circ^\top
+    \end{pmatrix}
+    \mathbf{y}
+    \\
+               & =
+    \mathbf{U}_\bullet \mathbf{S} \mathbf{V}_\bullet^\top \mathbf{y}
+    +
+    \mathbf{U}_\circ \mathbf{0} \mathbf{V}_\circ^\top \mathbf{y}
+    \\
+               & =
+    \mathbf{U}_\bullet \mathbf{S} (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \mathbf{y}
+    +
+    \mathbf{U}_\circ \mathbf{0} (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \mathbf{y}
+    \\
+               & =
+    (\mathbf{U}_\bullet \mathbf{S} \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
+    +
+    (\mathbf{U}_\circ \mathbf{0} \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
+    \\
+               & =
+    \mathbf{A} \mathbf{y}_\bullet
+    +
+    \mathbf{0} \mathbf{y}_\circ
+\end{align}
+%
+where
+%
+\begin{align}
+    \mathbf{y}_\bullet \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
+\end{align}
+%
+and
+%
+\begin{align}
+    \mathbf{y}_\circ \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
+\end{align}
+%
+are the row space and null space components of $\mathbf{y}$.
+
+\xxx{More on this.}
 
 But what if the star rotates about a different axis? A useful property of
 the spherical harmonics is that rotation about any axis can only change the
