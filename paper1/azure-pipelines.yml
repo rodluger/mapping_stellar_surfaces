@@ -31,7 +31,7 @@ jobs:
   - script: |
       sudo chown -R $USER $CONDA
       . $CONDA/etc/profile.d/conda.sh
-      conda env create --yes --quiet -f $(paper)/environment.yml
+      conda env create -f $(paper)/environment.yml
     displayName: 'Setup conda'
 
   - script: |
