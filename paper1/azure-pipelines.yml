@@ -1,8 +1,6 @@
 name: Paper1
 
 variables:
-- name: user
-  value: rodluger
 - name: repo
   value: mapping_stellar_surfaces
 - name: paper
@@ -46,12 +44,13 @@ jobs:
 
   - script: |
       cd $(Build.SourcesDirectory)/$(paper)
+      git init
       git checkout --orphan $(paper)-pdf
       git add -f ms.pdf
       git add -f figures/*.pdf
       git add -f figures/*.png
       git -c user.name='azure' -c user.email='azure' commit -m "building $(paper)"
-      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/$(user)/$(repo) $(paper)-pdf >/dev/null 2>&1
+      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/$GITHUB_USER/$(repo) $(paper)-pdf >/dev/null 2>&1
     displayName: 'Upload the paper'
     env:
       GITHUB_API_KEY: $(GITHUB_API_KEY)

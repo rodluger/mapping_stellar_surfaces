@@ -1,8 +1,11 @@
 .PHONY: default, clean, deepclean
 
-default:
-	python -c "from build import build; build()"
+MISC = $(patsubst misc/%,%,$(wildcard misc/*))
 
+default:
+	cp misc/* .
+	python -c "from build import build; build()"
+	rm $(MISC)
 clean:
 	python -c "from build import clean; clean()"
 
