@@ -46,7 +46,32 @@ if clobber or not os.path.exists(DATA_FILE):
 else:
     S = np.load(DATA_FILE)["S"]
 
-# Plot
+# Plot for just a *single* orientation
+fig, ax = plt.subplots(1)
+for k in range(kpn):
+    ax.plot(S[0, k], color="C{}".format(0), lw=0.75, alpha=0.01, zorder=-1)
+ax.plot(
+    np.mean(S[0], axis=0), color="C{}".format(0), lw=1, zorder=1,
+)
+ax.set_rasterization_zorder(0)
+ax.set_xlim(0, (ydeg + 1) ** 2 - 1)
+for tick in ax.xaxis.get_major_ticks():
+    tick.label.set_fontsize(10)
+    tick.label.set_rotation(30)
+for tick in ax.yaxis.get_major_ticks():
+    tick.label.set_fontsize(10)
+l = np.arange(2, ydeg + 1)
+ax.set_xticks(l ** 2 + l)
+ax.set_xticklabels(["{}".format(l) for l in np.arange(2, ydeg + 1)])
+ax.set_xlabel("spherical harmonic degree")
+ax.set_ylabel("posterior shrinkage")
+fig.savefig(
+    os.path.abspath(__file__).replace(".py", "_single.pdf"),
+    bbox_inches="tight",
+    dpi=300,
+)
+
+# Plot for different # of orientations
 fig, ax = plt.subplots(1)
 for n in tqdm(range(len(ninc)), disable=bool(int(os.getenv("NOTQDM", "0")))):
     for k in range(kpn):

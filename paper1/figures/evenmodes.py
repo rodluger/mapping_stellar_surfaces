@@ -7,7 +7,9 @@ import os
 
 
 class Star(object):
-    def __init__(self, nlon=300, ydeg=15, linear=True):
+    def __init__(
+        self, nlon=300, ydeg=15, linear=True, eps=1e-12, smoothing=0.1
+    ):
         # Generate a uniform intensity grid
         self.nlon = nlon
         self.nlat = nlon // 2
@@ -19,6 +21,20 @@ class Star(object):
 
         # Instantiate a starry map
         self.map = starry.Map(ydeg, lazy=False)
+
+        # cos(lat)-weighted SHT
+        w = np.cos(self.lat.flatten() * np.pi / 180)
+        P = self.map.intensity_design_matrix(
+            lat=self.lat.flatten(), lon=self.lon.flatten()
+        )
+        PTSinv = P.T * (w ** 2)[None, :]
+        self.Q = np.linalg.solve(PTSinv @ P + eps * np.eye(P.shape[1]), PTSinv)
+        if smoothing > 0:
+            l = np.concatenate(
+                [np.repeat(l, 2 * l + 1) for l in range(ydeg + 1)]
+            )
+            s = np.exp(-0.5 * l * (l + 1) * smoothing ** 2)
+            self.Q *= s[:, None]
 
     def _angular_distance(self, lam1, lam2, phi1, phi2):
         # https://en.wikipedia.org/wiki/Great-circle_distance
@@ -44,17 +60,7 @@ class Star(object):
             self.intensity[idx] = -contrast
 
     def get_y(self, smoothing=0.1):
-        # Expand in Ylms
-        self.map.load(self.intensity)
-
-        # Smooth to get rid of ringing
-        if smoothing > 0:
-            l = np.concatenate(
-                [np.repeat(l, 2 * l + 1) for l in range(self.map.ydeg + 1)]
-            )
-            s = np.exp(-0.5 * l * (l + 1) * smoothing ** 2)
-            self.map._y *= s
-        return self.map._y * self.map.amp
+        return self.Q @ self.intensity.flatten()
 
 
 # Settings

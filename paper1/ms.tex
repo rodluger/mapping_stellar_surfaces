@@ -177,286 +177,22 @@ surfaces. This idea was recently explored to some extent
 in \citet{Morris2020}, who used ensemble analyses to derive constraints on
 spot coverage areas as a function of stellar age (see \S\ref{sec:other-work}).
 
-\subsection{The baseline problem}
-\label{sec:baseline}
 
-There is one final subtle---but extremely important---point that remains to
-be discussed in our derivation of a Gaussian process for stellar
-rotation. Thus far we have cast the light curve problem in a typical GP inference
-setting: we model our observations $\mathbbb{f}$ as
-a multidimensional random variable distributed as a multivariate Gaussian with mean vector
-$\pmb{\mu}$ and covariance matrix $\pmb{\Sigma}$. However, in the context of
-relative photometry, the mean $\pmb{\mu}$ is typically \emph{unobservable}.
-%
-To understand why, consider what
-$\pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)$ actually represents:
-it is the expected value
-of the flux,
-\emph{in units of the flux one would measure if the star had no spots}.
-We do not observe in these units: rather, we observe in units of counts on
-the detector, which depend on the luminosity of the star, the distance to
-the star, and various properties of the telescope. Even if we knew all these
-things, we would still need to know the intrinsic photospheric brightness
-in order to properly normalize our dataset for direct application of
-the Gaussian process.
-
-Instead, what astronomers typically do is to self-normalize their data:
-i.e., divide the flux by the mean, median, maximum, or some similar
-statistic of the light curve. This operation folds the unknowability of
-the flux baseline under the rug and transforms the light curve into a \emph{relative}
-measurement of the star's temporal variability. While relative measurements
-are typically what we are interested in anyways, this normalization procedure
-has two significant drawbacks: (1) it introduces a new set of perfect degeneracies
-in the modeling and (2) it can substantially change the covariance structure
-of the dataset.
-
-The first point is illustrated in the toy example in
-Figure~\ref{fig:mean_normalization}. As it has been pointed out before
-\citep[e.g.,][]{Basri2018},
-we will not spend too much time discussing it, other than to say that the
-flux normalization introduces a degeneracy between the total spot coverage
-of a star and the contrast of any individual feature on the surface.
-The two stars in the figure have different numbers of spots, different
-spot contrasts, and different total spot coverage. In ``absolute'' units, in which
-the flux is measured as a fraction of the flux of an unspotted star, the two
-light curves are distinct (top panel). However, we can only measure these light
-curves up to an unknown multiplicative factor. Normalizing these light curves
-to the ``continuum'' level yields the curves in the bottom panel, which are
-\emph{perfectly} indistinguishable from each other. Normalization to the mean,
-median, or any other statistic of the light curve does not help break this
-degeneracy, which is inherent to relative photometry. While one could instead \emph{fit}
-for the normalization as a latent variable, there is no information in the data
-that can help break it, so the result will be entirely determined by the prior.%
-\footnote{%
-    In principle, the maximum level of a light curve could set a lower limit on
-    the location of the baseline. However, this applies only if the surface is
-    known to be made up of \emph{exclusively} dark spots. The presence of bright
-    spots (faculae), which are common on the Sun, make it effectively impossible
-    for one to infer the baseline from single-band relative photometry alone.
-}
-We discuss these issues further in \S\ref{sec:breaking_baseline_degeneracy}.
-
-\begin{figure}[t!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/mean_normalization.pdf}
-        \oscaption{mean_normalization}{%
-            An example of the baseline problem.
-            \emph{Top:} Consider a star with a single
-            equatorial spot of contrast $c$ viewed at a certain inclination.
-            The total flux (in some units) as a function of time is shown as
-            the blue curve. Now, consider a second star,
-            identical in all respects to the first, except that (1) the equatorial spot
-            has half the contrast (i.e., $\nicefrac{c}{2}$); and (2) there is
-            a second, large spot centered on the pole. The corresponding light
-            curve is shown as the dashed orange curve.
-            The orange light curve is different from the blue one in two ways:
-            (1) since the equatorial spot has half the contrast, the amplitude of the associated
-            dips in the light curve is half that of the first star; and
-            (2) since the polar spot is azimuthally symmetric, its only
-            contribution is a net darkening at all phases.
-            \emph{Bottom:} The true baseline level of a stellar
-            light curve, which corresponds to the flux one would measure in the
-            absence of any spots, is almost always unknown. Photometric measurements
-            are therefore meaningful only in a relative sense, i.e., as deviations from
-            the mean, median, or maximum level of the light curve.
-            The bottom panel shows the same two light curves, this time plotted as
-            deviations in parts per thousand (ppt) from their respective maxima.
-            To the observer, the two light curves are \emph{indistinguishable}.
-            In the absence of baseline information, there
-            exists a perfect degeneracy between the total spot coverage
-            and the contrast of any individual feature on the surface.
-            As a consequence, the total spot coverage of a star cannot be
-            inferred from relative photometry.
-            \label{fig:mean_normalization}
-        }
-    \end{centering}
-\end{figure}
-
-The second point is of more immediate concern, since we must correct our
-expression for the covariance matrix
-$\pmb{\Sigma}(P, \mathbf{u}, \pmb{\theta}_\bullet)$ if we are to
-use our GP to model normalized light curves. For definiteness, let us
-consider only mean-normalized light curves.%
-\footnote{In practice, the expressions derived below also work well
-    for median-normalized light curves, since the distribution of the GP sample median
-    is usually close to the distribution of the sample mean.}
-Since we are dividing the
-flux by the mean, one might imagine that we could simply divide the
-covariance matrix by the square of the mean. However,
-this is incorrect, since we must be careful to distinguish between the
-\emph{sample} mean and the \emph{process} mean. When normalizing a light
-curve by the mean, the operation we perform is
-%
-\begin{align}
-    \label{eq:ftilde}
-    \tilde{\mathbbb{f}\hspace{0.2em}} & = \frac{\mathbbb{f}}{\left<\mathbb{f}\right>}
-    \quad,
-\end{align}
-%
-where $\tilde{\mathbbb{f}\hspace{0.2em}}$ is the normalized, unit-mean light curve,
-$\mathbbb{f}$ is the measured light curve (in detector counts), and
-$\left<\mathbb{f}\right>$ is the \emph{sample} mean: i.e., the average value of
-a given star's light curve (which we model as a sample from our GP).
-This may be close to but is in general different from the \emph{process} mean,
-$\pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)$, since the mean of
-a draw from the GP is itself normally distributed with a variance that scales
-with the GP variance.%
-\footnote{
-    Importantly, the sample mean and process mean will be different even in the
-    absence of measurement error! In other words, the mean flux of a given
-    star (i.e., the sample mean)
-    will in general be different from the mean flux \emph{across all stars} with similar
-    surface properties (the process mean).
-}
-
-Computing the covariance of the normalized process is tricky, especially
-because the normalized process is \emph{not} strictly Gaussian: the distribution
-has heavy tails due to the fact that $\tilde{\mathbbb{f}\hspace{0.2em}}$ diverges as
-the sample mean approaches zero. In fact, because of these tails, the covariance
-of the normalized process is formally \emph{infinite}, since the probability of
-drawing a sample whose mean is arbitrarily close to zero is finite.
-
-If this is all starting to sound like a bad idea, that's because it is!
-A much safer approach is to resist the temptation to normalize the light curve
-and instead model the unknown multiplicative amplitude as a latent variable. However,
-this would require an extra parameter \emph{for every light curve}, so the
-computational savings we achieved by marginalizing out the inclination
-would be gone. Fortunately, in practice, the variance of a stellar light curve
-is usually small compared to its mean: stellar variability amplitudes are
-typically at the level of a few percent or lower. When this is the case,
-the probability of drawing a GP sample whose mean is close to zero is
-extremely small, and we can make use of the approximate expression derived
-in \citet{Luger2020} for the covariance of a normalized Gaussian process:
-%
-\begin{proof}{test_normgp}
-    \label{eq:SigmaTilde}
-    \tilde{\pmb{\Sigma}}
-    & \approx
-    \frac{A}{\mu^2} \pmb{\Sigma} +
-    z \Big(
-    (A + B) \, (\mathbf{1} - \mathbf{q}) \, (\mathbf{1} - \mathbf{q})^\top
-    - A \, \mathbf{q} \, \mathbf{q}^\top
-    \Big)
-    \quad,
-\end{proof}
-%
-where
-%
-\begin{align}
-    \label{eq:z}
-    z & \equiv \frac{\left< \Sigma \right>}{\mu^2}
-\end{align}
-%
-is the ratio of the average element in $\pmb{\Sigma}$
-to the square of the mean of the Gaussian process,
-$\mathbf{q}$ is the ratio of the average of each row in $\pmb{\Sigma}$
-to the average element in $\pmb{\Sigma}$, and $A$, $B$ are
-order unity and zero scalars, respectively,
-given by the optimally-truncated diverging series
-%
-\begin{align}
-    \label{eq:baseline_alpha}
-    A
-     & \equiv
-    \sum\limits_{i=0}^{i_\mathrm{max}}
-    \frac{(2i + 1)!}{2^i \, i!}
-    z^i
-    \\[1em]
-    \label{eq:baseline_beta}
-    B
-     & \equiv
-    \sum\limits_{i=0}^{i_\mathrm{max}}
-    \frac{2i(2i + 1)!}{2^i \, i!}
-    z^i
-    \quad,
-\end{align}
-%
-where $i_\mathrm{max}$ is the largest value for which the series coefficient at $i_\mathrm{max}$ is
-smaller than the coefficient at $i_\mathrm{max} - 1$. In the expressions above, it is
-assumed that the mean $\pmb{\mu}$ is constant, i.e., $\pmb{\mu} = \mu\, \mathbf{1}$.
-Since our Gaussian process is azimuthally isotropic (i.e., no preferred
-longitude), that is the case throughout this paper.
-
-What Equation~(\ref{eq:SigmaTilde}) allows us to do is effectively marginalize over
-the unknown baseline by modeling the \emph{normalized} flux as a draw
-from a Gaussian process:
-%
-\begin{align}
-    \tilde{\mathbbb{f}\hspace{0.2em}}
-    \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
-    \sim
-    \mathcal{N}\left(
-    \mathbf{1},
-    \tilde{\pmb{\Sigma}} \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
-    \right)
-    \quad.
-\end{align}
-%
-This is appropriate as long as $z \ll 1$, for which the true
-distribution of $\tilde{\mathbbb{f}\hspace{0.2em}}$ is approximately Gaussian. In practice,
-we recommend employing this trick only for $z \lesssim 0.02$, for which the
-error in the approximation to the covariance is less than $10^{-6}$.
-In cases where the light curve variability exceeds about ten percent, we recommend
-modeling the multiplicative amplitude in each light curve as a latent variable, as discussed
-above.
-
-\begin{figure}[p!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/normgp.pdf}
-        \oscaption{normgp}{%
-            An example of a flux covariance matrix $\pmb{\Sigma}$ for a
-            \starry process (left) and the corresponding covariance of the
-            normalized process (right), computed from Equation~(\ref{eq:SigmaTilde}).
-            In addition to an offset and an overall scaling relative to the
-            original covariance matrix, the covariance of the normalized process
-            is discernibly non-stationary (see Figure~\ref{fig:nonstationarity}).
-            \label{fig:normgp}
-        }
-    \end{centering}
-\end{figure}
-
-\begin{figure}[p!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/nonstationarity.pdf}
-        \oscaption{nonstationarity}{%
-            An example of why normalized light curves are non-stationary.
-            The top panel shows $1{,}000$ samples from a unit-mean sinusoid with
-            an amplitude of 10\% and a period of 10 days, much longer than the
-            1 day observation baseline. The bottom panel shows the same light curves,
-            each normalized to its own mean. Because the mean tends to be near
-            the center of the observation window, points near $t=0.5$ are driven
-            to values very close to unity, while points near the edges have much
-            larger scatter.
-            \label{fig:nonstationarity}
-        }
-    \end{centering}
-\end{figure}
-
-Figure~\ref{fig:normgp} shows an example of a covariance matrix normalized
-according to the procedure outlined above. The principal difference between
-the normalized covariance and the original covariance is an overall
-scaling and a small offset. However, the normalization also results in
-the process becoming non-stationary: the covariance between two points in
-a light curve is now slightly dependent on their phases.
-
-To understand why normalized light curves are non-stationary, it is useful to
-consider the
-toy example in Figure~\ref{fig:nonstationarity}, in which we draw
-$1{,}000$ samples from a sinusoid with period ten times longer than the
-observational baseline. In this limit, each light curve is approximately
-linear, which causes its mean value to roughly coincide with the midpoint of the
-observation window. Division by the mean value results in points near the
-midpoint being driven to unity and points near the edges (whose values differ
-the most from the mean) to be driven to both large and small values. The
-variance across all samples is now distinctly phase-dependent.
-%
-In general, the non-stationarity will be most extreme in cases where the
-observation window is shorter than or comparable to one period, and
-asymptotically vanishes in the limit that a large number of cycles are
-observed.
 
 \subsection{The null space}
 \label{sec:nullspace}
+
+\begin{figure}[p!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/nullspace_0.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_1.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_2.pdf}
+        \oscaption{nullspace}{%
+            The nullspace decomposition.
+            \label{fig:nullspace}
+        }
+    \end{centering}
+\end{figure}
 
 In general, inferring the properties of a stellar surface from its light curve is not
 only difficult, but \emph{formally impossible}. To understand why, consider
@@ -509,9 +245,15 @@ constraining of the spot properties at the population level. In the
 following section, we explore the role of ensemble analyses in breaking
 the degeneracies of the mapping problem in more detail.
 
-% HACK HACK HACK HACK HACK
-\pagebreak
-% HACK HACK HACK HACK HACK
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/nullspace_ensemble_single.pdf}
+        \oscaption{nullspace_ensemble}{%
+            Posterior shrinkage...
+            \label{fig:nullspace_ensemble_single}
+        }
+    \end{centering}
+\end{figure}
 
 \subsection{Why ensemble analyses work}
 \label{sec:ensemble}
@@ -748,6 +490,283 @@ exactly, so we must either model them or marginalize over them
 (see \S\ref{sec:other-marg}). This will dilute our ability to infer surface
 properties exactly.
 
+\section{The baseline problem}
+\label{sec:baseline}
+
+There is one final subtle---but extremely important---point that remains to
+be discussed in our derivation of a Gaussian process for stellar
+rotation. Thus far we have cast the light curve problem in a typical GP inference
+setting: we model our observations $\mathbbb{f}$ as
+a multidimensional random variable distributed as a multivariate Gaussian with mean vector
+$\pmb{\mu}$ and covariance matrix $\pmb{\Sigma}$. However, in the context of
+relative photometry, the mean $\pmb{\mu}$ is typically \emph{unobservable}.
+%
+To understand why, consider what
+$\pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)$ actually represents:
+it is the expected value
+of the flux,
+\emph{in units of the flux one would measure if the star had no spots}.
+We do not observe in these units: rather, we observe in units of counts on
+the detector, which depend on the luminosity of the star, the distance to
+the star, and various properties of the telescope. Even if we knew all these
+things, we would still need to know the intrinsic photospheric brightness
+in order to properly normalize our dataset for direct application of
+the Gaussian process.
+
+Instead, what astronomers typically do is to self-normalize their data:
+i.e., divide the flux by the mean, median, maximum, or some similar
+statistic of the light curve. This operation folds the unknowability of
+the flux baseline under the rug and transforms the light curve into a \emph{relative}
+measurement of the star's temporal variability. While relative measurements
+are typically what we are interested in anyways, this normalization procedure
+has two significant drawbacks: (1) it introduces a new set of perfect degeneracies
+in the modeling and (2) it can substantially change the covariance structure
+of the dataset.
+
+The first point is illustrated in the toy example in
+Figure~\ref{fig:mean_normalization}. As it has been pointed out before
+\citep[e.g.,][]{Basri2018},
+we will not spend too much time discussing it, other than to say that the
+flux normalization introduces a degeneracy between the total spot coverage
+of a star and the contrast of any individual feature on the surface.
+The two stars in the figure have different numbers of spots, different
+spot contrasts, and different total spot coverage. In ``absolute'' units, in which
+the flux is measured as a fraction of the flux of an unspotted star, the two
+light curves are distinct (top panel). However, we can only measure these light
+curves up to an unknown multiplicative factor. Normalizing these light curves
+to the ``continuum'' level yields the curves in the bottom panel, which are
+\emph{perfectly} indistinguishable from each other. Normalization to the mean,
+median, or any other statistic of the light curve does not help break this
+degeneracy, which is inherent to relative photometry. While one could instead \emph{fit}
+for the normalization as a latent variable, there is no information in the data
+that can help break it, so the result will be entirely determined by the prior.%
+\footnote{%
+    In principle, the maximum level of a light curve could set a lower limit on
+    the location of the baseline. However, this applies only if the surface is
+    known to be made up of \emph{exclusively} dark spots. The presence of bright
+    spots (faculae), which are common on the Sun, make it effectively impossible
+    for one to infer the baseline from single-band relative photometry alone.
+}
+We discuss these issues further in \S\ref{sec:breaking_baseline_degeneracy}.
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/mean_normalization.pdf}
+        \oscaption{mean_normalization}{%
+            An example of the baseline problem.
+            \emph{Top:} Consider a star with a single
+            equatorial spot of contrast $c$ viewed at a certain inclination.
+            The total flux (in some units) as a function of time is shown as
+            the blue curve. Now, consider a second star,
+            identical in all respects to the first, except that (1) the equatorial spot
+            has half the contrast (i.e., $\nicefrac{c}{2}$); and (2) there is
+            a second, large spot centered on the pole. The corresponding light
+            curve is shown as the dashed orange curve.
+            The orange light curve is different from the blue one in two ways:
+            (1) since the equatorial spot has half the contrast, the amplitude of the associated
+            dips in the light curve is half that of the first star; and
+            (2) since the polar spot is azimuthally symmetric, its only
+            contribution is a net darkening at all phases.
+            \emph{Bottom:} The true baseline level of a stellar
+            light curve, which corresponds to the flux one would measure in the
+            absence of any spots, is almost always unknown. Photometric measurements
+            are therefore meaningful only in a relative sense, i.e., as deviations from
+            the mean, median, or maximum level of the light curve.
+            The bottom panel shows the same two light curves, this time plotted as
+            deviations in parts per thousand (ppt) from their respective maxima.
+            To the observer, the two light curves are \emph{indistinguishable}.
+            In the absence of baseline information, there
+            exists a perfect degeneracy between the total spot coverage
+            and the contrast of any individual feature on the surface.
+            As a consequence, the total spot coverage of a star cannot be
+            inferred from relative photometry.
+            \label{fig:mean_normalization}
+        }
+    \end{centering}
+\end{figure}
+
+The second point is of more immediate concern, since we must correct our
+expression for the covariance matrix
+$\pmb{\Sigma}(P, \mathbf{u}, \pmb{\theta}_\bullet)$ if we are to
+use our GP to model normalized light curves. For definiteness, let us
+consider only mean-normalized light curves.%
+\footnote{In practice, the expressions derived below also work well
+    for median-normalized light curves, since the distribution of the GP sample median
+    is usually close to the distribution of the sample mean.}
+Since we are dividing the
+flux by the mean, one might imagine that we could simply divide the
+covariance matrix by the square of the mean. However,
+this is incorrect, since we must be careful to distinguish between the
+\emph{sample} mean and the \emph{process} mean. When normalizing a light
+curve by the mean, the operation we perform is
+%
+\begin{align}
+    \label{eq:ftilde}
+    \tilde{\mathbbb{f}\hspace{0.2em}} & = \frac{\mathbbb{f}}{\left<\mathbb{f}\right>}
+    \quad,
+\end{align}
+%
+where $\tilde{\mathbbb{f}\hspace{0.2em}}$ is the normalized, unit-mean light curve,
+$\mathbbb{f}$ is the measured light curve (in detector counts), and
+$\left<\mathbb{f}\right>$ is the \emph{sample} mean: i.e., the average value of
+a given star's light curve (which we model as a sample from our GP).
+This may be close to but is in general different from the \emph{process} mean,
+$\pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)$, since the mean of
+a draw from the GP is itself normally distributed with a variance that scales
+with the GP variance.%
+\footnote{
+    Importantly, the sample mean and process mean will be different even in the
+    absence of measurement error! In other words, the mean flux of a given
+    star (i.e., the sample mean)
+    will in general be different from the mean flux \emph{across all stars} with similar
+    surface properties (the process mean).
+}
+
+Computing the covariance of the normalized process is tricky, especially
+because the normalized process is \emph{not} strictly Gaussian: the distribution
+has heavy tails due to the fact that $\tilde{\mathbbb{f}\hspace{0.2em}}$ diverges as
+the sample mean approaches zero. In fact, because of these tails, the covariance
+of the normalized process is formally \emph{infinite}, since the probability of
+drawing a sample whose mean is arbitrarily close to zero is finite.
+
+If this is all starting to sound like a bad idea, that's because it is!
+A much safer approach is to resist the temptation to normalize the light curve
+and instead model the unknown multiplicative amplitude as a latent variable. However,
+this would require an extra parameter \emph{for every light curve}, so the
+computational savings we achieved by marginalizing out the inclination
+would be gone. Fortunately, in practice, the variance of a stellar light curve
+is usually small compared to its mean: stellar variability amplitudes are
+typically at the level of a few percent or lower. When this is the case,
+the probability of drawing a GP sample whose mean is close to zero is
+extremely small, and we can make use of the approximate expression derived
+in \citet{Luger2021} for the covariance of a normalized Gaussian process:
+%
+\begin{proof}{test_normgp}
+    \label{eq:SigmaTilde}
+    \tilde{\pmb{\Sigma}}
+    & \approx
+    \frac{A}{\mu^2} \pmb{\Sigma} +
+    z \Big(
+    (A + B) \, (\mathbf{1} - \mathbf{q}) \, (\mathbf{1} - \mathbf{q})^\top
+    - A \, \mathbf{q} \, \mathbf{q}^\top
+    \Big)
+    \quad,
+\end{proof}
+%
+where
+%
+\begin{align}
+    \label{eq:z}
+    z & \equiv \frac{\left< \Sigma \right>}{\mu^2}
+\end{align}
+%
+is the ratio of the average element in $\pmb{\Sigma}$
+to the square of the mean of the Gaussian process,
+$\mathbf{q}$ is the ratio of the average of each row in $\pmb{\Sigma}$
+to the average element in $\pmb{\Sigma}$, and $A$, $B$ are
+order unity and zero scalars, respectively,
+given by the optimally-truncated diverging series
+%
+\begin{align}
+    \label{eq:baseline_alpha}
+    A
+     & \equiv
+    \sum\limits_{i=0}^{i_\mathrm{max}}
+    \frac{(2i + 1)!}{2^i \, i!}
+    z^i
+    \\[1em]
+    \label{eq:baseline_beta}
+    B
+     & \equiv
+    \sum\limits_{i=0}^{i_\mathrm{max}}
+    \frac{2i(2i + 1)!}{2^i \, i!}
+    z^i
+    \quad,
+\end{align}
+%
+where $i_\mathrm{max}$ is the largest value for which the series coefficient at $i_\mathrm{max}$ is
+smaller than the coefficient at $i_\mathrm{max} - 1$. In the expressions above, it is
+assumed that the mean $\pmb{\mu}$ is constant, i.e., $\pmb{\mu} = \mu\, \mathbf{1}$.
+Since our Gaussian process is azimuthally isotropic (i.e., no preferred
+longitude), that is the case throughout this paper.
+
+What Equation~(\ref{eq:SigmaTilde}) allows us to do is effectively marginalize over
+the unknown baseline by modeling the \emph{normalized} flux as a draw
+from a Gaussian process:
+%
+\begin{align}
+    \tilde{\mathbbb{f}\hspace{0.2em}}
+    \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \sim
+    \mathcal{N}\left(
+    \mathbf{1},
+    \tilde{\pmb{\Sigma}} \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \right)
+    \quad.
+\end{align}
+%
+This is appropriate as long as $z \ll 1$, for which the true
+distribution of $\tilde{\mathbbb{f}\hspace{0.2em}}$ is approximately Gaussian. In practice,
+we recommend employing this trick only for $z \lesssim 0.02$, for which the
+error in the approximation to the covariance is less than $10^{-6}$.
+In cases where the light curve variability exceeds about ten percent, we recommend
+modeling the multiplicative amplitude in each light curve as a latent variable, as discussed
+above.
+
+\begin{figure}[p!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/normgp.pdf}
+        \oscaption{normgp}{%
+            An example of a flux covariance matrix $\pmb{\Sigma}$ for a
+            \starry process (left) and the corresponding covariance of the
+            normalized process (right), computed from Equation~(\ref{eq:SigmaTilde}).
+            In addition to an offset and an overall scaling relative to the
+            original covariance matrix, the covariance of the normalized process
+            is discernibly non-stationary (see Figure~\ref{fig:nonstationarity}).
+            \label{fig:normgp}
+        }
+    \end{centering}
+\end{figure}
+
+\begin{figure}[p!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/nonstationarity.pdf}
+        \oscaption{nonstationarity}{%
+            An example of why normalized light curves are non-stationary.
+            The top panel shows $1{,}000$ samples from a unit-mean sinusoid with
+            an amplitude of 10\% and a period of 10 days, much longer than the
+            1 day observation baseline. The bottom panel shows the same light curves,
+            each normalized to its own mean. Because the mean tends to be near
+            the center of the observation window, points near $t=0.5$ are driven
+            to values very close to unity, while points near the edges have much
+            larger scatter.
+            \label{fig:nonstationarity}
+        }
+    \end{centering}
+\end{figure}
+
+Figure~\ref{fig:normgp} shows an example of a covariance matrix normalized
+according to the procedure outlined above. The principal difference between
+the normalized covariance and the original covariance is an overall
+scaling and a small offset. However, the normalization also results in
+the process becoming non-stationary: the covariance between two points in
+a light curve is now slightly dependent on their phases.
+
+To understand why normalized light curves are non-stationary, it is useful to
+consider the
+toy example in Figure~\ref{fig:nonstationarity}, in which we draw
+$1{,}000$ samples from a sinusoid with period ten times longer than the
+observational baseline. In this limit, each light curve is approximately
+linear, which causes its mean value to roughly coincide with the midpoint of the
+observation window. Division by the mean value results in points near the
+midpoint being driven to unity and points near the edges (whose values differ
+the most from the mean) to be driven to both large and small values. The
+variance across all samples is now distinctly phase-dependent.
+%
+In general, the non-stationarity will be most extreme in cases where the
+observation window is shorter than or comparable to one period, and
+asymptotically vanishes in the limit that a large number of cycles are
+observed.
 
 \subsection{The baseline degeneracy}
 \label{sec:breaking_baseline_degeneracy}
