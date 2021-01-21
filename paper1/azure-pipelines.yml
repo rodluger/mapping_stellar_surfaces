@@ -52,6 +52,8 @@ jobs:
       pip install -U xarray==0.16.0
       pip install -U theano==1.0.5
       pip install git+git://github.com/rodluger/starry_process.git#v0.9.0
+
+      python paper1/figures/degeneracies.py
     displayName: 'Install dependencies'
 
   - script: |
