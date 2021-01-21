@@ -144,7 +144,6 @@ ax_lc.plot(t, flux, lw=lw[0], label="{}".format(1))
 
 # Get their Ylm expansions and visualize their maps
 for n in range(N):
-    print(n)
     star.add_spot(
         lon=lon[n], lat=lat[n], radius=radius[n], contrast=contrast[n]
     )

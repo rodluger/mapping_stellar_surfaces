@@ -57,6 +57,7 @@ jobs:
       . $CONDA/etc/profile.d/conda.sh
       conda activate starry_process
       cd $(Build.SourcesDirectory)/$(paper)
+      python figures/degeneracies.py
       make
     displayName: 'Build the paper'
     env:
