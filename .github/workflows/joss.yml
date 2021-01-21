@@ -16,6 +16,7 @@ jobs:
       - name: Push to GitHub
         run: |
           git checkout --orphan joss-pdf
+          git rm -rf .
           git add -f joss/paper.pdf
           git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "building JOSS paper"
           git push -q -f https://github.com/$GITHUB_REPOSITORY joss-pdf
