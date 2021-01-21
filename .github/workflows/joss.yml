@@ -13,9 +13,10 @@ jobs:
         with:
           journal: joss
           paper-path: joss/paper.md
-      - name: Upload
-        uses: actions/upload-artifact@v1
-        with:
-          name: paper
-          path: joss/paper.pdf
- 
+      - name: Push to GitHub
+        run: |
+          git checkout --orphan joss-pdf
+          git add -f joss/paper.pdf
+          git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "building JOSS paper"
+          git push -q -f https://github.com/$GITHUB_REPOSITORY joss-pdf
+    
