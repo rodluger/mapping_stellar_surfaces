@@ -1,8 +1,10 @@
 name: Paper1
 
 variables:
-- name: slug
-  value: rodluger/mapping_stellar_surfaces
+- name: user
+  value: rodluger
+- name: repo
+  value: mapping_stellar_surfaces
 - name: paper
   value: paper1
 
@@ -29,36 +31,12 @@ jobs:
   - script: |
       sudo chown -R $USER $CONDA
       . $CONDA/etc/profile.d/conda.sh
-      conda create --yes --quiet --name starry_process python=3.7.3 pip
+      conda env create --yes --quiet -f $(paper)/environment.yml
     displayName: 'Setup conda'
 
   - script: |
       . $CONDA/etc/profile.d/conda.sh
-      conda activate starry_process
-      conda install -y -q numpy scipy mkl openblas=0.3.6 sympy
-      pip install theano
-      theano-cache purge
-      pip install -U pip
-      pip install -U setuptools
-      conda install -y -q -c conda-forge tectonic
-      pip install -U dynesty
-      pip install -U emcee
-      pip install -U pymc3<3.10.0
-      pip install -U pymc3-ext>=0.0.2
-      pip install -U corner
-      pip install -U parameterized nose pytest pytest-dependency pytest-env
-      pip install -U starry@git+https://github.com/rodluger/starry@master
-      pip install -U healpy
-      pip install -U xarray==0.16.0
-      pip install -U theano==1.0.5
-      pip install git+git://github.com/rodluger/starry_process.git#v0.9.0
-
-      python paper1/figures/degeneracies.py
-    displayName: 'Install dependencies'
-
-  - script: |
-      . $CONDA/etc/profile.d/conda.sh
-      conda activate starry_process
+      conda activate mapping_stellar_surfaces
       cd $(Build.SourcesDirectory)/$(paper)
       make
     displayName: 'Build the paper'
@@ -73,7 +51,7 @@ jobs:
       git add -f figures/*.pdf
       git add -f figures/*.png
       git -c user.name='azure' -c user.email='azure' commit -m "building $(paper)"
-      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/$(slug) $(paper)-pdf >/dev/null 2>&1
+      git push -q -f https://$GITHUB_USER:$GITHUB_API_KEY@github.com/$(user)/$(repo) $(paper)-pdf >/dev/null 2>&1
     displayName: 'Upload the paper'
     env:
       GITHUB_API_KEY: $(GITHUB_API_KEY)
