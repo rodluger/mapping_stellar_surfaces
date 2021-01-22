@@ -197,24 +197,13 @@ will in general vary, but in principle it could be quite significant.
 \section{The null space}
 \label{sec:nullspace}
 
-\begin{figure}[p!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/nullspace_0.pdf}
-        \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_1.pdf}
-        \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_2.pdf}
-        \oscaption{nullspace}{%
-            The nullspace decomposition.
-            \label{fig:nullspace}
-        }
-    \end{centering}
-\end{figure}
-
+\subsection{Rank of the flux operator}
+%
 In general, inferring the properties of a stellar surface from its light curve is not
 only difficult, but \emph{formally impossible}. To understand why, consider
 an expansion of the stellar surface intensity in the spherical
-harmonic basis (see Figure~\ref{fig:ylms}). Assuming (for the moment) that the
+harmonic basis out to arbitrary order (see Figure~\ref{fig:ylms}).
+Assuming (for the moment) that the
 star rotates about an axis that points up along the page, the observed
 light curve may be expressed as a weighted sum of the disk-integrated intensity
 of each of the spherical harmonics as they rotate about that same axis.
@@ -229,119 +218,394 @@ spherical harmonics that similarly integrate to zero at all rotational
 phases. Together, these modes constitute the \emph{null space} of the problem:
 the set of modes on the surface that do not contribute to the observed
 light curve and therefore cannot be probed from photometry.
-As we will see below, the vast majority of the surface modes lie at least in part in the null
-space.
 
-\xxx{A little linear algebra here:}
+For rotational light curves,
+the vast majority of the surface modes lie at least partly in the null
+space. To show this, we will make use of the fact that we can express
+the vector of $K$ observed fluxes $\mathbf{f}$ (i.e., the light curve)
+as a purely linear operation on the vector of $N$
+spherical harmonic coefficients $\mathbf{y}$ \citep{Luger2019}:
+%
+\begin{align}
+    \label{eq:fAy}
+    \mathbf{f} = \mathbf{A} \, \mathbf{y}
+    \quad,
+\end{align}
+%
+where $\mathbf{A}$ is the $(K \times N)$ \emph{design matrix} of the transformation, whose columns
+describe how each of the $N$ components in the spherical harmonic basis contribute
+to each of the $K$ points in the light curve.%
+\footnote{%
+    For rotational light curves, the rows of $\mathbf{A}$ are given by the
+    quantity $\mathbf{r}^\top \mathbf{A}_1 \mathbf{R}$ in Equation~(18) of
+    \citet{Luger2019}, where $\mathbf{r}^\top$ is a vector of disk-integrated
+    intensities, $\mathbf{A}_1$ is a change of basis matrix, and $\mathbf{R}$
+    is a spherical harmonic rotation matrix that depends on the stellar inclination
+    and the rotational phase of the star. Refer to that paper for more details.
+}
+%
+Even though we are explicitly choosing the spherical harmonics as the basis in which
+we describe the stellar surface, Equation~(\ref{eq:fAy}) is quite general and applies to
+\emph{any} basis that is linearly related to the flux. For instance, $\mathbf{y}$
+could instead describe the intensities in each of the $N$ pixels of a gridded stellar
+surface, in which case $\mathbf{A}$ would be the matrix of pixel visibilities that describe
+how to sum each of the pixels to obtain the observed light curve.
 
+The size of the null space is called the \emph{nullity}, and it is equal to
+$N - R$, where $N$ is once again the number of coefficients describing the
+stellar surface and $R$ is the \emph{rank} of the flux operator $\mathbf{A}$.
+The rank $R$ is the number of linearly independent columns in $\mathbf{A}$, which
+can be easily computed with any modern linear algebra package. It is equal
+to the number of independent signals (or components) that can be measured given
+an observation of $\mathbf{f}$.
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=0.65\linewidth]{figures/rank.pdf}
+        \oscaption{rank}{%
+            Rank and nullity of the flux operator.
+            \label{fig:rank}
+        }
+    \end{centering}
+\end{figure}
+
+Figure~\ref{fig:rank} shows the rank and nullity of the flux operator
+as a function of the resolution of the surface map (quantified as the
+spherical harmonic degree $l$ of the expansion). The orange
+curve is the number of spherical harmonic coefficients needed to
+represent a surface map up to degree $l$, and is equal to $N = (l + 1)^2$.
+The blue dots show the rank of the flux operator $\mathbf{A}$ as a function
+of $l$, and the blue line is the function $R = 2l + 1$. The nullity is
+simply the difference between $N$ and $R$.
+
+The most striking feature in Figure~\ref{fig:rank} is how quickly the two
+curves diverge as $l$ increases. What this means for the mapping problem
+is that the number of surface modes---the total information needed to
+represent a surface map at some resolution---grows much quicker than the
+number of independent signals in the light curve.
 %
-Linear mapping:
+At all but the lowest resolutions, there are always more features in the
+null space than signals one can measure in the light curve, and difference
+that grows \emph{quadratically} with $l$.
+%
+This means that although a light curve can tell us some information about
+a stellar surface on very large scales, the amount of information it tells
+us quickly decreases for smaller scales and all but vanishes for the smallest
+surface features.
+
+\subsection{Decomposition of the flux operator}
+%
+To better understand the properties of the null space of the light curve
+mapping problem, let
+%
+us use singular value decomposition (SVD) to express
+the flux operator as
 %
 \begin{align}
-    \mathbf{f} = \mathbf{A} \mathbf{y}
+    \mathbf{A} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
+    \quad,
 \end{align}
 %
-SVD:
+where $\mathbf{U}$ is a $(K \times K)$ orthogonal matrix,
+$\mathbf{V}$ is a $(N \times N)$ orthogonal matrix,
+and $\mathbf{S}$ is a $(K \times N)$ diagonal matrix.
+%
+The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and right
+\emph{singular vectors} of $\mathbf{A}$, and the entries along the
+diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\mathbf{A}$
+has rank $R$, the first $R$ singular values will be nonzero, while the
+remaining $N - R$ will be identically zero.
+If we assume for definitess that $K > N$ (i.e., we have more flux observations
+than surface map coefficients we're trying to constrain), we can express the
+SVD matrices as
 %
 \begin{align}
-    \mathbf{A} = \mathbf{U} \mathbf{S} \mathbf{V}^\top
-\end{align}
-%
-where $\mathbf{U}$ and $\mathbf{V}$ are
-$(K \times N)$ orthogonal matrices
-and $\mathbf{S}$ is a $(N \times N)$ diagonal matrix
-containing the $R$ nonzero singular values as well as
-$N - R$ zeros.
-%
-Write
-%
-\begin{align}
-    \mathbf{A} =
-    \begin{pmatrix}
-        \mathbf{U}_\bullet & \mathbf{U}_\circ
-    \end{pmatrix}
-    \begin{pmatrix}
-        \mathbf{S} &            \\
-                   & \mathbf{0}
-    \end{pmatrix}
-    \begin{pmatrix}
-        \mathbf{V}_\bullet^\top \\
-        \mathbf{V}_\circ^\top
-    \end{pmatrix}
-\end{align}
-%
-Note that because $\mathbf{V}$ is orthogonal,
-%
-\begin{align}
-    \mathbf{V}^\top \mathbf{V} = \mathbf{I}
-\end{align}
-%
-and further
-%
-\begin{align}
-    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet = \mathbf{I}
-\end{align}
-%
-and
-\begin{align}
-    \mathbf{V}_\circ^\top \mathbf{V}_\circ = \mathbf{I}
-\end{align}
-%
-Then
-%
-\begin{align}
-    \mathbf{f} & = \mathbf{A} \mathbf{y}
-    \\
-               & =
-    \begin{pmatrix}
-        \mathbf{U}_\bullet & \mathbf{U}_\circ
-    \end{pmatrix}
-    \begin{pmatrix}
-        \mathbf{S} &            \\
-                   & \mathbf{0}
-    \end{pmatrix}
-    \begin{pmatrix}
-        \mathbf{V}_\bullet^\top \\
-        \mathbf{V}_\circ^\top
-    \end{pmatrix}
-    \mathbf{y}
-    \\
-               & =
-    \mathbf{U}_\bullet \mathbf{S} \mathbf{V}_\bullet^\top \mathbf{y}
-    +
-    \mathbf{U}_\circ \mathbf{0} \mathbf{V}_\circ^\top \mathbf{y}
-    \\
-               & =
-    \mathbf{U}_\bullet \mathbf{S} (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \mathbf{y}
-    +
-    \mathbf{U}_\circ \mathbf{0} (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \mathbf{y}
-    \\
-               & =
-    (\mathbf{U}_\bullet \mathbf{S} \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
-    +
-    (\mathbf{U}_\circ \mathbf{0} \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
-    \\
-               & =
-    \mathbf{A} \mathbf{y}_\bullet
-    +
-    \mathbf{0} \mathbf{y}_\circ
+    \mathbf{U}
+     & =
+    \left(
+    \begin{array}{ccc|ccc}
+            \mathbf{U}_{0,0}          & \cdots & \mathbf{U}_{0,R\text{-}1}          & \mathbf{U}_{0,R}          & \cdots & \mathbf{U}_{0,K\text{-}1}          \\
+            \vdots                    & \cdots & \vdots                             & \vdots                    & \cdots & \vdots                             \\
+            \mathbf{U}_{K\text{-}1,0} & \cdots & \mathbf{U}_{K\text{-}1,R\text{-}1} & \mathbf{U}_{K\text{-}1,R} & \cdots & \mathbf{U}_{K\text{-}1,K\text{-}1}
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    %
+    \\[1.5em]
+    %
+    \label{eq:S}
+    \mathbf{S}
+     & =
+    \left(
+    \begin{array}{ccc|ccc}
+            \mathbf{S}_{0,0}\phantom{y} &                                     &                                    &                             &                                     &                                    \\
+                                        & \ddots                              &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                        &                                     & \mathbf{S}_{R\text{-}1,R\text{-}1} &                             &                                     &                                    \\
+            \hline
+                                        &                                     &                                    & \mathbf{S}_{R,R}\phantom{y} &                                     &                                    \\
+                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \ddots                              &                                    \\
+                                        &                                     &                                    &                             &                                     & \mathbf{S}_{N\text{-}1,N\text{-}1} \\
+                                        &                                     &                                    &                             &                                     &                                    \\
+                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                        &                                     &                                    &                             &                                     &
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    %
+    \\[1.5em]
+    %
+    \mathbf{V}^\top
+     & =
+    \left(
+    \begin{array}{cccccc}
+            \mathbf{V}_{0,0}^\top          & \cdots & \mathbf{V}_{0,N\text{-}1}^\top          \\
+            \vdots                         & \cdots & \vdots                                  \\
+            \mathbf{V}_{R\text{-}1,0}^\top & \cdots & \mathbf{V}_{R\text{-}1,N\text{-}1}^\top \\[0.5em]
+            \hline                                                                            \\[-0.85em]
+            \mathbf{V}_{R,0}^\top          & \cdots & \mathbf{V}_{R,N\text{-}1}^\top          \\
+            \vdots                         & \cdots & \vdots                                  \\
+            \mathbf{V}_{N\text{-}1,0}^\top & \cdots & \mathbf{V}_{N\text{-}1,N\text{-}1}^\top
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right)
 \end{align}
 %
 where
-%
-\begin{align}
-    \mathbf{y}_\bullet \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
-\end{align}
-%
+$\mathbf{U}_\bullet$ is $(K \times R)$,
+$\mathbf{U}_\circ$ is $(K \times K - R)$,
+$\mathbf{S}_\bullet$ is $(R \times R)$,
+$\mathbf{S}_\circ$ is $(K - R \times N - R)$,
+$\mathbf{V}_\bullet^\top$ is $(R \times N)$,
 and
+$\mathbf{V}_\circ^\top$ is $(N - R \times N)$.
+%
+We may then express the decomposition of $\mathbf{A}$ as
 %
 \begin{align}
-    \mathbf{y}_\circ \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
+    \label{eq:A}
+    \mathbf{A} =
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right)
+    \quad.
 \end{align}
 %
-are the row space and null space components of $\mathbf{y}$.
+Inserting this into Equation~(\ref{eq:fAy}), we have
+%
+\begin{align}
+    \label{eq:ydecomp}
+    \mathbf{f} & = \mathbf{A} \, \mathbf{y}
+    \nonumber                               \\
+               & =
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right) \mathbf{y}
+    \nonumber                               \\[0.5em]
+               & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+               & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\,\mathbf{I}\,) \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ (\,\mathbf{I}\,) \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+               & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+               & =
+    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+               & =
+    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \, \mathbf{y}_\bullet
+    +
+    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \, \mathbf{y}_\circ
+\end{align}
+%
+where we defined
+%
+\begin{align}
+    \label{eq:yrow}
+    \mathbf{y}_\bullet & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
+    \\
+    \label{eq:ynull}
+    \mathbf{y}_\circ   & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
+    \quad,
+\end{align}
+%
+and we used the fact that since $\mathbf{V}^\top$ is orthogonal,
+%
+\begin{align}
+    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet & = \mathbf{I}
+    \nonumber                                                 \\
+    \mathbf{V}_\circ^\top \mathbf{V}_\circ     & = \mathbf{I}
+    \quad,
+\end{align}
+%
+where $\mathbf{I}$ is the identity matrix.
+%
+Now, recalling that $R$ is the number of nonzero singular values in
+$\mathbf{S}$, it is evident from Equation~(\ref{eq:S}) that
+%
+\begin{align}
+    \label{eq:S0}
+    \mathbf{S}_\circ = \mathbf{0}
+    \quad.
+\end{align}
+%
+Therefore we may write Equation~(\ref{eq:ydecomp}) as
+%
+\begin{equation}
+    \boxed{
+        \mathbf{f} = \mathbf{A} \, \mathbf{y}_\bullet
+        +
+        \mathbf{0} \, \mathbf{y}_\circ
+    }
+\end{equation}
+%
+where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \mathbf{A}$
+follows directly from Equations~(\ref{eq:A}) and (\ref{eq:S0}).
+
+So what does this all mean? By performing SVD, we separated
+the surface map representation $\mathbf{y}$ into orthogonal components
+$\mathbf{y}_\bullet$ and $\mathbf{y}_\circ$, consisting of the
+terms that contribute to the light curve $\mathbf{f}$ and those
+that don't, respectively. In particular, it is useful to consider
+the linear operators we used to perform this decomposition
+in Equations~(\ref{eq:yrow}) and (\ref{eq:ynull}):
+%
+\begin{align}
+    \mathbf{P} & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top
+    \\
+    \mathbf{N} & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top
+    \quad,
+\end{align}
+%
+which we will call the \emph{preimage operator} and \emph{null space
+    operator}, respectively. The preimage operator $\mathbf{P}$
+transforms a vector $\mathbf{y}$ in the surface map basis in such a way
+that it preserves the information in $\mathbf{y}$ that gets mapped
+onto the light curve $\mathbf{f}$ via $\mathbf{A}$ (the \emph{preimage}) and discards the rest. The
+null space operator $\mathbf{N}$ does the opposite: it preserves only
+the information in $\mathbf{y}$ that gets mapped onto the zero
+vector via $\mathbf{A}$ (the \emph{null space}).
+%
+In other words,
+the $\mathbf{P}$ and $\mathbf{N}$ operators reveal the
+components of the surface map $\mathbf{y}_\bullet$ that contribute to the
+light curve and the components $\mathbf{y}_\circ$ that don't.
+Likewise, $\mathbf{y}_\bullet$ represents all the information that can be
+learned from a stellar light curve, and $\mathbf{y}_\circ$ represents all the
+information that cannot.
+
+\begin{figure}[p!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/nullspace_0.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_1.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_2.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_3.pdf}
+        \oscaption{nullspace}{%
+            Decomposition of a surface map (left column) into its
+            preimage (center) and null space (right) components
+            for different surfaces, and their corresponding contributions
+            to the light curve. The preimage is the
+            set of surfaces modes that map onto the light curve;
+            the null space is the set of modes that do not.
+            An inclination of $60^\circ$ is assumed in all plots.
+            The vast majority of surface modes are in the null space
+            of the light curve problem and therefore do not contribute
+            to the observed flux.
+            \label{fig:nullspace}
+        }
+    \end{centering}
+\end{figure}
+
+It is instructive to actually visualize these components in a
+an actual surface mapping exercise. Figure~\ref{fig:nullspace}
+shows the decomposition of four hypothetical surfaces (left
+column) into its preimage (center) and the null space (right)
+components under the flux operator $\mathbf{A}$, which we compute for
+definiteness at an inclination of $I = 60^\circ$ over a full rotation.
+The light curves corresponding to each of these surfaces are also shown.
+Note that both the true map and its associated light curve are simply equal to
+the sum of the preimage and null space components.%
+\footnote{%
+    This follows from the orthogonality of $\mathbf{V}$:
+    $
+        \mathbf{V} \mathbf{V}^\top =
+        \mathbf{I} =
+        \mathbf{V}_\bullet \mathbf{V}_\bullet^\top  + \mathbf{V}_\circ \mathbf{V}_\circ^\top =
+        \mathbf{P} + \mathbf{N}
+    $, so $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
+}
+
+As expected, all of the information in the light curve comes
+from the preimage, and the null space contributes exactly zero
+flux at all phases. However, most of the information about the
+\emph{surface} is stuck in the null space!
+
 
 \xxx{More on this.}
+
 
 But what if the star rotates about a different axis? A useful property of
 the spherical harmonics is that rotation about any axis can only change the
@@ -575,7 +839,7 @@ up to a degree equal to the order of the limb darkening
 \citep[in this case, $l = 2$;][and Appendix~\ref{sec:ld}]{Luger2019,Agol2020}.
 Since the limb darkening operation is a (multiplicative) downweighting of
 the surface intensity, the map seen by the observer is just the product
-of the spherical harmonic representation of the surface ($\mathbf{y}$)
+of the spherical harmonic representation of the surface ($\mathbf{f}$)
 and the spherical harmonic representation of the limb darkening profile.
 And since spherical harmonics are just polynomials on the surface of the sphere,
 the product of spherical harmonics of degree $l_1$ and $l_2$ is a spherical

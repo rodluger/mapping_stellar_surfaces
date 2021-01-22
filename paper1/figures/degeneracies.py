@@ -29,6 +29,10 @@ class Star(object):
         self.N = VT[rank:].T @ VT[rank:]  # null space operator
         self.R = VT[:rank].T @ VT[:rank]  # row space operator
 
+        plt.imshow(self.N + self.R)
+        plt.show()
+        quit()
+
         # cos(lat)-weighted SHT
         w = np.cos(self.lat.flatten() * np.pi / 180)
         P = self.map.intensity_design_matrix(

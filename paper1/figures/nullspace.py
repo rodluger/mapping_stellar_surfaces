@@ -68,27 +68,42 @@ class Star(object):
 ydeg = 15
 norm = Normalize(vmin=0.9, vmax=1.025)
 star = Star(ydeg=ydeg)
-nspots = [1, 5, 20]
-radius = [25, 20, 10]
-contrast = [0.2, 0.1, 0.2]
-seeds = [3, 3, 3]
+nspots = [1, 5, 20, None]
+radius = [25, 20, 10, None]
+contrast = [0.2, 0.1, 0.2, None]
+seeds = [3, 3, 3, None]
 nplots = len(nspots)
 
-#
 for k in range(nplots):
 
     # Seed the randomizer
     np.random.seed(seeds[k])
 
     # Get the ylm expansion
-    star.reset()
-    for n in range(nspots[k]):
-        longitude = np.random.uniform(-180, 180)
-        latitude = (
-            (np.arccos(np.random.uniform(-1, 1)) - np.pi / 2) * 180 / np.pi
+    if nspots[k] is not None:
+        # Add spots to the star
+        star.reset()
+        for n in range(nspots[k]):
+            longitude = np.random.uniform(-180, 180)
+            latitude = (
+                (np.arccos(np.random.uniform(-1, 1)) - np.pi / 2) * 180 / np.pi
+            )
+            star.add_spot(longitude, latitude, radius[k], contrast[k])
+        y = star.get_y()
+    else:
+        # Just for fun!
+        ydeg = 35
+        image = plt.imread(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "greetings.png"
+            )
         )
-        star.add_spot(longitude, latitude, radius[k], contrast[k])
-    y = star.get_y()
+        image = np.flipud(np.mean(image[:, :, :3], axis=-1))
+        image *= 0.15
+        image -= 0.15
+        star = Star(ydeg=ydeg, smoothing=0.03)
+        star.intensity = image
+        y = star.get_y()
 
     # Set up the figure
     fig, ax = plt.subplots(
@@ -182,6 +197,7 @@ for k in range(nplots):
         ):
             tick.label.set_fontsize(6)
         ax[1, n].tick_params(direction="in")
+        ax[0, n].set_rasterization_zorder(2)
 
     # We're done
     fig.savefig(
