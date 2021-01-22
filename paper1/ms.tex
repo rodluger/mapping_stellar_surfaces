@@ -597,15 +597,101 @@ the sum of the preimage and null space components.%
         \mathbf{P} + \mathbf{N}
     $, so $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
 }
-
+%
 As expected, all of the information in the light curve comes
 from the preimage, and the null space contributes exactly zero
 flux at all phases. However, most of the information about the
 \emph{surface} is stuck in the null space!
 
+In the top panel of the figure, it is clear that the light curve
+contains \emph{some} information about the presence of a spot at roughly the
+correct longitude and latitude. However, there are spurious features
 
-\xxx{More on this.}
+\xxx{More on this.... Discuss each of the rows in the Figure...}
 
+It may be helpful to consider Figure~\ref{fig:nullspace} in the
+context of an inference exercise. One can equivalently think of
+the preimage as the solution to a least squares inference problem
+in which a completely uninformative prior%
+\footnote{%
+    Specifically, we place a zero-mean, infinite variance prior on the coefficients of $\mathbf{y}$.
+}
+is placed on the spherical harmonic
+coefficients. In this case, the least squares solution is given by
+%
+\begin{proof}{test_svd}
+    \hat{\mathbf{y}}
+    &=
+    \lim_{\lambda \rightarrow 0} \left( \mathbf{A}^\top \mathbf{A} + \lambda \mathbf{I}\right)^{-1} \mathbf{A}^\top \mathbf{f}
+    \nonumber\\
+    &= \mathbf{y}_\bullet
+    \quad.
+\end{proof}
+%
+In this sense, $\mathbf{y}_\bullet$ represents our knowledge about the
+surface of a star after an observation if we have no prior information
+whatsoever on $\mathbf{y}$.
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=0.5\linewidth]{figures/infinite_pixels.pdf}
+        \oscaption{infinite_pixels}{%
+            Foo.
+            \label{fig:infinite_pixels}
+        }
+    \end{centering}
+\end{figure}
+
+Another point to keep in mind is that the particular decomposition of the
+surface map into its preimage and its nullspace will depend on the basis
+if the basis is not \emph{complete} (which, in practice, will almost
+certainly be the case).%
+
+\xxx{FOO BAR}
+
+%
+In other words, if we instead carry out our inference in a pixel basis
+with a finite number of pixels $P$,
+the preimage (or, equivalently, our least squares solution with an uninformative
+prior) will be different than that shown in Figure~\ref{fig:nullspace}.
+Interestingly, however,
+this difference will tend to zero as $P$ is increased.
+%
+Figure~\ref{fig:infinite_pixels} shows the fractional difference between
+the least squares solution to the mapping problem in the spherical harmonic
+basis and the solution in the pixel basis, as a function of the number of
+pixels $P$. The difference is computed in the spherical harmonic basis
+by transforming the pixel solution
+to the spherical harmonic basis (blue) and in the pixel basis by transforming
+the spherical harmonic solution to the pixel basis (orange). Both methods yield
+essentially the same result: the difference between the two solutions
+tends to zero as the number of pixels $P$ is increased.%
+
+
+
+
+\subsection{Dependence on inclination}
+
+\xxx{Words here, Figure~\ref{fig:nullspace_ensemble}, etc.}
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/nullspace_ensemble_single.pdf}
+        \oscaption{nullspace_ensemble}{%
+            Posterior shrinkage...
+            \label{fig:nullspace_ensemble_single}
+        }
+    \end{centering}
+\end{figure}
+
+%
+\begin{align}
+    \label{eq:shrinkage}
+    R \equiv 1 - \lim\limits_{\sigma_0^2 \rightarrow \infty}
+    \frac{\sigma^2}{\sigma_0^2}
+    \quad,
+\end{align}
+%
 
 But what if the star rotates about a different axis? A useful property of
 the spherical harmonics is that rotation about any axis can only change the
@@ -637,17 +723,9 @@ constraining of the spot properties at the population level. In the
 following section, we explore the role of ensemble analyses in breaking
 the degeneracies of the mapping problem in more detail.
 
-\begin{figure}[t!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/nullspace_ensemble_single.pdf}
-        \oscaption{nullspace_ensemble}{%
-            Posterior shrinkage...
-            \label{fig:nullspace_ensemble_single}
-        }
-    \end{centering}
-\end{figure}
 
-\subsection{Why ensemble analyses work}
+
+\subsection{Ensemble analyses work}
 \label{sec:ensemble}
 
 To quantify the power of ensemble analyses,
