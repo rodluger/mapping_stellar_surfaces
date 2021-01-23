@@ -11,5 +11,6 @@
 </a>
 
 <p>
-Source code for the **Mapping Stellar Surfaces** paper series.
+<br/>
+Source code for the Mapping Stellar Surfaces paper series.
 </p>
