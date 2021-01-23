@@ -24,7 +24,7 @@
 \title{%
     \textbf{
         Mapping stellar surfaces\\
-        II: An interpretable Gaussian process model
+        II: An interpretable Gaussian process model for light curves
     }
 }
 
@@ -321,23 +321,15 @@ using the Azure Pipelines continuous integration (CI) service, which
 ensures they are up to date with the latest version of the
 \starryprocess code. In particular, icons next to each of the figures \codeicon \,
 link to the exact script used to generate them to ensure the reproducibility
-of our results. In this paper we also introduce the concept of equation
+of our results. As in \citet{PaperI}, the principal equations are
+accompanied by
 ``unit tests'': \textsf{pytest}-compatible test scripts associated
 with the principal equations that pass (fail) if the equation is correct (wrong),
 in which case a clickable \testpassicon \, (\testfailicon) is shown next to the equation
 label.
 In most cases, the validity of an equation is gauged by comparison to
 a numerical solution. Like the figure scripts, the equation unit tests are
-run on Azure Pipelines upon every commit of the code.%
-\footnote{
-    These unit tests are certainly not foolproof: in particular, there is
-    no guarantee against a mismatch in the \LaTeX \, version of an equation
-    and its \Python implementation (e.g., due to an uncaught typo). However, they
-    \emph{do} ensure that the linked \Python implementation is correct to
-    within the accuracy of the numerical solution, providing readers with a
-    valid implementation of the equation for purposes of reproducibility.
-}
-
+run on Azure Pipelines upon every commit of the code.
 
 \section{A Gaussian Process for starspots}
 \label{sec:main}

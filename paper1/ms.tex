@@ -47,13 +47,34 @@
 \features{open-source figures \codeicon; equation unit tests: \input{tests/tally}}
 
 \begin{abstract}
-    \xxx{TODO: This paper is the first in a series on stellar mapping.
-        We talk about the degeneracies in the light curve ``inversion'' problem
-        and show how any result based on just one stellar light curve is necessarily
-        extremely prior-dominated. We show how these degeneracies can be broken with
-        ensemble analyses. We also discuss the baseline degeneracy, which isn't
-        always appreciated but has profound implications for what we can and cannot
-        know about a stellar surface.}
+    %
+    Thanks to missions like \emph{Kepler} and \emph{TESS}, we now
+    have access to tens of thousands of high precision, fast
+    cadence, and long baseline stellar photometric observations.
+    %
+    In principle, these light curves encode a vast amount of information about
+    stellar variability and, in particular, about the distribution of
+    starspots and other features on their surfaces.
+    %
+    Unfortunately, the problem of inferring stellar surface properties
+    from a rotational light curve is famously ill-posed;
+    any inference that relies exclusively on the light curve
+    of a single star is \emph{necessarily} prior-dominated.
+    %
+    The goal of this paper is twofold:
+    (1) to explore the various degeneracies affecting the stellar
+    light curve ``inversion'' problem and their effect on
+    what can and cannot be learned from a stellar surface
+    given unresolved photometric measurements; and
+    (2) to motivate ensemble analyses of the light curves of
+    many stars at once as a powerful method of breaking
+    these degeneracies.
+    %
+    This is the first in a series of papers devoted to the development
+    of novel algorithms and tools for the analysis of
+    stellar light curves and spectral timeseries, with the
+    explicit goal of enabling statistically robust inference
+    about their surface properties.
 \end{abstract}
 
 \section{Introduction}
@@ -134,36 +155,21 @@ background.
 While the stellar surfaces are all distinct, containing between one (top)
 and six (bottom) large dark spots,
 \textbf{their rotational light curves are identical}
-(lower panel). This is true even at infinite signal to
-noise: the mapping from a stellar surface
+(lower panel). This is true even in the absence of measurement
+error: the mapping from a stellar surface
 to its rotational light curve is so degenerate that there exist an infinite number of solutions
 to the inverse problem. This fact has been pointed out recently in different contexts
 \citep[e.g.,][]{Cowan2013,Luger2019,Basri2020}, but it dates back at least to
 \citet{Russell1906}, who demonstrated it by expanding the surface
-intensity of a celestial body in terms of spherical harmonics.
+intensity of a celestial body in terms of spherical harmonics
 (see Figure~\ref{fig:ylms}). \citet{Russell1906} showed
 that many of the modes comprising the intensity profile of a spherical
 object are in the \emph{null space}, the set of surface features that have identically
-zero effect on the light curve. In fact,
+zero effect on the light curve. In fact, as we will show in \S\ref{sec:nullspace},
 the \emph{vast majority} of the modes are in the null space for rotational
-light curves of stars (\S\ref{sec:nullspace}). This is what allows us to construct pathological
+light curves of stars. This is what allows us to construct pathological
 scenarios like that shown in Figure~\ref{fig:degeneracies}, where the light curve
 could be explained by any number of spots atop a heterogeneous bright background.
-
-\begin{figure}[t!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/ylms.pdf}
-        \oscaption{ylms}{%
-            The real spherical harmonics in the polar frame up to
-            $l = 5$, where dark colors correspond to negative intensity
-            and bright colors to positive intensity.
-            Rows correspond to the degree $l$ and columns to
-            the order $m$. The set of all spherical harmonics forms a
-            complete, orthogonal basis on the sphere.
-            \label{fig:ylms}
-        }
-    \end{centering}
-\end{figure}
 
 Stellar mapping studies tackle these degeneracies in different ways, but
 it usually comes down to a choice of prior: when the data is not
@@ -188,20 +194,79 @@ will in general vary, but in principle it could be quite significant.
 % Add to this photometric noise, the generally unknown stellar inclination,
 % the poorly constrained limb darkening parameters, and you get ... a mess.
 
-% Fortunately, although individual light curves are not very constraining,
-% we have \emph{a lot of them} thanks to missions like \emph{Kepler} and \emph{TESS}.
-% In this paper, we will thoroughly explore the power of ensemble analyses
-% in breaking the degeneracies inherent to the light curve mapping problem.
-% By jointly analyzing the light curves of many stars, we will show that it
-% is often possible to uniquely constrain statistical properties about their
-% surfaces. This idea was recently explored to some extent
-% in \citet{Morris2020}, who used ensemble analyses to derive constraints on
-% spot coverage areas as a function of stellar age (see \S\ref{sec:other-work}).
+The goal of this paper is to explore the degeneracies at play in the
+problem of inferring the properties of a stellar surface from its light curve.
+We will focus in particular on two sources of degeneracies: the
+null space intrinsic to the mapping from a two-dimensional surface to
+a one-dimensional light curve (\S\ref{sec:nullspace})
+and the degeneracy due to the unknowability of the true baseline in
+relative photometry (\S\ref{sec:baseline}). Within each section we
+will discuss ways to either break these degeneracies or explicitly marginalize
+over degenerate quantities.
+We will focus in particular on the power of ensemble analyses: the
+joint analysis of many light curves of statistically ``similar''
+stars. We will show that even though individual light curves are not very
+constraining, light curves of many stars
+observed at different inclinations can uniquely constrain certain
+properties of the surfaces of those stars.
+%
+This idea was recently explored to some extent
+in \citet{Morris2020}, who used ensemble analyses to derive constraints on
+spot coverage areas as a function of stellar age. However, one of
+the main conclusions of the present paper is that
+quantities like \textbf{the
+    total spot coverage, the typical spot contrast, and the total number of
+    spots are not observables in single-band photometry.} Instead,
+any constraints placed on these quantities, even in the context of
+ensemble analyses, are necessarily coming from the prior.
 
-\xxx{Outline of paper here. TODO: Cite Emily Rauscher's papers on eigen light curves.}
+This paper is the first in a series dedicated to the development of
+techniques to perform robust inference about stellar surfaces from
+unresolved photometric and spectroscopic measurements. The results
+of this paper serve as the starting point for the development of
+an interpretable Gaussian process for the ensemble analysis of
+stellar light curves, which is the subject of Paper II \citep{PaperII}.
+
+\vspace{1em}
+
+All of the figures in this paper were auto-generated
+using the Azure Pipelines continuous integration (CI) service.
+Icons next to each of the figures \codeicon \,
+link to the exact script used to generate them to ensure the reproducibility
+of our results. In this paper we also introduce the concept of equation
+``unit tests'': \textsf{pytest}-compatible test scripts associated
+with the principal equations that pass (fail) if the equation is correct (wrong),
+in which case a clickable \testpassicon \, (\testfailicon) is shown next to the equation
+label.
+In most cases, the validity of an equation is gauged by comparison to
+a numerical solution. Like the figure scripts, the equation unit tests are
+run on Azure Pipelines upon every commit of the code.%
+\footnote{
+    These unit tests are certainly not foolproof: in particular, there is
+    no guarantee against a mismatch in the \LaTeX \, version of an equation
+    and its \Python implementation (e.g., due to an uncaught typo). However, they
+    \emph{do} ensure that the linked \Python implementation is correct to
+    within the accuracy of the numerical solution, providing readers with a
+    valid implementation of the equation for purposes of reproducibility.
+}
 
 \section{The null space}
 \label{sec:nullspace}
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/ylms.pdf}
+        \oscaption{ylms}{%
+            The real spherical harmonics in the polar frame up to
+            $l = 5$, where dark colors correspond to negative intensity
+            and bright colors to positive intensity.
+            Rows correspond to the degree $l$ and columns to
+            the order $m$. The set of all spherical harmonics forms a
+            complete, orthogonal basis on the sphere.
+            \label{fig:ylms}
+        }
+    \end{centering}
+\end{figure}
 
 \subsection{Rank of the flux operator}
 %
@@ -269,7 +334,7 @@ an observation of $\mathbf{f}$.
     \begin{centering}
         \includegraphics[width=0.65\linewidth]{figures/rank.pdf}
         \oscaption{rank}{%
-            Rank and nullity of the flux operator.
+            Rank and nullity of the flux operator. \xxx{More info.}
             \label{fig:rank}
         }
     \end{centering}
@@ -563,6 +628,10 @@ Likewise, $\mathbf{y}_\bullet$ represents all the information that can be
 learned from a stellar light curve, and $\mathbf{y}_\circ$ represents all the
 information that cannot.
 
+\xxx{This is similar to what \citet{Rauscher2018} did.}
+
+\xxx{Remember to cite \citet{Walkowicz2013}.}
+
 \begin{figure}[p!]
     \begin{centering}
         %
@@ -591,7 +660,7 @@ information that cannot.
     \end{centering}
 \end{figure}
 
-It is instructive to actually visualize these components in
+It is instructive to visualize these components in
 an actual surface mapping exercise. Figure~\ref{fig:nullspace_preimage}
 shows the decomposition of four hypothetical surfaces (left
 column) into preimage (center) and null space (right)
@@ -617,8 +686,8 @@ flux at all phases. However, most of the information about the
 
 In the top panel of the figure, it is clear that the light curve
 contains \emph{some} information about the presence of a spot at roughly the
-correct longitude and latitude. However, there are spurious features
-
+correct longitude and latitude.
+\xxx{However, there are spurious features...}
 \xxx{More on this.... Discuss each of the rows in the Figure...}
 
 It may also be helpful to consider Figure~\ref{fig:nullspace_preimage} in the
@@ -626,7 +695,7 @@ context of an inference exercise. One can equivalently think of
 the preimage as the solution to a least squares inference problem
 in which a completely uninformative prior%
 \footnote{%
-    Specifically, we place a zero-mean, infinite variance prior on the coefficients of $\mathbf{y}$.
+    More specifically, a zero-mean, infinite variance Gaussian prior on the coefficients of $\mathbf{y}$.
 }
 is placed on the spherical harmonic
 coefficients. In this case, the least squares solution is given by
@@ -671,6 +740,8 @@ whatsoever on $\mathbf{y}$.
 In Figure~\ref{fig:nullspace_preimage} we showed the partition of the surface map into
 information that we can learn (the preimage) and information that we cannot learn
 (the null space) from a stellar rotational light curve.
+
+\xxx{To better understand which modes we can and cannot constrain...}
 
 Let us define the \emph{posterior shrinkage} $S$ as
 %
@@ -730,18 +801,14 @@ would get different constraints on the amplitude of each mode when viewed
 at different inclinations. This, of course, is not possible (at least not
 yet!). But what we \emph{can} do is observe many similar stars, each viewed
 at a different (random) inclination, and attempt to learn something about
-the properties of the ensemble of stars as a whole. This is exactly
-what we did in \S\ref{sec:calibration}, where we showed that this kind
-of ensemble analyses is not only possible but can also be extremely
-constraining of the spot properties at the population level. In the
+the properties of the ensemble of stars as a whole.
+In the
 following section, we explore the role of ensemble analyses in breaking
 the degeneracies of the mapping problem in more detail.
 
 
-\section{Ensemble analyses}
+\subsection{Ensemble analyses}
 \label{sec:ensemble}
-
-\subsection{Harnessing different orientations}
 
 \begin{figure}[t!]
     \begin{centering}

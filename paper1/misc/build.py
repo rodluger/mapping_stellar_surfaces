@@ -92,6 +92,10 @@ def build_figures():
             ]
         )
         error = bool(len(meta.get(name, {}).get("stderr", "")))
+        if error:
+            # Fail silently
+            print("ERROR running {}:".format(name))
+            print(meta.get(name, {}).get("stderr", ""))
         if stale or missing or error:
             old_figures = set(
                 glob.glob("figures/*.pdf") + glob.glob("figures/*.png")
