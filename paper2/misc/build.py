@@ -106,6 +106,9 @@ def build_figures():
             except subprocess.CalledProcessError as e:
                 stdout = ""
                 stderr = e.output.decode("utf-8")
+                # Fail silently
+                print("ERROR running {}:".format(name))
+                print(stderr)
 
             new_figures = set(
                 glob.glob("figures/*.pdf") + glob.glob("figures/*.png")
