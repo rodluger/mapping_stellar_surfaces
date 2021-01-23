@@ -28,17 +28,17 @@ def generate_github_links():
 
     with open("gitlinks.tex", "w") as f:
         print(
-            r"\newcommand{\codelink}[1]{\href{https://github.com/%s/blob/%s/tex/figures/#1.py}{\codeicon}\,\,}"
+            r"\newcommand{\codelink}[1]{\href{https://github.com/%s/blob/%s/paper1/figures/#1.py}{\codeicon}\,\,}"
             % (SLUG, HASH),
             file=f,
         )
         print(
-            r"\newcommand{\animlink}[1]{\href{https://github.com/%s/blob/%s/tex/figures/#1.gif}{\animicon}\,\,}"
+            r"\newcommand{\animlink}[1]{\href{https://github.com/%s/blob/%s/paper1/figures/#1.gif}{\animicon}\,\,}"
             % (SLUG, HASH),
             file=f,
         )
         print(
-            r"\newcommand{\prooflink}[1]{\href{https://github.com/%s/blob/%s/tex/tests/#1.py}{\raisebox{-0.1em}{\input{tests/#1.tex}}}}"
+            r"\newcommand{\prooflink}[1]{\href{https://github.com/%s/blob/%s/paper1/tests/#1.py}{\raisebox{-0.1em}{\input{tests/#1.tex}}}}"
             % (SLUG, HASH),
             file=f,
         )
