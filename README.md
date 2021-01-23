@@ -10,4 +10,6 @@
     <img src="https://img.shields.io/badge/read-paper_2-blue.svg?style=flat"/>
 </a>
 
+<br/>
+
 Source code for the **Mapping Stellar Surfaces** paper series.
