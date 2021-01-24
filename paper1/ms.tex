@@ -195,7 +195,7 @@ will in general vary, but in principle it could be quite significant.
 % the poorly constrained limb darkening parameters, and you get ... a mess.
 
 The goal of this paper is to explore the degeneracies at play in the
-problem of inferring the properties of a stellar surface from its light curve.
+stellar surface mapping problem from a theoretical standpoint.
 We will focus in particular on two sources of degeneracies: the
 null space intrinsic to the mapping from a two-dimensional surface to
 a one-dimensional light curve (\S\ref{sec:nullspace})
@@ -220,11 +220,14 @@ quantities like \textbf{the
 any constraints placed on these quantities, even in the context of
 ensemble analyses, are necessarily coming from the prior.
 
-\xxx{This paper is also similar to \citet{Walkowicz2013} and \citet{Basri2018},
-    but we approach things from a purely theoretical point of view, as opposed
-    to the more empirical, qualitative approach of those two papers.}
-
-This paper is the first in a series dedicated to the development of
+The present paper is also similar to \citet{Walkowicz2013} and
+\citet{Basri2020}, who explored the information content of
+stellar light curves from a large set of simulated spotted stellar
+surfaces. While our paper is largely complementary to
+that work, we instead approach the information content problem from
+a purely theoretical---as opposed to empirical---point of view.
+%
+The present paper is the first in a series dedicated to the development of
 techniques to perform robust inference about stellar surfaces from
 unresolved photometric and spectroscopic measurements. The results
 of this paper serve as the starting point for the development of
@@ -274,7 +277,8 @@ run on Azure Pipelines upon every commit of the code.%
 
 \subsection{Rank of the flux operator}
 %
-In general, inferring the properties of a stellar surface from its light curve is not
+In general, inferring the properties of a stellar surface from its light curve alone
+is not
 only difficult, but \emph{formally impossible}. To understand why, consider
 an expansion of the stellar surface intensity in the spherical
 harmonic basis out to arbitrary order (see Figure~\ref{fig:ylms}).
@@ -338,7 +342,15 @@ an observation of $\mathbf{f}$.
     \begin{centering}
         \includegraphics[width=0.65\linewidth]{figures/rank.pdf}
         \oscaption{rank}{%
-            Rank and nullity of the flux operator. \xxx{More info.}
+            Rank and nullity of the flux operator. The orange curve
+            shows the number of spherical harmonic coefficients required
+            to fully describe a stellar surface up to a given spherical
+            harmonic degree (bottom axis) or, equivalently, up to an
+            effective surface resolution (top axis). The blue curve shows
+            the rank of the flux operator, corresponding to the maximum
+            number of independent signals that can be constrained from a
+            light curve. The size of the null space (the nullity) is
+            the difference between the two curves.
             \label{fig:rank}
         }
     \end{centering}
@@ -360,7 +372,7 @@ represent a surface map at some resolution---grows much quicker than the
 number of independent signals in the light curve.
 %
 At all but the lowest resolutions, there are always more features in the
-null space than signals one can measure in the light curve, and difference
+null space than signals one can measure in the light curve, a difference
 that grows \emph{quadratically} with $l$.
 %
 This means that although a light curve can tell us some information about
@@ -368,8 +380,11 @@ a stellar surface on very large scales, the amount of information it tells
 us quickly decreases for smaller scales and all but vanishes for the smallest
 surface features.
 
-\xxx{Briefly mention the chopping: odd modes don't increase the rank. Always
-    in the null space.}
+It is also worth noting the piecewise nature of the rank as a function of
+$l$: increasing the degree of the expansion from even $l$ to odd $l$ does not
+increase the rank of the flux operator. Put another way, odd spherical
+harmonic modes with $l > 1$ are always in the null space of the light curve.
+We will return to this point below.
 
 \subsection{Decomposition of the flux operator}
 %
@@ -632,21 +647,18 @@ Likewise, $\mathbf{y}_\bullet$ represents all the information that can be
 learned from a stellar light curve, and $\mathbf{y}_\circ$ represents all the
 information that cannot.
 
-\xxx{Discuss how this is somewhat similar to what \citet{Rauscher2018} did.}
-
-
 \begin{figure}[p!]
     \begin{centering}
         %
         \textbf{Single light curve at $I = 60^\circ$}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_0.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_60a.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_1.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_60b.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_2.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_60c.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_3.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_60d.pdf}
         \oscaption{nullspace_preimage}{%
             Decomposition of a surface map (left column) into its
             preimage (center) and null space (right) components
@@ -659,6 +671,28 @@ information that cannot.
             of the light curve problem and therefore do not contribute
             to the observed flux.
             \label{fig:nullspace_preimage}
+        }
+    \end{centering}
+\end{figure}
+
+\begin{figure}[p!]
+    \begin{centering}
+        %
+        \textbf{Single light curve at $I = 85^\circ$}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_85a.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_85b.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_85c.pdf}
+        \\[1em]
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_85d.pdf}
+        \oscaption{nullspace_preimage}{%
+            Same as Figure~\ref{fig:nullspace_preimage}, but for
+            a stellar inclination of $85^\circ$. As the stellar rotation vector
+            becomes perpendicular to the line of sight, it becomes
+            more difficult to constrain latitudinal information.
+            \label{fig:nullspace_preimage_85}
         }
     \end{centering}
 \end{figure}
@@ -687,13 +721,30 @@ from the preimage, and the null space contributes exactly zero
 flux at all phases. However, most of the information about the
 \emph{surface} is stuck in the null space!
 
-In the top panel of the figure, it is clear that the light curve
-contains \emph{some} information about the presence of a spot at roughly the
-correct longitude and latitude.
-\xxx{However, there are spurious features...}
-\xxx{More on this.... Discuss each of the rows in the Figure...}
+In the top row of the figure, corresponding to a surface with
+a single large spot, it is clear that the light curve
+contains information about the presence of the spot at roughly the
+correct longitude and latitude. There are additional artefacts
+across the stellar surface, and the exact shape of the spot is
+not well constrained by the data; these issues, however, can
+easily be resolved with a circular spot prior.
 
-It may also be helpful to consider Figure~\ref{fig:nullspace_preimage} in the
+The degeneracies of the mapping problem are much more apparent
+in the second and third rows, corresponding to surfaces with
+many, smaller spots. The locations, sizes, and the very existence
+of most of the spots are simply not encoded in the light curve.
+Even with an extremely restrictive prior, it may be difficult---if
+not impossible---to learn the properties of the spots
+from these light curves.
+
+The final row corresponds to a surface with much higher resolution
+features; this example highlights how the information content of
+light curves all but vanishes at small scales. Virtually all of the
+spatial information at the scales of interest is in the null space.
+
+\subsection{Implications for inference}
+%
+It is useful to consider Figure~\ref{fig:nullspace_preimage} in the
 context of an inference exercise. One can equivalently think of
 the preimage as the solution to a least squares inference problem
 in which a completely uninformative prior%
@@ -704,6 +755,7 @@ is placed on the spherical harmonic
 coefficients. In this case, the least squares solution is given by
 %
 \begin{proof}{test_svd}
+    \label{eq:inference}
     \hat{\mathbf{y}}
     &=
     \lim_{\lambda \rightarrow 0} \left( \mathbf{A}^\top \mathbf{A} + \lambda \mathbf{I}\right)^{-1} \mathbf{A}^\top \mathbf{f}
@@ -717,11 +769,28 @@ surface of a star after an observation if we have no prior information
 whatsoever on $\mathbf{y}$.
 \emph{Any other information about the surface must come from the prior.}%
 
-\xxx{Talk about priors people use, like positivity, restrictions on
-    shape and number of spots, etc. These are nonlinear, harder to
-    constrain how exactly they change the nullspace. But still most
-    of the info is coming from the prior, so it's important to get it
-    right.}
+Equation~(\ref{eq:inference}) is the solution to the surface map
+we would obtain if we knew \emph{nothing} about the stellar surface
+before analyzing the light curve. In practice, this is hardly,
+if ever, the case. For instance, we know that stellar surfaces
+must have non-negative intensities everywhere. While this may seem
+like a trivial prior, non-negativity can be a powerful degeneracy-breaking
+constraint \citep[e.g.,][]{Fienup1982}. Moreover, we know that
+stellar surfaces usually consist of localized features; under an
+appropriate compactness prior, solutions
+like the preimage in the bottom row of
+Figure~\ref{fig:nullspace_preimage} (for example) could be
+confidently ruled out.
+
+The effect of different priors on the structure and size of the null
+space is beyond the scope of this paper. In general, this is a particularly
+difficult question to address because non-Gaussian priors on the
+surface map break the linearity of the problem. While compactness priors
+(like the assumption of a small number of discrete circular spots) can
+break many of the degeneracies discussed here, simulation-based
+arguments show that it is still not possible to uniquely constrain
+their number, locations, or sizes from individual light curves
+\citep{Basri2020}.
 
 % TODO:
 % In principle, the decomposition into preimage and nullspace could
@@ -740,11 +809,32 @@ whatsoever on $\mathbf{y}$.
 
 \subsection{Dependence on inclination}
 
-In Figure~\ref{fig:nullspace_preimage} we showed the partition of the surface map into
-information that we can learn (the preimage) and information that we cannot learn
-(the null space) from a stellar rotational light curve.
+Figure~\ref{fig:nullspace_preimage_85} shows the same decomposition
+of stellar surfaces into what can be learned (the preimage) and what
+cannot be learned (the null space) from a light cuve, but this time
+for stars viewed at an inclination $I = 85^\circ$. Interestingly,
+the structure of the null space is somewhat different; in particular,
+features in the preimage are latitudinally smeared. This
+issue is well known \citep[e.g.,][]{Cowan2009,Basri2020}, and any
+information about which hemisphere a feature is in formally vanishes
+as $I \rightarrow 90^\circ$.
 
-\xxx{To better understand which modes we can and cannot constrain...}
+Instead of lamenting the difficulties of constraining stellar surface features
+at near-edge-on orientations, let us focus on the fact that the
+null space is a function of inclination.
+%
+A useful property of
+the spherical harmonics is that rotation about any axis can only change the
+order $m$ of the harmonic, while keeping the degree $l$ fixed: in other
+words, rotation simply mixes the spherical harmonics along rows in
+Figure~\ref{fig:ylms}. Therefore, if we rotate the spherical harmonics
+in the figure about a different axis, we are still subject to just as
+many degeneracies (i.e., the size of the null space is unchanged),
+but the particular linear combination of modes in the null space will
+be different.
+
+\xxx{more...}
+
 
 Let us define the \emph{posterior shrinkage} $S$ as
 %
@@ -781,15 +871,7 @@ $S$ will tend to zero.
     usually learn much about high degree stuff. Variance is due to different
     inclinations. What if we could harness that?}
 
-A useful property of
-the spherical harmonics is that rotation about any axis can only change the
-order $m$ of the harmonic, while keeping the degree $l$ fixed: in other
-words, rotation simply mixes the spherical harmonics along rows in
-Figure~\ref{fig:ylms}. Therefore, if we rotate the spherical harmonics
-in the figure about a different axis, we are still subject to just as
-many degeneracies (i.e., the size of the null space is unchanged),
-but the particular linear combination of modes in the null space will
-be different.
+
 
 This all seems quite hopeless, and for analyses of individual stars,
 it pretty much is. Unless extremely strong (and likely incorrect) priors are employed
@@ -920,13 +1002,13 @@ in order to mitigate the effects of variance in the sample.
         %
         \textbf{Ensemble of light curves at many inclinations}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_ensemble_0.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_a.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_ensemble_1.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_b.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_ensemble_2.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_c.pdf}
         \\[1em]
-        \includegraphics[width=\linewidth]{figures/nullspace_preimage_ensemble_3.pdf}
+        \includegraphics[width=\linewidth]{figures/nullspace_preimage_d.pdf}
         \oscaption{nullspace_preimage_ensemble}{%
             Same as Figure~\ref{fig:nullspace_preimage}, \xxx{...}
             \label{fig:nullspace_preimage_ensemble}
@@ -1410,6 +1492,7 @@ of the information content of such observations, is left to future work.
 
 \section{Discussion and conclusions}
 
+\xxx{Discuss how this is somewhat similar to what \citet{Rauscher2018} did.}
 \xxx{TODO...}
 
 \bibliography{bib}

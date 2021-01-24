@@ -23,10 +23,12 @@ for k in range(nsamples):
         np.linalg.matrix_rank(A[:, : (l + 1) ** 2]) for l in range(1, lmax + 1)
     ]
 R = np.median(R, axis=0)
+l = np.arange(1, lmax + 1)
 
 # Plot
 fig, ax = plt.subplots(1, figsize=(6, 6))
-l = np.arange(1, lmax + 1)
+
+# Bottom axis
 ax.plot(l, 2 * l + 1, "C0-", lw=1.5, label="number of light curve signals")
 ax.plot(l, (l + 1) ** 2, "C1-", lw=1.5, label=r"number of surface modes")
 ax.plot(l, R, "C0o", ms=5)
@@ -34,6 +36,20 @@ ax.legend(loc="upper left", fontsize=12)
 ax.set_xlabel(r"spherical harmonic degree")
 ax.set_ylabel(r"number")
 ax.set_xticks([1, 5, 10, 15])
+ax.set_xticks(range(1, 17), minor=True)
+for tick in ax.xaxis.get_major_ticks():
+    tick.label.set_fontsize(14)
+
+# Top axis
+axt = ax.twiny()
+xticks = np.array([180, 90, 60, 30, 15])
+xticks_minor = np.arange(180, 15, -15)
+xticklabels = [r"$\,\,${:.0f}$^\circ$".format(x) for x in xticks]
+axt.set_xticks(180 / xticks_minor, minor=True)
+axt.set_xticks(180 / xticks)
+axt.set_xticklabels(xticklabels, fontsize=10)
+axt.set_xlabel(r"effective surface resolution", labelpad=10)
+axt.set_xlim(*ax.get_xlim())
 
 ax.annotate(
     "nullity",
