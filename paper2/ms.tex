@@ -2051,6 +2051,71 @@ here applies to photometry, it is possible to extend it to model RV
 datasets as well; we discuss this in \S\ref{sec:extensions}.
 
 \xxx{Similar to \citet{Morris2020}}.
+Our work builds on that of \citet{Morris2020} by deriving a closed form
+solution to the likelihood function (as opposed to a sample-based
+likelihood-free inference algorithm) and by harnessing the covariance
+structure of the data when doing inference (as opposed to relying solely
+on the amplitude of the data).
+
+Recently, \citet{Morris2020} used \emph{Kepler}, \emph{K2}, and \emph{TESS}
+light curves to derive a relationship between stellar age and spot
+coverage. Because of the intractability of the marginal likelihood function,
+that study used an approximate Bayesian computation (ABC) method to
+infer spot properties from a large ensemble of stars. \citet{Morris2020}
+developed a fast, approximate forward model for light curves of spotted stars
+\citep[\textsf{fleck};][]{Morris2020b}, which they used to generate a large
+number of prior samples for different values of the spot radii, contrasts,
+and latitude distributions. For each collection of samples generated from a
+given set of hyperparameters, \citet{Morris2020} computed the distribution of
+the ``smoothed amplitude'',
+the peak-to-trough difference of the (normalized, de-trended) light curve.
+This distribution was then compared to the distribution of observed
+smoothed amplitude values among stellar clusters of different ages
+within an ABC algorithm, yielding approximate
+posterior distributions for the hyperparameters as a function of
+stellar age. \citet{Morris2020} found that the spot coverage $f_S$ as a
+function of age is well modeled by a simple power law, decreasing from
+${\sim}10\%$ for the youngest (${\sim}10$ Myr) stars
+to less than $1\%$ for the oldest (${\sim}5$ Gyr) stars.
+%
+While this broadly agrees with the expectation that stellar
+magnetic activity decreases over time, our work strongly suggests
+that these results are predominantly prior-dominated. As we discussed
+in \S\ref{sec:baseline}, the fractional
+spot coverage $f_S$ is not an observable in single-band photometry.
+%
+This is because the expression for $f_S$ (Equation~\ref{eq:fS}) depends on
+two quantities: the average spot radius $r$, which we showed can be
+constrained, and the total number of spots $n$, which
+we showed \emph{cannot} be constrained from single-band light curves.
+%
+In fact, \citet{Morris2020} assumed $n=3$ for simplicity when doing
+posterior inference. We therefore urge care in interpreting those results,
+as it is very likely this assumption does not hold across the large
+range of spectral types and stellar ages considered in that study.
+Nevertheless, the power law scaling of the smoothed amplitude with
+age suggests it is still a good metric for stellar ages.
+
+\xxx{Basri:}
+Finally, \citet{Basri2020} present a large suite of forward models of light curves of
+spotted stars, which they use to discuss the (complicated) dependence of
+various light curve metrics on
+the physical spot parameters used to generate the data. They conclude that it
+is not possible to uniquely relate these metrics to the underlying star spot
+configuration. While we agree this is the case for individual stars, our work
+stresses that it is possible to break many of these degeneracies with
+ensemble analyses.
+%
+\citet{Basri2020} also conclude it is not in general possible to
+uniquely disentangle differential rotation from spot evolution when their
+timescales are comparable; nor is it possible to confidently measure a rotation
+period when the evolution timescale is very short. However, their study
+relies on the effect these processes have on simple light curve metrics,
+which are almost certainly not sufficient statistics of the data. Inference
+that takes into account the full covariance structure of the data, while
+considering large ensembles of light curves, could in principle break
+this degeneracy. While we do not explicitly model differential rotation in
+this paper, it will be the subject of a future paper in this series.
 
 \subsection{Caveats}
 \label{sec:caveats}
