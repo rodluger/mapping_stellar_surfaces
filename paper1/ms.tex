@@ -15,6 +15,8 @@
 \patchcmd{\env@cases}{\quad}{\qquad\qquad}{}{}
 \makeatother
 
+\defcitealias{PaperII}{Paper II}
+
 \usepackage{enumitem}
 
 % Begin!
@@ -232,7 +234,8 @@ techniques to perform robust inference about stellar surfaces from
 unresolved photometric and spectroscopic measurements. The results
 of this paper serve as the starting point for the development of
 an interpretable Gaussian process for the ensemble analysis of
-stellar light curves, which is the subject of Paper II \citep{PaperII}.
+stellar light curves, which is the subject of
+\citepalias[\citealt{PaperII}, hereafter][]{PaperII}.
 
 \vspace{1em}
 
@@ -1143,17 +1146,38 @@ most obviously, stars are
 not identical, no matter how ``similar'' we think they may be.
 Even stars of the same spectral type, age, and metallicity will
 in general have different configurations of spots on their surfaces.
+When we perform an ensemble analysis on the light curves of a
+heterogeneous group of stars, we are learning something about the
+\emph{distribution} of surface properties across all the stars in
+the sample---not the surface properties of any individual star.
+What exactly we can learn in this case is not immediately obvious,
+and requires a detailed investigation. This is the subject of
+the next paper in this series \citepalias{PaperII}, where we show that,
+armed with a good model,
+we can learn \emph{a lot} about the distribution of starspot
+properties of a heterogenous group of stellar light curves.
 
-In practice, the fact that stars are not identical complicates this picture.
-We can still learn about the \emph{distribution} of spot properties, but
-in general our ensemble must consist of far more light curves in order to
-place strong constraints on these properties. As we
-show \xxx{in the next paper},
-under ideal conditions an ensemble of $M = 50$ similar stars may be sufficient,
-but in practice we may need on the order of hundreds or even a thousand light curves
-in order to mitigate the effects of variance in the sample.
+The second point is that while observing many stars at different
+inclinations breaks many of the degeneracies at play, our analysis
+above assumed we knew what the values of the inclinations were.
+In practice, this will usually not be the case. While we may have
+good priors for some stars (from spectroscopic $v\sin i$ measurements,
+or from the assumption that transiting exoplanet hosts are likely
+to have inclinations close to $I=90^\circ$), for the vast majority
+of field stars we won't know much a priori. Since the inclination
+is typically degenerate with the spot latitude \citep[e.g.,][]{Walkowicz2013},
+this decreases the constraining power of ensemble analyses.
+However, as we show in \citetalias{PaperII}, there is still enough
+information in a large ensemble to independently constrain the spot latitudes
+and the \emph{individual} stellar inclinations.
 
-Also, we don't know the inclinations.
+The final point concerns limb darkening, which also has a strong
+effect on the structure of the null space. While limb darkening can
+help us by breaking degeneracies, in practice it is likely to be more
+of a problem, since the use of incorrect limb darkening coefficients can lead
+to bias in the spot properties when doing inference.
+It is therefore extremely important to use reliable limb darkening models
+when doing ensemble analyses; we also explore this in \citetalias{PaperII}.
 
 \section{The baseline problem}
 \label{sec:baseline}
