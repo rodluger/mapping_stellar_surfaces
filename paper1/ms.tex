@@ -1157,14 +1157,14 @@ Similarly, the variance of the distribution may be computed as
                    & = \mathrm{Var} \Big[ c \, \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
                    & = c^2 \, \mathrm{Var} \Big[ \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big] \nonumber \\
                    & = c^2 \sum_{i=0}^{n-1} \mathrm{Var} \Big[  \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
-                   & = c^2 \, n \, \beta
+                   & = c^2 \, n \, (\beta^2 - \alpha^2)
     \quad,
 \end{align}
 %
 where $\mathrm{Var}\big[\cdots\big]$ denotes the variance,
 %
 \begin{align}
-    \beta \equiv \int \mathbf{g}^2 (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
+    \beta^2 \equiv \int \mathbf{g}^2 (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
 \end{align}
 %
 is the expected value of $\mathbf{g}^2$, and we used the fact that the variance
@@ -1177,8 +1177,8 @@ in fractional units is
 %
 \begin{align}
     \mu      & = 1 - c \, n \, \alpha
-    \nonumber                         \\
-    \sigma^2 & = c^2 \, n \, \beta
+    \nonumber                                     \\
+    \sigma^2 & = c^2 \, n \, (\beta^2 - \alpha^2)
     \quad,
 \end{align}
 %
