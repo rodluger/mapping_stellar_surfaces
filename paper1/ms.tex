@@ -19,6 +19,8 @@
 
 \usepackage{enumitem}
 
+\newcommand{\dfm}[1]{{\color{blue}#1}}
+
 % Begin!
 \begin{document}
 
@@ -72,9 +74,16 @@
     many stars at once as a powerful method of breaking
     these degeneracies.
     %
+    \dfm{While the examples in this paper focus on mapping stellar surfaces
+        using photometric time series, the conclusions and proposed methods
+        apply to more general problems, including applications where the stellar
+        surface is a nuisance (exoplanet detection and characterization using
+        transit light curves or radial velocities) or to spectral time series
+        datasets (transmission spectroscopy and Doppler imaging).}
+    %
     This is the first in a series of papers devoted to the development
     of novel algorithms and tools for the analysis of
-    stellar light curves and spectral timeseries, with the
+    stellar light curves and spectral time series, with the
     explicit goal of enabling statistically robust inference
     about their surface properties.
 \end{abstract}
@@ -175,7 +184,7 @@ could be explained by any number of spots atop a heterogeneous bright background
 
 Stellar mapping studies tackle these degeneracies in different ways, but
 it usually comes down to a choice of prior: when the data is not
-sufficiently informative, prior assumptions are needed to discriminate
+sufficiently informative, assumptions\dfm{---either implicit or explicit---}are needed to discriminate
 between competing solutions. In discrete spot models like the ones
 discussed above, the degeneracy-breaking prior is (typically) the assumption that the
 spots must be circular, have uniform contrast, and sit atop an otherwise
@@ -186,9 +195,8 @@ number of dark pixels (usually referred to as the ``simplest'' solution).
 
 While these assumptions may be approximately valid in some cases, it is
 important to bear in mind that because of the light curve degeneracies discussed above,
-\textbf{most of the information about the stellar surface usually comes from the prior},
-so it is very important to get the
-prior right. In general, sunspots are not circular and do not have uniform
+\textbf{most of the information about the stellar surface usually comes from the \dfm{modeling assumptions}},
+so it is very important to \dfm{get these assumptions right}. In general, starspots are not circular and do not have uniform
 contrast throughout; nor do spots always arrange themselves in the highest
 entropy configuration. The amount of bias introduced by these assumptions
 will in general vary, but in principle it could be quite significant.
@@ -220,7 +228,7 @@ quantities like \textbf{the
     total spot coverage, the typical spot contrast, and the total number of
     spots are not observables in single-band photometry.} Instead,
 any constraints placed on these quantities, even in the context of
-ensemble analyses, are necessarily coming from the prior.
+ensemble analyses, are \dfm{driven by the choice of prior and other assumptions}. % necessarily coming from the prior.
 
 The present paper is also similar to \citet{Walkowicz2013} and
 \citet{Basri2020}, who explored the information content of
@@ -284,7 +292,7 @@ In general, inferring the properties of a stellar surface from its light curve a
 is not
 only difficult, but \emph{formally impossible}. To understand why, consider
 an expansion of the stellar surface intensity in the spherical
-harmonic basis out to arbitrary order (see Figure~\ref{fig:ylms}).
+harmonic basis out to arbitrary order\footnote{\dfm{We note that this expansion is fully general, since spherical harmonics constitute a complete basis on the sphere.}} (see Figure~\ref{fig:ylms}).
 Assuming (for the moment) that the
 star rotates about an axis that points up along the page, the observed
 light curve may be expressed as a weighted sum of the disk-integrated intensity
@@ -305,7 +313,7 @@ For rotational light curves,
 the vast majority of the surface modes lie at least partly in the null
 space. To show this, we will make use of the fact that we can express
 the vector of $K$ observed fluxes $\mathbf{f}$ (i.e., the light curve)
-as a purely linear operation on the vector of $N$
+as a linear operation on the vector of $N$
 spherical harmonic coefficients $\mathbf{y}$ \citep{Luger2019}:
 %
 \begin{align}
@@ -337,7 +345,7 @@ The size of the null space is called the \emph{nullity}, and it is equal to
 $N - R$, where $N$ is once again the number of coefficients describing the
 stellar surface and $R$ is the \emph{rank} of the flux operator $\mathbf{A}$.
 The rank $R$ is the number of linearly independent columns in $\mathbf{A}$, which
-can be easily computed with any modern linear algebra package. It is equal
+can be computed \dfm{numerically using any standard} linear algebra package. It is equal
 to the number of independent signals (or components) that can be measured given
 an observation of $\mathbf{f}$.
 
@@ -371,7 +379,7 @@ simply the difference between $N$ and $R$.
 The most striking feature in Figure~\ref{fig:rank} is how quickly the two
 curves diverge as $l$ increases. What this means for the mapping problem
 is that the number of surface modes---the total information needed to
-represent a surface map at some resolution---grows much quicker than the
+represent a surface map at some resolution---grows much more quickly than the
 number of independent signals in the light curve.
 %
 At all but the lowest resolutions, there are always more features in the
@@ -391,6 +399,8 @@ We will return to this point below.
 
 \subsection{Decomposition of the flux operator}
 %
+\dfm{I think it would be good to move much of this section to the appendix. I don't think that the full derivation adds much, but obviously the definition of preimage and nullspace are useful. Perhaps we could just say that we derive these projections using SVD (see appendix for details) and then qualitatively define what they do?}
+
 To better understand the properties of the null space of the light curve
 mapping problem, let
 %
