@@ -23,15 +23,25 @@ for k in range(nsamples):
         np.linalg.matrix_rank(A[:, : (l + 1) ** 2]) for l in range(1, lmax + 1)
     ]
 R = np.median(R, axis=0)
+
+# Show that the rank is just...
+Rfunc = lambda l: np.maximum(3, 4 * np.floor(l / 2) + 1)
 l = np.arange(1, lmax + 1)
+assert np.allclose(R, Rfunc(l))
 
 # Plot
-fig, ax = plt.subplots(1)  # , figsize=(6, 6))
+fig, ax = plt.subplots(1)
 
 # Bottom axis
-ax.plot(l, 2 * l + 1, "C0-", lw=1.5, label="number of light curve signals")
+l_hires = np.linspace(1, 15, 10000)
+ax.plot(
+    l_hires,
+    Rfunc(l_hires),
+    "C0-",
+    lw=1.5,
+    label="number of light curve signals",
+)
 ax.plot(l, (l + 1) ** 2, "C1-", lw=1.5, label=r"number of surface modes")
-ax.plot(l, R, "C0o", ms=5)
 ax.legend(loc="upper left", fontsize=12)
 ax.set_xlabel(r"spherical harmonic degree")
 ax.set_ylabel(r"number")

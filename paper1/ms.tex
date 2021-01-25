@@ -380,8 +380,8 @@ as a function of the resolution of the surface map (quantified as the
 spherical harmonic degree $l$ of the expansion). The orange
 curve is the number of spherical harmonic coefficients needed to
 represent a surface map up to degree $l$, and is equal to $N = (l + 1)^2$.
-The blue dots show the rank of the flux operator $\mathbf{A}$ as a function
-of $l$, and the blue line is the function $R = 2l + 1$. The nullity is
+The blue line shows the rank of the flux operator $\mathbf{A}$ as a function
+of $l$, which scales as $R \approx 2l + 1$. The nullity is
 simply the difference between $N$ and $R$.
 
 The most striking feature in Figure~\ref{fig:rank} is how quickly the two
@@ -407,15 +407,14 @@ We will return to this point below.
 
 \subsection{Decomposition of the flux operator}
 %
-\xxx{TODO: Move most of this to the Appendix.}
-
-To better understand the properties of the null space of the light curve
-mapping problem, let
+\label{sec:svd}
 %
-us use singular value decomposition (SVD) to express
+To better understand the properties of the null space of the light curve
+mapping problem, it is useful to perform singular value decomposition (SVD) to express
 the flux operator as
 %
 \begin{align}
+    \label{eq:svd}
     \mathbf{A} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
     \quad,
 \end{align}
@@ -429,231 +428,23 @@ The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and r
 diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\mathbf{A}$
 has rank $R$, the first $R$ singular values will be nonzero, while the
 remaining $N - R$ will be identically zero.
-If we assume for definitess that $K > N$ (i.e., we have more flux observations
-than surface map coefficients we're trying to constrain), we can express the
-SVD matrices as
+%
+In Appendix~\ref{sec:app-svd} we show that this decomposition allows us
+to construct linear operators $\mathbf{P}$ and $\mathbf{N}$ such that
 %
 \begin{align}
-    \mathbf{U}
-     & =
-    \left(
-    \begin{array}{ccc|ccc}
-            \mathbf{U}_{0,0}          & \cdots & \mathbf{U}_{0,R\text{-}1}          & \mathbf{U}_{0,R}          & \cdots & \mathbf{U}_{0,K\text{-}1}          \\
-            \vdots                    & \cdots & \vdots                             & \vdots                    & \cdots & \vdots                             \\
-            \mathbf{U}_{K\text{-}1,0} & \cdots & \mathbf{U}_{K\text{-}1,R\text{-}1} & \mathbf{U}_{K\text{-}1,R} & \cdots & \mathbf{U}_{K\text{-}1,K\text{-}1}
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    %
-    \\[1.5em]
-    %
-    \label{eq:S}
-    \mathbf{S}
-     & =
-    \left(
-    \begin{array}{ccc|ccc}
-            \mathbf{S}_{0,0}\phantom{y} &                                     &                                    &                             &                                     &                                    \\
-                                        & \ddots                              &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
-                                        &                                     & \mathbf{S}_{R\text{-}1,R\text{-}1} &                             &                                     &                                    \\
-            \hline
-                                        &                                     &                                    & \mathbf{S}_{R,R}\phantom{y} &                                     &                                    \\
-                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \ddots                              &                                    \\
-                                        &                                     &                                    &                             &                                     & \mathbf{S}_{N\text{-}1,N\text{-}1} \\
-                                        &                                     &                                    &                             &                                     &                                    \\
-                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
-                                        &                                     &                                    &                             &                                     &
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    %
-    \\[1.5em]
-    %
-    \mathbf{V}^\top
-     & =
-    \left(
-    \begin{array}{cccccc}
-            \mathbf{V}_{0,0}^\top          & \cdots & \mathbf{V}_{0,N\text{-}1}^\top          \\
-            \vdots                         & \cdots & \vdots                                  \\
-            \mathbf{V}_{R\text{-}1,0}^\top & \cdots & \mathbf{V}_{R\text{-}1,N\text{-}1}^\top \\[0.5em]
-            \hline                                                                            \\[-0.85em]
-            \mathbf{V}_{R,0}^\top          & \cdots & \mathbf{V}_{R,N\text{-}1}^\top          \\
-            \vdots                         & \cdots & \vdots                                  \\
-            \mathbf{V}_{N\text{-}1,0}^\top & \cdots & \mathbf{V}_{N\text{-}1,N\text{-}1}^\top
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right)
+    \mathbf{y}_\bullet & \equiv \mathbf{P} \, \mathbf{y}
 \end{align}
 %
-where
-$\mathbf{U}_\bullet$ is $(K \times R)$,
-$\mathbf{U}_\circ$ is $(K \times K - R)$,
-$\mathbf{S}_\bullet$ is $(R \times R)$,
-$\mathbf{S}_\circ$ is $(K - R \times N - R)$,
-$\mathbf{V}_\bullet^\top$ is $(R \times N)$,
-and
-$\mathbf{V}_\circ^\top$ is $(N - R \times N)$.
-%
-We may then express the decomposition of $\mathbf{A}$ as
+is the component of the surface map in the \emph{preimage} and
 %
 \begin{align}
-    \label{eq:A}
-    \mathbf{A} =
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right)
-    \quad.
+    \mathbf{y}_\circ & \equiv \mathbf{N} \, \mathbf{y}
 \end{align}
 %
-Inserting this into Equation~(\ref{eq:fAy}), we have
+is the component of the map in the \emph{null space}.
 %
-\begin{proof}{test_decomposition}
-    \label{eq:ydecomp}
-    \mathbf{f} & = \mathbf{A} \, \mathbf{y}
-    \nonumber                               \\
-    & =
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right) \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\,\mathbf{I}\,) \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ (\,\mathbf{I}\,) \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \, \mathbf{y}_\bullet
-    +
-    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \, \mathbf{y}_\circ
-\end{proof}
-%
-where we defined
-%
-\begin{proof}{test_PN}
-    \label{eq:yrow}
-    \mathbf{y}_\bullet & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \mathbf{y}
-    \\
-    \label{eq:ynull}
-    \mathbf{y}_\circ   & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top \mathbf{y}
-    \quad,
-\end{proof}
-%
-and we used the fact that since $\mathbf{V}^\top$ is orthogonal,
-%
-\begin{proof}{test_orthogonality}
-    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet & = \mathbf{I}
-    \nonumber                                                 \\
-    \mathbf{V}_\circ^\top \mathbf{V}_\circ     & = \mathbf{I}
-    \quad,
-\end{proof}
-%
-where $\mathbf{I}$ is the identity matrix.
-%
-Now, recalling that $R$ is the number of nonzero singular values in
-$\mathbf{S}$, it is evident from Equation~(\ref{eq:S}) that
-%
-\begin{align}
-    \label{eq:S0}
-    \mathbf{S}_\circ = \mathbf{0}
-    \quad.
-\end{align}
-%
-Therefore we may write Equation~(\ref{eq:ydecomp}) as
-%
-\begin{proof}{test_decomposition}
-    \boxed{
-        \mathbf{f} = \mathbf{A} \, \mathbf{y}_\bullet
-        +
-        \mathbf{0} \, \mathbf{y}_\circ
-    }
-\end{proof}
-%
-where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \mathbf{A}$
-follows directly from Equations~(\ref{eq:A}) and (\ref{eq:S0}).
-
-So what does this all mean? By performing SVD, we separated
-the surface map representation $\mathbf{y}$ into orthogonal components
-$\mathbf{y}_\bullet$ and $\mathbf{y}_\circ$, consisting of the
-terms that contribute to the light curve $\mathbf{f}$ and those
-that don't, respectively.
-In particular, it is useful to consider
-the linear operators we used to perform this decomposition
-in Equations~(\ref{eq:yrow}) and (\ref{eq:ynull}):
-%
-\begin{proof}{test_PN}
-    \mathbf{P} & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top
-    \\
-    \mathbf{N} & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top
-    \quad,
-\end{proof}
-%
-which we will call the \emph{preimage operator} and \emph{null space
-    operator}, respectively. The preimage operator $\mathbf{P}$
+The preimage operator $\mathbf{P}$
 transforms a vector $\mathbf{y}$ in the surface map basis in such a way
 that it preserves the information in $\mathbf{y}$ that gets mapped
 onto the light curve $\mathbf{f}$ via $\mathbf{A}$ (the \emph{preimage}) and discards the rest. The
@@ -663,10 +454,10 @@ vector via $\mathbf{A}$ (the \emph{null space}).
 %
 In other words,
 the $\mathbf{P}$ and $\mathbf{N}$ operators reveal the
-components of the surface map $\mathbf{y}_\bullet$ that contribute to the
-light curve and the components $\mathbf{y}_\circ$ that don't.
-Likewise, $\mathbf{y}_\bullet$ represents all the information that can be
-learned from a stellar light curve, and $\mathbf{y}_\circ$ represents all the
+components of the surface map that contribute to the
+light curve ($\mathbf{y}_\bullet$) and the components that don't ($\mathbf{y}_\circ$).
+The vector $\mathbf{y}_\bullet$ represents all the information that can be
+learned from a stellar light curve, while $\mathbf{y}_\circ$ represents all the
 information that cannot.
 
 \begin{figure}[p!]
@@ -727,16 +518,7 @@ components under the flux operator $\mathbf{A}$, which we compute for
 definiteness at an inclination of $I = 60^\circ$ over a full rotation.
 The light curves corresponding to each of these surfaces are also shown.
 Note that both the true map and its associated light curve are simply equal to
-the sum of the preimage and null space components.%
-\footnote{%
-    This follows from the orthogonality of $\mathbf{V}$:
-    $
-        \mathbf{V} \mathbf{V}^\top =
-        \mathbf{I} =
-        \mathbf{V}_\bullet \mathbf{V}_\bullet^\top  + \mathbf{V}_\circ \mathbf{V}_\circ^\top =
-        \mathbf{P} + \mathbf{N}
-    $, so $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
-}
+the sum of the preimage and null space components (Appendix~\ref{sec:app-svd}).
 %
 As expected, all of the information in the light curve comes
 from the preimage, and the null space contributes exactly zero
@@ -1729,5 +1511,241 @@ Astronomical Data Group at the Center for Computational Astrophysics for
 many thought-provoking discussions that helped shape this paper.
 
 \bibliography{bib}
+
+\appendix
+
+\section{Decomposition of the flux operator}
+\label{sec:app-svd}
+
+In this section we show how to use SVD to decompose a surface map
+into its preimage and its null space (see \S\ref{sec:svd}).
+If we assume for definitess that $K > N$ (i.e., we have more flux observations
+than surface map coefficients we're trying to constrain), we can express the
+matrices in Equation~(\ref{eq:svd}) as
+%
+\begin{align}
+    \mathbf{U}
+     & =
+    \left(
+    \begin{array}{ccc|ccc}
+            \mathbf{U}_{0,0}          & \cdots & \mathbf{U}_{0,R\text{-}1}          & \mathbf{U}_{0,R}          & \cdots & \mathbf{U}_{0,K\text{-}1}          \\
+            \vdots                    & \cdots & \vdots                             & \vdots                    & \cdots & \vdots                             \\
+            \mathbf{U}_{K\text{-}1,0} & \cdots & \mathbf{U}_{K\text{-}1,R\text{-}1} & \mathbf{U}_{K\text{-}1,R} & \cdots & \mathbf{U}_{K\text{-}1,K\text{-}1}
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    %
+    \\[1.5em]
+    %
+    \label{eq:S}
+    \mathbf{S}
+     & =
+    \left(
+    \begin{array}{ccc|ccc}
+            \mathbf{S}_{0,0}\phantom{y} &                                     &                                    &                             &                                     &                                    \\
+                                        & \ddots                              &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                        &                                     & \mathbf{S}_{R\text{-}1,R\text{-}1} &                             &                                     &                                    \\
+            \hline
+                                        &                                     &                                    & \mathbf{S}_{R,R}\phantom{y} &                                     &                                    \\
+                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \ddots                              &                                    \\
+                                        &                                     &                                    &                             &                                     & \mathbf{S}_{N\text{-}1,N\text{-}1} \\
+                                        &                                     &                                    &                             &                                     &                                    \\
+                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                        &                                     &                                    &                             &                                     &
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    %
+    \\[1.5em]
+    %
+    \mathbf{V}^\top
+     & =
+    \left(
+    \begin{array}{cccccc}
+            \mathbf{V}_{0,0}^\top          & \cdots & \mathbf{V}_{0,N\text{-}1}^\top          \\
+            \vdots                         & \cdots & \vdots                                  \\
+            \mathbf{V}_{R\text{-}1,0}^\top & \cdots & \mathbf{V}_{R\text{-}1,N\text{-}1}^\top \\[0.5em]
+            \hline                                                                            \\[-0.85em]
+            \mathbf{V}_{R,0}^\top          & \cdots & \mathbf{V}_{R,N\text{-}1}^\top          \\
+            \vdots                         & \cdots & \vdots                                  \\
+            \mathbf{V}_{N\text{-}1,0}^\top & \cdots & \mathbf{V}_{N\text{-}1,N\text{-}1}^\top
+        \end{array}
+    \right)
+    \equiv
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right)
+\end{align}
+%
+where
+$\mathbf{U}_\bullet$ is $(K \times R)$,
+$\mathbf{U}_\circ$ is $(K \times K - R)$,
+$\mathbf{S}_\bullet$ is $(R \times R)$,
+$\mathbf{S}_\circ$ is $(K - R \times N - R)$,
+$\mathbf{V}_\bullet^\top$ is $(R \times N)$,
+and
+$\mathbf{V}_\circ^\top$ is $(N - R \times N)$.
+%
+We may then express the decomposition of $\mathbf{A}$ as
+%
+\begin{align}
+    \label{eq:A}
+    \mathbf{A} =
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right)
+    \quad.
+\end{align}
+%
+Inserting this into Equation~(\ref{eq:fAy}), we have
+%
+\begin{proof}{test_decomposition}
+    \label{eq:ydecomp}
+    \mathbf{f} & = \mathbf{A} \, \mathbf{y}
+    \nonumber                               \\
+    & =
+    \left(
+    \begin{array}{c|c}
+            \mathbf{U}_\bullet & \mathbf{U}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{c|c}
+            \mathbf{S}_\bullet & \mathbf{0}       \\
+            \hline
+            \mathbf{0}         & \mathbf{S}_\circ
+        \end{array}
+    \right)
+    \left(
+    \begin{array}{cc}
+            \mathbf{V}_\bullet^\top \\
+            \hline
+            \mathbf{V}_\circ^\top
+        \end{array}
+    \right) \mathbf{y}
+    \nonumber                               \\[0.5em]
+    & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+    & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\,\mathbf{I}\,) \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ (\,\mathbf{I}\,) \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+    & =
+    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    \mathbf{U}_\circ \, \mathbf{S}_\circ (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+    & =
+    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \, \mathbf{y}
+    +
+    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \, \mathbf{y}
+    \nonumber                               \\[0.5em]
+    & =
+    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \, \mathbf{y}_\bullet
+    +
+    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \, \mathbf{y}_\circ
+\end{proof}
+%
+where we define
+%
+\begin{proof}{test_PN}
+    \label{eq:yrow}
+    \mathbf{y}_\bullet & \equiv \mathbf{P} \, \mathbf{y}
+    \\
+    \label{eq:ynull}
+    \mathbf{y}_\circ   & \equiv \mathbf{N} \, \mathbf{y}
+    \\[0.5em]
+    \mathbf{P} & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top
+    \\
+    \mathbf{N} & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top
+    \quad,
+\end{proof}
+%
+and we used the fact that since $\mathbf{V}^\top$ is orthogonal,
+%
+\begin{proof}{test_orthogonality}
+    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet & = \mathbf{I}
+    \nonumber                                                 \\
+    \mathbf{V}_\circ^\top \mathbf{V}_\circ     & = \mathbf{I}
+    \quad,
+\end{proof}
+%
+where $\mathbf{I}$ is the identity matrix.
+%
+Now, recalling that $R$ is the number of nonzero singular values in
+$\mathbf{S}$, it is evident from Equation~(\ref{eq:S}) that
+%
+\begin{align}
+    \label{eq:S0}
+    \mathbf{S}_\circ = \mathbf{0}
+    \quad.
+\end{align}
+%
+Therefore we may write Equation~(\ref{eq:ydecomp}) as
+%
+\begin{proof}{test_decomposition}
+    \boxed{
+        \mathbf{f} = \mathbf{A} \, \mathbf{y}_\bullet
+        +
+        \mathbf{0} \, \mathbf{y}_\circ
+    }
+\end{proof}
+%
+where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \mathbf{A}$
+follows directly from Equations~(\ref{eq:A}) and (\ref{eq:S0}).
+%
+This is the decomposition of the surface map $\mathbf{y}$ into
+its preimage $\mathbf{y}_\bullet$ and null space
+$\mathbf{y}_\circ$ components.
+%
+Note that because of the orthogonality of $\mathbf{V}$,
+%
+\begin{proof}{test_PN}
+    \mathbf{V} \mathbf{V}^\top &= \mathbf{I}
+    \nonumber                                                 \\
+    \mathbf{V}_\bullet \mathbf{V}_\bullet^\top  + \mathbf{V}_\circ \mathbf{V}_\circ^\top &= \mathbf{I}
+    \nonumber \\
+    \mathbf{P} + \mathbf{N} &= \mathbf{I}
+    \quad,
+\end{proof}
+%
+so it follows from Equations~(\ref{eq:yrow}) and (\ref{eq:ynull})
+that $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
 
 \end{document}
