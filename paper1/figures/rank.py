@@ -6,7 +6,7 @@ from scipy.linalg import svd
 import starry
 import os
 
-lmax = 16
+lmax = 15
 nsamples = 100
 np.random.seed(0)
 
@@ -26,7 +26,7 @@ R = np.median(R, axis=0)
 l = np.arange(1, lmax + 1)
 
 # Plot
-fig, ax = plt.subplots(1, figsize=(6, 6))
+fig, ax = plt.subplots(1)  # , figsize=(6, 6))
 
 # Bottom axis
 ax.plot(l, 2 * l + 1, "C0-", lw=1.5, label="number of light curve signals")
@@ -35,15 +35,15 @@ ax.plot(l, R, "C0o", ms=5)
 ax.legend(loc="upper left", fontsize=12)
 ax.set_xlabel(r"spherical harmonic degree")
 ax.set_ylabel(r"number")
-ax.set_xticks([1, 5, 10, 15])
-ax.set_xticks(range(1, 17), minor=True)
+ax.set_xticks(range(1, lmax + 1))
+ax.set_xticks(range(1, lmax + 1), minor=True)
 for tick in ax.xaxis.get_major_ticks():
-    tick.label.set_fontsize(14)
+    tick.label.set_fontsize(10)
 
 # Top axis
 axt = ax.twiny()
-xticks = np.array([180, 90, 60, 30, 15])
-xticks_minor = np.arange(180, 15, -15)
+xticks = np.array([60, 30, 20, 19, 18, 17, 16, 15, 14, 13, 12])
+xticks_minor = np.arange(60, 12, -1)
 xticklabels = [r"$\,\,${:.0f}$^\circ$".format(x) for x in xticks]
 axt.set_xticks(180 / xticks_minor, minor=True)
 axt.set_xticks(180 / xticks)
@@ -53,7 +53,7 @@ axt.set_xlim(*ax.get_xlim())
 
 ax.annotate(
     "nullity",
-    xy=(1.07, 0.55),
+    xy=(1.04, 0.55),
     xycoords="axes fraction",
     xytext=(0, 0),
     textcoords="offset points",
@@ -64,9 +64,9 @@ ax.annotate(
 )
 ax.annotate(
     "",
-    xy=(1.07, 0.96),
+    xy=(1.04, 0.96),
     xycoords="axes fraction",
-    xytext=(1.07, 0.585),
+    xytext=(1.04, 0.585),
     textcoords="axes fraction",
     ha="center",
     va="center",
@@ -76,9 +76,9 @@ ax.annotate(
 )
 ax.annotate(
     "",
-    xy=(1.07, 0.15),
+    xy=(1.04, 0.15),
     xycoords="axes fraction",
-    xytext=(1.07, 0.52),
+    xytext=(1.04, 0.52),
     textcoords="axes fraction",
     ha="left",
     va="center",
@@ -89,7 +89,7 @@ ax.annotate(
 
 ax.annotate(
     "rank",
-    xy=(1.07, 0.09),
+    xy=(1.04, 0.09),
     xycoords="axes fraction",
     xytext=(0, 0),
     textcoords="offset points",
@@ -100,9 +100,9 @@ ax.annotate(
 )
 ax.annotate(
     "",
-    xy=(1.07, 0.14),
+    xy=(1.04, 0.14),
     xycoords="axes fraction",
-    xytext=(1.07, 0.11),
+    xytext=(1.04, 0.11),
     textcoords="axes fraction",
     ha="center",
     va="center",
@@ -112,9 +112,9 @@ ax.annotate(
 )
 ax.annotate(
     "",
-    xy=(1.07, 0.04),
+    xy=(1.04, 0.04),
     xycoords="axes fraction",
-    xytext=(1.07, 0.07),
+    xytext=(1.04, 0.07),
     textcoords="axes fraction",
     ha="left",
     va="center",

@@ -50,9 +50,7 @@ else:
 fig, ax = plt.subplots(1)
 for k in range(kpn):
     ax.plot(S[0, k], color="C{}".format(0), lw=0.75, alpha=0.01, zorder=-1)
-ax.plot(
-    np.mean(S[0], axis=0), color="C{}".format(0), lw=1, zorder=1,
-)
+ax.plot(np.mean(S[0], axis=0), color="C{}".format(0), lw=1, zorder=1)
 ax.set_rasterization_zorder(0)
 ax.set_xlim(0, (ydeg + 1) ** 2 - 1)
 for tick in ax.xaxis.get_major_ticks():
@@ -65,6 +63,18 @@ ax.set_xticks(l ** 2 + l)
 ax.set_xticklabels(["{}".format(l) for l in np.arange(2, ydeg + 1)])
 ax.set_xlabel("spherical harmonic degree")
 ax.set_ylabel("posterior shrinkage")
+
+# Top axis
+axt = ax.twiny()
+xticks = np.array([60, 30, 20, 19, 18, 17, 16, 15, 14, 13, 12])
+xticks_minor = np.arange(60, 12, -1)
+xticklabels = [r"$\,\,${:.0f}$^\circ$".format(x) for x in xticks]
+axt.set_xticks((180 / xticks_minor + 1) ** 2 - 180 / xticks_minor, minor=True)
+axt.set_xticks((180 / xticks + 1) ** 2 - 180 / xticks)
+axt.set_xticklabels(xticklabels, fontsize=10)
+axt.set_xlabel(r"effective surface resolution", labelpad=10)
+axt.set_xlim(*ax.get_xlim())
+
 fig.savefig(
     os.path.abspath(__file__).replace(".py", "_single.pdf"),
     bbox_inches="tight",
@@ -98,6 +108,17 @@ ax.set_ylabel("posterior shrinkage")
 leg = ax.legend(loc="upper right", title="orientations", fontsize=10)
 leg.get_title().set_fontsize(8)
 leg.get_title().set_fontweight("bold")
+
+# Top axis
+axt = ax.twiny()
+xticks = np.array([60, 30, 20, 19, 18, 17, 16, 15, 14, 13, 12])
+xticks_minor = np.arange(60, 12, -1)
+xticklabels = [r"$\,\,${:.0f}$^\circ$".format(x) for x in xticks]
+axt.set_xticks((180 / xticks_minor + 1) ** 2 - 180 / xticks_minor, minor=True)
+axt.set_xticks((180 / xticks + 1) ** 2 - 180 / xticks)
+axt.set_xticklabels(xticklabels, fontsize=10)
+axt.set_xlabel(r"effective surface resolution", labelpad=10)
+axt.set_xlim(*ax.get_xlim())
 
 # Print some info
 print(

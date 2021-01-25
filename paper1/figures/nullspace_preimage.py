@@ -70,7 +70,6 @@ norm = [
     Normalize(vmin=0.89, vmax=1.035),
     Normalize(vmin=0.87, vmax=1.055),
 ]
-incs = [60, 85, np.arccos(np.random.random(50)) * 180 / np.pi]
 np.random.seed(3)
 
 # Instantiate maps at low and high degree
@@ -113,6 +112,9 @@ image *= 0.15
 image -= 0.15
 stars[3].intensity = image
 y[3] = stars[3].get_y()
+
+# Random inclinations for the ensemble plots
+incs = [60, 85, np.arccos(np.random.random(50)) * 180 / np.pi]
 
 # Loop over each star
 for k in range(len(stars)):

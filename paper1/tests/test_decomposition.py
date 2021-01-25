@@ -39,24 +39,6 @@ def test_svd():
     # Output vector
     f = A @ y
 
-    # Least squares solution
-    yls = np.linalg.lstsq(A, f, rcond=1e-12)[0]
-
-    # Check that the least squares solution IS the preimage
-    assert np.allclose(yx, yls)
-
-    # Check the orthogonality of VTx
-    assert np.allclose(VTx @ VTx.T, np.eye(R))
-
-    # Check the orthogonality of VTo
-    assert np.allclose(VTo @ VTo.T, np.eye(N - R))
-
-    # Check that P + N = I
-    assert np.allclose(PRE + NULL, np.eye(N, N))
-
-    # Check that yx + yo = y
-    assert np.allclose(yx + yo, y)
-
     # Check that the preimage maps onto the flux
     assert np.allclose(f, A @ yx)
 
