@@ -749,7 +749,154 @@ since by construction our GP is longitudinally isotropic
 (see Appendix~\ref{sec:inc-mom1}).
 
 \subsection{The baseline problem}
-\xxx{Moved to paper 1.}
+
+\xxx{BLA BLA BLA}
+
+since we must be careful to distinguish between the
+\emph{sample} mean and the \emph{process} mean. When normalizing a light
+curve by the mean, the operation we perform is
+%
+\begin{align}
+    \label{eq:ftilde}
+    \tilde{\mathbbb{f}\hspace{0.2em}} & = \frac{\mathbbb{f}}{\left<\mathbb{f}\right>}
+    \quad,
+\end{align}
+%
+where $\tilde{\mathbbb{f}\hspace{0.2em}}$ is the normalized, unit-mean light curve,
+$\mathbbb{f}$ is the measured light curve (in detector counts), and
+$\left<\mathbb{f}\right>$ is the \emph{sample} mean: i.e., the average value of
+a given star's light curve (which we model as a sample from our GP).
+This may be close to but is in general different from the \emph{process} mean,
+$\pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)$, since the mean of
+a draw from the GP is itself normally distributed with a variance that scales
+with the GP variance.%
+\footnote{
+    Importantly, the sample mean and process mean will be different even in the
+    absence of measurement error! In other words, the mean flux of a given
+    star (i.e., the sample mean)
+    will in general be different from the mean flux \emph{across all stars} with similar
+    surface properties (the process mean).
+}
+
+Computing the covariance of the normalized process is tricky, especially
+because the normalized process is \emph{not} strictly Gaussian: the distribution
+has heavy tails due to the fact that $\tilde{\mathbbb{f}\hspace{0.2em}}$ diverges as
+the sample mean approaches zero. In fact, because of these tails, the covariance
+of the normalized process is formally \emph{infinite}, since the probability of
+drawing a sample whose mean is arbitrarily close to zero is finite.
+
+If this is all starting to sound like a bad idea, that's because it is!
+A much safer approach is to resist the temptation to normalize the light curve
+and instead model the unknown multiplicative amplitude as a latent variable. However,
+this would require an extra parameter \emph{for every light curve}, so the
+computational savings we achieved by marginalizing out the inclination
+would be gone. Fortunately, in practice, the variance of a stellar light curve
+is usually small compared to its mean: stellar variability amplitudes are
+typically at the level of a few percent or lower. When this is the case,
+the probability of drawing a GP sample whose mean is close to zero is
+extremely small, and we can make use of the approximate expression derived
+in \citet{Luger2021} for the covariance of a normalized Gaussian process:
+%
+\begin{proof}{test_normgp}
+    \label{eq:SigmaTilde}
+    \tilde{\pmb{\Sigma}}
+    & \approx
+    \frac{A}{\mu^2} \pmb{\Sigma} +
+    z \Big(
+    (A + B) \, (\mathbf{1} - \mathbf{q}) \, (\mathbf{1} - \mathbf{q})^\top
+    - A \, \mathbf{q} \, \mathbf{q}^\top
+    \Big)
+    \quad,
+\end{proof}
+%
+where
+%
+\begin{align}
+    \label{eq:z}
+    z & \equiv \frac{\left< \Sigma \right>}{\mu^2}
+\end{align}
+%
+is the ratio of the average element in $\pmb{\Sigma}$
+to the square of the mean of the Gaussian process,
+$\mathbf{q}$ is the ratio of the average of each row in $\pmb{\Sigma}$
+to the average element in $\pmb{\Sigma}$, and $A$, $B$ are
+order unity and zero scalars, respectively,
+given by the optimally-truncated diverging series
+%
+\begin{align}
+    \label{eq:baseline_alpha}
+    A
+     & \equiv
+    \sum\limits_{i=0}^{i_\mathrm{max}}
+    \frac{(2i + 1)!}{2^i \, i!}
+    z^i
+    \\[1em]
+    \label{eq:baseline_beta}
+    B
+     & \equiv
+    \sum\limits_{i=0}^{i_\mathrm{max}}
+    \frac{2i(2i + 1)!}{2^i \, i!}
+    z^i
+    \quad,
+\end{align}
+%
+where $i_\mathrm{max}$ is the largest value for which the series coefficient at $i_\mathrm{max}$ is
+smaller than the coefficient at $i_\mathrm{max} - 1$. In the expressions above, it is
+assumed that the mean $\pmb{\mu}$ is constant, i.e., $\pmb{\mu} = \mu\, \mathbf{1}$.
+Since our Gaussian process is azimuthally isotropic (i.e., no preferred
+longitude), that is the case throughout this paper.
+
+\xxx{VERY IMPORTANT for this paper. The variance of the light curves, which scales their
+    amplitudes, depends on the process MEAN, which is unobservable. Studies that look at
+    light curve ``amplitudes'' are therefore biased, even if only slightly.}
+
+What Equation~(\ref{eq:SigmaTilde}) allows us to do is effectively marginalize over
+the unknown baseline by modeling the \emph{normalized} flux as a draw
+from a Gaussian process:
+%
+\begin{align}
+    \tilde{\mathbbb{f}\hspace{0.2em}}
+    \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \sim
+    \mathcal{N}\left(
+    \mathbf{1},
+    \tilde{\pmb{\Sigma}} \left(P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \right)
+    \quad.
+\end{align}
+%
+This is appropriate as long as $z \ll 1$, for which the true
+distribution of $\tilde{\mathbbb{f}\hspace{0.2em}}$ is approximately Gaussian. In practice,
+we recommend employing this trick only for $z \lesssim 0.02$, for which the
+error in the approximation to the covariance is less than $10^{-6}$.
+In cases where the light curve variability exceeds about ten percent, we recommend
+modeling the multiplicative amplitude in each light curve as a latent variable, as discussed
+above.
+
+\begin{figure}[p!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/normgp.pdf}
+        \oscaption{normgp}{%
+            An example of a flux covariance matrix $\pmb{\Sigma}$ for a
+            \starry process (left) and the corresponding covariance of the
+            normalized process (right), computed from Equation~(\ref{eq:SigmaTilde}).
+            In addition to an offset and an overall scaling relative to the
+            original covariance matrix, the covariance of the normalized process
+            is discernibly non-stationary (see Figure~\ref{fig:nonstationarity}).
+            \label{fig:normgp}
+        }
+    \end{centering}
+\end{figure}
+
+
+
+Figure~\ref{fig:normgp} shows an example of a covariance matrix normalized
+according to the procedure outlined above. The principal difference between
+the normalized covariance and the original covariance is an overall
+scaling and a small offset. However, the normalization also results in
+the process becoming non-stationary: the covariance between two points in
+a light curve is now slightly dependent on their phases.
+
 
 \subsection{Summary}
 \label{sec:summary}
@@ -1836,8 +1983,6 @@ photometry to break these degeneracies in the following section.
 \subsection{Comparison to other work}
 \label{sec:other-work}
 
-\subsubsection{GPs, GRFs, and approximate inference}
-
 The core idea behind the methodology presented in this paper---to compute the
 Gaussian approximation to an intractable multidimensional distribution in order
 to obtain a likelihood function for inference---is not new. Although the
@@ -1905,92 +2050,7 @@ inference (not just marginalization) problems. While the methodology presented
 here applies to photometry, it is possible to extend it to model RV
 datasets as well; we discuss this in \S\ref{sec:extensions}.
 
-\subsubsection{Spots and stellar variability}
-
-\xxx{MOVE ME TO PAPER I}
-
-Recently, \citet{Morris2020} used \emph{Kepler}, \emph{K2}, and \emph{TESS}
-light curves to derive a relationship between stellar age and spot
-coverage. Because of the intractability of the marginal likelihood function,
-that study used an approximate Bayesian computation (ABC) method to
-infer spot properties from a large ensemble of stars. \citet{Morris2020}
-developed a fast, approximate forward model for light curves of spotted stars
-\citep[\textsf{fleck};][]{Morris2020b}, which they used to generate a large
-number of prior samples for different values of the spot radii, contrasts,
-and latitude distributions. For each collection of samples generated from a
-given set of hyperparameters, \citet{Morris2020} computed the distribution of
-the ``smoothed amplitude'',
-the peak-to-trough difference of the (normalized, de-trended) light curve.
-This distribution was then compared to the distribution of observed
-smoothed amplitude values among stellar clusters of different ages
-within an ABC algorithm, yielding approximate
-posterior distributions for the hyperparameters as a function of
-stellar age. \citet{Morris2020} found that the spot coverage $f_S$ as a
-function of age is well modeled by a simple power law, decreasing from
-${\sim}10\%$ for the youngest (${\sim}10$ Myr) stars
-to less than $1\%$ for the oldest (${\sim}5$ Gyr) stars.
-%
-While this broadly agrees with the expectation that stellar
-magnetic activity decreases over time, our work strongly suggests
-that these results are predominantly prior-dominated. As we discussed
-at length
-in \S\ref{sec:breaking_baseline_degeneracy} (and found in our inference
-runs in \S\ref{sec:calibration-inference}, as well as in the toy
-model presented in Figure~\ref{fig:mean_normalization}), the fractional
-spot coverage $f_S$ is not an observable in single-band photometry.
-%
-This is because the expression for $f_S$ (Equation~\ref{eq:fS}) depends on
-two quantities: the average spot radius $r$, which we showed can be
-constrained, and the total number of spots $n$, which
-we showed \emph{cannot} be constrained from single-band light curves.
-%
-In fact, \citet{Morris2020} assumed $n=3$ for simplicity when doing
-posterior inference. We therefore urge care in interpreting those results,
-as it is very likely this assumption does not hold across the large
-range of spectral types and stellar ages considered in that study.
-Nevertheless, the power law scaling of the smoothed amplitude with
-age suggests it is still a good metric for stellar ages.
-
-Moreover, the core idea in \citet{Morris2020}
-\citep[and in related studies such as][]{Jackson2013}
-is very similar
-to that advocated here: the use of ensemble analyses to constrain population-level
-parameters when invidual datasets are not sufficiently constraining.
-Our work builds on that of \citet{Morris2020} by deriving a closed form
-solution to the likelihood function (as opposed to a sample-based
-likelihood-free inference algorithm) and by harnessing the covariance
-structure of the data when doing inference (as opposed to relying solely
-on the amplitude of the data).
-
-Another recent paper relevant to our work is that of \citet{Basri2020}, who
-investigated the information content of stellar light curves, exploring what
-can and cannot be learned about star spot configurations from individual
-light curves. That paper strongly urges against the common practice
-of interpreting
-light curves with one or two dips as originating from one or two spots,
-respectively, a point we strongly agree with (c.f. Figure~\ref{fig:degeneracies}).
-It also reinforces our point about the additional degeneracies introduced
-by the unknown baseline inherent to single-band photometry.
-%
-Finally, \citet{Basri2020} present a large suite of forward models of light curves of
-spotted stars, which they use to discuss the (complicated) dependence of
-various light curve metrics on
-the physical spot parameters used to generate the data. They conclude that it
-is not possible to uniquely relate these metrics to the underlying star spot
-configuration. While we agree this is the case for individual stars, our work
-stresses that it is possible to break many of these degeneracies with
-ensemble analyses.
-%
-\citet{Basri2020} also conclude it is not in general possible to
-uniquely disentangle differential rotation from spot evolution when their
-timescales are comparable; nor is it possible to confidently measure a rotation
-period when the evolution timescale is very short. However, their study
-relies on the effect these processes have on simple light curve metrics,
-which are almost certainly not sufficient statistics of the data. Inference
-that takes into account the full covariance structure of the data, while
-considering large ensembles of light curves, could in principle break
-this degeneracy. While we do not explicitly model differential rotation in
-this paper, it will be the subject of a future paper in this series.
+\xxx{Similar to \citet{Morris2020}}.
 
 \subsection{Caveats}
 \label{sec:caveats}
