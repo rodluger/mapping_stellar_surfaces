@@ -265,10 +265,15 @@ run on Azure Pipelines upon every commit of the code.%
 \section{The null space}
 \label{sec:nullspace}
 
-\xxx{In this section, we define and present some demonstrations of the null space and how it can affect inferences about stellar surfaces.
-    We also present some examples of how these issues can be tackled.
-    While these specific examples may appear somewhat idealized, at the end of this section, we discuss how these ideas generalize to more realistic scenarios.
-    This is also a topic that we discuss in much more detail in \citetalias{PaperII}.}
+In this section, we define the concept of the \emph{null space}
+and present some demonstrations showing how it can affect inferences
+about stellar surfaces.
+We also present some examples of how the degeneracies due to
+the null space can be tackled.
+While our specific examples may appear somewhat idealized, at the end
+of this section we discuss how our ideas generalize to more
+realistic scenarios.
+This is also a topic that we discuss in much more detail in \citetalias{PaperII}.
 
 \begin{figure}[t!]
     \begin{centering}
@@ -1203,10 +1208,8 @@ to bias in the spot properties when doing inference.
 It is therefore extremely important to use reliable limb darkening models
 when doing ensemble analyses; we also explore this in \citetalias{PaperII}.
 
-\section{The baseline problem}
+\section{The baseline degeneracy}
 \label{sec:baseline}
-
-\subsection{A fundamental issue of units}
 
 Thus far we have focused our discussion on theoretical aspects concerning
 what can and cannot be learned from disk-integrated photometric measurements
@@ -1216,7 +1219,9 @@ will refer to as the \emph{baseline degeneracy}. This degeneracy has been
 pointed out before \citep[e.g.,][]{Basri2018}, but it is useful to revisit and
 build on it here.
 
-To understand this degeneracy, consider how we might go about simulating
+\subsection{A fundamental issue of units}
+%
+To understand the baseline degeneracy, consider how we might go about simulating
 a stellar surface.
 %
 We might add a dark spot somewhere on the surface, either by expanding
