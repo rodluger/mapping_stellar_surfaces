@@ -271,6 +271,12 @@ run on Azure Pipelines upon every commit of the code.%
 \section{The null space}
 \label{sec:nullspace}
 
+\dfm{I think it would be useful to have a short summary here.
+    Something like: In this section, we define and present some demonstrations of the null space and how it can affect inferences about stellar surfaces.
+    We also present some examples of how these issues can be tackled.
+    While these specific examples may appear somewhat idealized, at the end of this section, we discuss how these ideas generalize to more realistic scenarios.
+    This is also a topic that we discuss in much more detail in \citetalias{PaperII}.}
+
 \begin{figure}[t!]
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/ylms.pdf}
@@ -1077,7 +1083,7 @@ To understand how limb darkening affects our ability to infer
 surface properties from stellar light curves,
 let us repeat the experiment from the previous section,
 this time with moderate quadratic limb darkening (with coefficients
-$u_1 = 0.5$ and $u_2 = 0.25$).
+$u_1 = 0.5$ and $u_2 = 0.25$, \dfm{although our conclusions do not qualitatively change for different values}).
 The top panel of Figure~\ref{fig:nullspace_ensemble_ld} shows the
 posterior shrinkage plot (same as Figure~\ref{fig:nullspace_ensemble}, but
 this time accounting for limb darkening). Interestingly, there is no longer a clean division of
@@ -1207,9 +1213,11 @@ We might add a dark spot somewhere on the surface, either by expanding
 it in spherical harmonics or by gridding up the stellar surface and
 setting the intensity of pixels within the spot to a low value. To compute
 the light curve, we integrate over the
-projected disk at each point in time, either analytically (if we're
-in the spherical harmonic basis) or numerically by computing a weighted
-sum of the visible pixels (if we're in the pixel basis). The resulting
+projected disk at each point in time.
+% , either analytically (if we're
+% in the spherical harmonic basis) or numerically by computing a weighted
+% sum of the visible pixels (if we're in the pixel basis).
+The resulting
 light curve will have strange units, so we might then divide by the
 integral of the background intensity over the unit disk, so that we are
 now in what we will call \emph{fractional units}: the flux as a
