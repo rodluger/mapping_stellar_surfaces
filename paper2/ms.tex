@@ -19,6 +19,8 @@
 
 \usepackage{enumitem}
 
+\newcommand{\dfm}[1]{{\color{blue}#1}}
+
 % Begin!
 \begin{document}
 
@@ -50,15 +52,13 @@
 \features{open-source figures \codeicon; equation unit tests: \input{tests/tally}}
 
 \begin{abstract}
-    The use of Gaussian processes (GPs) in stellar light curve modeling has recently
+    The use of Gaussian processes (GPs) as models for astronomical time series datasets has recently
     become almost ubiquitous, given their ease of use and flexibility.
     GPs excel in particular at marginalization
     over the stellar signal in cases where the
     variability due to starspots rotating in and out of view is treated
     as a nuisance, such as in exoplanet transit modeling.
-    However, in cases where the starspot signal is of primary interest,
-    GPs have thus far been less useful: it is often difficult to
-    relate their hyperparameters to the physical properties of interest, such
+    However, these effective models are less useful in cases where the starspot signal is of primary interest since it is not obvious how the parameters of the GP model are related to the physical properties of interest, such
     as the size, contrast, and latitudinal distribution of the spots.
     Instead, it is common practice to explicitly model the effect
     of individual starspots on the light curve and attempt to infer their
@@ -74,8 +74,8 @@
     conditioned on a given distribution of
     starspot sizes, contrasts, and latitudes.
     %
-    We show that our GP is unbiased,
-    allowing one to correctly infer physical parameters of interest from one
+    We demonstrate that this model is correctly calibrated,
+    allowing one to robustly infer physical parameters of interest from one
     or more stellar light curves, including
     the typical radii and the mean and variance of the latitude
     distribution of starspots.
@@ -93,130 +93,25 @@
 \section{Introduction}
 \label{sec:intro-gps}
 
-Over the past decade, Gaussian processes (GPs) have gained traction as
-a leading tool for modeling correlated signals in stellar light curves
-\citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018}.
-Despite whatever mystique the words ``Gaussian process'' may evoke, a GP
-is nothing but a Gaussian distribution in many (formally infinite)
-dimensions. Specifically, it is a Gaussian distribution over
-\emph{functions} spanning a continuous domain (in our case, the time domain).
-Similar to a multivariate Gaussian, which is described by
-a $(K \times 1)$ vector $\pmb{\mu}$ characterizing
-the mean of the process and a $(K \times K)$
-matrix $\pmb{\Sigma}$ characterizing its covariance,
-a GP is fully specified by a mean
-function $m(t)$ and a kernel function $k(t, t')$.
-To say that a random vector-valued variable $\mathbbb{f}$
-defined on a $(K \times 1)$ time array $\mathbf{t}$
-is ``distributed as a GP'' means that we may write
-%
-\begin{align}
-    \label{eq:fnormal}
-    \mathbbb{f} \sim \mathcal{N}\left( \pmb{\mu}, \pmb{\Sigma} \right)
-    \quad,
-\end{align}
-%
-where the elements of the mean and covariance are given by
-$\mu_i = m(t_i)$ and $\Sigma_{i,j} = k(t_i, t_j)$, respectively.%
-\footnote{%
-    In this paper, we will use blackboard font (i.e., $\mathbbb{f}$) to
-    denote random variables and serif font (i.e., $\mathbf{f}$) to denote
-    particular realizations of those variables.
-    See Appendix~\ref{sec:notation} for a detailed explanation of our notation.
-}
-Because of this relationship to multivariate Gaussians,
-GPs are easy to sample from.%
-\footnote{Given a 1-d array \texttt{mean} and a 2-d array \texttt{cov} in \Python,
-    sampling from the corresponding GP (if it exists)
-    can be done in a single line of code by calling
-    \texttt{numpy.random.multivariate\_normal(mean, cov)}.}
-But the real showstopper is the application of GPs to inference problems.
-Multivariate Gaussian distributions have a closed-form (marginal) likelihood
-function, so it is easy to compute the probability
-of one's data conditioned on a given value of $\pmb{\mu}$ and $\pmb{\Sigma}$
-(i.e., the ``likelihood''; see Equation~\ref{eq:log-like} below).
-This can in turn be maximized
-to infer the optimal values of the model parameters
-or used in a
-numerical sampling scheme to compute the probability of those parameters
-given the data (i.e., the ``posterior'').
-Thanks to modern computer architectures, linear algebra packages, and
-GP algorithms,
-evaluating the GP likelihood may typically be done in a fraction of a second
-for a reasonably-sized dataset (i.e., $K \lesssim 10^4$ datapoints).
+Over the past decades, Gaussian processes (GPs) have gained traction as
+a leading tool for modeling correlated signals in astronomical time series datasets, especially photometric time series
+\citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018} and radial velocities (ADD CITATIONS).
+\dfm{LET'S START WITH A SIMPLE INTUITIVE INTRO HERE AND SAVE THE DETAILS UNTIL LATER! HERE'S A VERY ROUGH FIRST PASS:
+GPs are popular models for these applications because they allow marginalization over a stochastic noise process specified only by its autocorrelation structure or kernel.
+This is relatively straightforward to interpret and in some specific cases it can be related to physically motivated models (CITE SOME THINGS).
+Furthermore, there are several popular open source implementations that allow efficient evaluation of these models, and these have been widely demonstrated to be useful effective models for the time series when the stochastic variability is primarily a nuisance.}
 
-Another big advantage of GPs is their flexibility. GPs are often dubbed
-a class of ``non-parametric'' models, given that nowhere in the specification
-of the GP is there an explicit functional form for $\mathbbb{f}$. Rather, a GP
-is a stochastic
-process whose draws can in principle take on \emph{any} functional form,
-subject, however, to certain smoothness and correlation criteria
-of tunable strictness
-that are fully
-encoded in the covariance $\pmb{\Sigma}$.
-%
-In many applications, particularly when modeling stellar light curves,
-it is customary to restrict the problem by
-assuming that the process is \emph{stationary}, such that we may write
-%
-\begin{align}
-    \label{eq:kernel}
-    \Sigma_{i,j} & = k(t_i, t_j)
-    \nonumber                                    \\
-                 & = k(\left| t_i - t_j \right|)
-    \nonumber                                    \\
-                 & \equiv k(\Delta t)
-    \quad.
-\end{align}
-%
-A stationary process is one that is independent of phase (or, in this case,
-the actual value of the time $t$); rather, it depends only on the \emph{difference}
-between the phases of two data points. The kernel of a stationary process is
-therefore a one-dimensional function, typically chosen from a set of
-standard functions with desirable smoothness and spectral properties.
-Among a vast number of kernels are a few that are commonly used
-in modeling stellar variability: the exponential squared kernel,
-%
-\begin{align}
-    \label{eq:expsq}
-    k_\mathrm{E^2}(\Delta t)           & = \sigma^2 \exp\left(-\frac{\Delta t^2}{2\tau}\right)
-    \quad,                                                                                                                                           \\
-    \intertext{the Mat\'ern-3/2 kernel,}
-    \label{eq:mat32}
-    k_\mathrm{M^\frac{3}{2}}(\Delta t) & = \sigma^2 \left( 1 + \frac{\sqrt{3}\Delta t}{\tau} \right) \exp\left(-\frac{\sqrt{3}\Delta t}{\tau}\right)
-    \quad,                                                                                                                                           \\
-    \intertext{the exponential sine squared kernel,}
-    \label{eq:expsinsq}
-    k_\mathrm{S^2}(\Delta t)           & = \sigma^2 \exp\left[-\Gamma\sin^2\left( \frac{\pi \Delta t}{P} \right)\right]
-    \quad,                                                                                                                                           \\
-    \intertext{the cosine kernel,}
-    k_\mathrm{C}(\Delta t)             & = \sigma^2 \cos\left( \frac{2\pi \Delta t}{P} \right)
-    \quad,
-\end{align}
-%
-or any linear combination and/or product of these. In the expressions above,
-$\sigma$, $\tau$, $\Gamma$, and $P$ are
-the \emph{hyperparameters} of the kernels.
-Specifically, $\sigma^2$ is the variance (the value
-of the kernel when $t_i = t_j$), $\tau$ is a typical timescale over which
-data are correlated, $\Gamma$ is a dimensionless scale parameter, and $P$ is
-a period.
-Once a kernel has been chosen, these scalar quantities fully
-specify the covariance of the Gaussian process. GP-based inference
-entails optimizing or sampling over these few quantities, which in many
-cases can be done easily and efficiently.
-
-Which brings us, finally, to an important drawback of GPs when applied
-to modeling stellar light curves, particularly when the variability is due
-to starspots rotating in and out of view. \textbf{While it is straightforward to derive
-    posterior constraints on the hyperparameters of a GP given a light curve, it is often
-    not obvious what those constraints actually tell us about the stellar surface.}
-Specifically, it is difficult to constrain the relationship between
-quantities like the amplitude $\sigma^2$
-and the timescale $\tau$ and physical properties of the surface.
-For instance, it may be tempting to interpret $\sigma^2$ as some measure of the spot
-contrast or the total number of spots, or $\tau$ as the timescale on which the
-spots evolve, but there are no guarantees these interpretations will
+% However, an important drawback of the typical uses of GPs when applied
+% to modeling stellar light curves, particularly when the variability is due
+% to starspots rotating in and out of view.
+If, however, one hopes to make inferences about the stellar surface itself, GP models, as they are typically applied, are not so useful.
+\textbf{While it is straightforward to derive
+    posterior constraints on the hyperparameters of an effective GP model for observations of a star, it is not clear what those constraints actually tell us about the stellar surface.}
+Specifically, in all but a few restricted cases, there is no first principles relationship between the descriptive parameters of a typical GP model (see section WHATEVER below)
+and the physical properties of the stellar surface surface that is being observed.
+For instance, it may be tempting to interpret the amplitude of the variability as some measure of the spot
+contrast or the total number of spots, or the timescale of the variations as the
+spot lifetime, but there are no guarantees these interpretations will
 hold in general. After all, the choice of kernel is quite often \emph{ad hoc},
 providing an \emph{effective}---as opposed to \emph{interpretable}---description
 of the physics.
@@ -371,6 +266,8 @@ distribution. Most of the math is folded into the Appendix for readability;
 readers may want to refer to Appendix~\ref{sec:notation} in particular for
 a discussion of the notation and conventions we adopt.
 
+\subsection{Spherical harmonics}
+
 \begin{figure}[t!]
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/ylms.pdf}
@@ -420,6 +317,120 @@ harmonic basis to the flux basis; it is
 a function of the stellar inclination $I$, the stellar
 rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$
 (see Appendix~\ref{sec:starry} for details).
+
+
+\subsection{Gaussian processes in general}
+
+Despite whatever mystique the words ``Gaussian process'' may evoke, a GP
+is nothing but a Gaussian distribution in many (formally infinite)
+dimensions. Specifically, it is a Gaussian distribution over
+\emph{functions} spanning a continuous domain (in our case, the time domain).
+Similar to a multivariate Gaussian, which is described by
+a $(K \times 1)$ vector $\pmb{\mu}$ characterizing
+the mean of the process and a $(K \times K)$
+matrix $\pmb{\Sigma}$ characterizing its covariance,
+a GP is fully specified by a mean
+function $m(t)$ and a kernel function $k(t, t')$.
+To say that a random vector-valued variable $\mathbbb{f}$
+defined on a $(K \times 1)$ time array $\mathbf{t}$
+is ``distributed as a GP'' means that we may write
+%
+\begin{align}
+    \label{eq:fnormal}
+    \mathbbb{f} \sim \mathcal{N}\left( \pmb{\mu}, \pmb{\Sigma} \right)
+    \quad,
+\end{align}
+%
+where the elements of the mean and covariance are given by
+$\mu_i = m(t_i)$ and $\Sigma_{i,j} = k(t_i, t_j)$, respectively.%
+\footnote{%
+    In this paper, we will use blackboard font (i.e., $\mathbbb{f}$) to
+    denote random variables and serif font (i.e., $\mathbf{f}$) to denote
+    particular realizations of those variables.
+    See Appendix~\ref{sec:notation} for a detailed explanation of our notation.
+}
+Because of this relationship to multivariate Gaussians,
+GPs are easy to sample from.%
+\footnote{Given a 1-d array \texttt{mean} and a 2-d array \texttt{cov} in \Python,
+    sampling from the corresponding GP (if it exists)
+    can be done in a single line of code by calling
+    \texttt{numpy.random.multivariate\_normal(mean, cov)}.}
+But the real showstopper is the application of GPs to inference problems.
+Multivariate Gaussian distributions have a closed-form (marginal) likelihood
+function, so it is easy to compute the probability
+of one's data conditioned on a given value of $\pmb{\mu}$ and $\pmb{\Sigma}$
+(i.e., the ``likelihood''; see Equation~\ref{eq:log-like} below).
+This can in turn be maximized
+to infer the optimal values of the model parameters
+or used in a
+numerical sampling scheme to compute the probability of those parameters
+given the data (i.e., the ``posterior'').
+Thanks to modern computer architectures, linear algebra packages, and
+GP algorithms,
+evaluating the GP likelihood may typically be done in a fraction of a second
+for a reasonably-sized dataset (i.e., $K \lesssim 10^4$ datapoints).
+
+Another big advantage of GPs is their flexibility. GPs are often dubbed
+a class of ``non-parametric'' models, given that nowhere in the specification
+of the GP is there an explicit functional form for $\mathbbb{f}$. Rather, a GP
+is a stochastic
+process whose draws can in principle take on \emph{any} functional form,
+subject, however, to certain smoothness and correlation criteria
+of tunable strictness
+that are fully
+encoded in the covariance $\pmb{\Sigma}$.
+%
+In many applications, particularly when modeling stellar light curves,
+it is customary to restrict the problem by
+assuming that the process is \emph{stationary}, such that we may write
+%
+\begin{align}
+    \label{eq:kernel}
+    \Sigma_{i,j} & = k(t_i, t_j)
+    \nonumber                                    \\
+                 & = k(\left| t_i - t_j \right|)
+    \nonumber                                    \\
+                 & \equiv k(\Delta t)
+    \quad.
+\end{align}
+%
+A stationary process is one that is independent of phase (or, in this case,
+the actual value of the time $t$); rather, it depends only on the \emph{difference}
+between the phases of two data points. The kernel of a stationary process is
+therefore a one-dimensional function, typically chosen from a set of
+standard functions with desirable smoothness and spectral properties.
+Among a vast number of kernels are a few that are commonly used
+in modeling stellar variability: the exponential squared kernel,
+%
+\begin{align}
+    \label{eq:expsq}
+    k_\mathrm{E^2}(\Delta t)           & = \sigma^2 \exp\left(-\frac{\Delta t^2}{2\tau}\right)
+    \quad,                                                                                                                                           \\
+    \intertext{the Mat\'ern-3/2 kernel,}
+    \label{eq:mat32}
+    k_\mathrm{M^\frac{3}{2}}(\Delta t) & = \sigma^2 \left( 1 + \frac{\sqrt{3}\Delta t}{\tau} \right) \exp\left(-\frac{\sqrt{3}\Delta t}{\tau}\right)
+    \quad,                                                                                                                                           \\
+    \intertext{the exponential sine squared kernel,}
+    \label{eq:expsinsq}
+    k_\mathrm{S^2}(\Delta t)           & = \sigma^2 \exp\left[-\Gamma\sin^2\left( \frac{\pi \Delta t}{P} \right)\right]
+    \quad,                                                                                                                                           \\
+    \intertext{the cosine kernel,}
+    k_\mathrm{C}(\Delta t)             & = \sigma^2 \cos\left( \frac{2\pi \Delta t}{P} \right)
+    \quad,
+\end{align}
+%
+or any linear combination and/or product of these. In the expressions above,
+$\sigma$, $\tau$, $\Gamma$, and $P$ are
+the \emph{hyperparameters} of the kernels.
+Specifically, $\sigma^2$ is the variance (the value
+of the kernel when $t_i = t_j$), $\tau$ is a typical timescale over which
+data are correlated, $\Gamma$ is a dimensionless scale parameter, and $P$ is
+a period.
+Once a kernel has been chosen, these scalar quantities fully
+specify the covariance of the Gaussian process. GP-based inference
+entails optimizing or sampling over these few quantities, which in many
+cases can be done easily and efficiently.
+
 
 \subsection{Computing the GP}
 \label{sec:gp}
@@ -2944,9 +2955,9 @@ such that
     \setstackgap{L}{1.25\baselineskip}
     \fixTABwidth{T}
     \parenMatrixstack{
-        \mathbf{a}_0^\top \\
-        \mathbf{a}_1^\top \\
-        \vdots            \\
+    \mathbf{a}_0^\top \\
+    \mathbf{a}_1^\top \\
+    \vdots            \\
         \mathbf{a}_{K-1}^\top
     }\quad.
 \end{align}
