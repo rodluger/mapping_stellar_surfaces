@@ -409,46 +409,27 @@ We will return to this point below.
 %
 \label{sec:svd}
 %
-To better understand the properties of the null space of the light curve
-mapping problem, it is useful to perform singular value decomposition (SVD) to express
-the flux operator as
+In Appendix~\ref{sec:app-svd} we show that it is straightforward to
+construct linear operators $\mathbf{P}$ and $\mathbf{N}$ from the
+design matrix $\mathbf{A}$ such that
 %
 \begin{align}
-    \label{eq:svd}
-    \mathbf{A} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
-    \quad,
-\end{align}
-%
-where $\mathbf{U}$ is a $(K \times K)$ orthogonal matrix,
-$\mathbf{V}$ is a $(N \times N)$ orthogonal matrix,
-and $\mathbf{S}$ is a $(K \times N)$ diagonal matrix.
-%
-The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and right
-\emph{singular vectors} of $\mathbf{A}$, and the entries along the
-diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\mathbf{A}$
-has rank $R$, the first $R$ singular values will be nonzero, while the
-remaining $N - R$ will be identically zero.
-%
-In Appendix~\ref{sec:app-svd} we show that this decomposition allows us
-to construct linear operators $\mathbf{P}$ and $\mathbf{N}$ such that
-%
-\begin{align}
-    \mathbf{y}_\bullet & \equiv \mathbf{P} \, \mathbf{y}
+    \mathbf{y}_\bullet & = \mathbf{P} \, \mathbf{y}
 \end{align}
 %
 is the component of the surface map in the \emph{preimage} and
 %
 \begin{align}
-    \mathbf{y}_\circ & \equiv \mathbf{N} \, \mathbf{y}
+    \mathbf{y}_\circ & = \mathbf{N} \, \mathbf{y}
 \end{align}
 %
 is the component of the map in the \emph{null space}.
 %
-The preimage operator $\mathbf{P}$
+The \emph{preimage operator} $\mathbf{P}$
 transforms a vector $\mathbf{y}$ in the surface map basis in such a way
 that it preserves the information in $\mathbf{y}$ that gets mapped
 onto the light curve $\mathbf{f}$ via $\mathbf{A}$ (the \emph{preimage}) and discards the rest. The
-null space operator $\mathbf{N}$ does the opposite: it preserves only
+\emph{null space operator} $\mathbf{N}$ does the opposite: it preserves only
 the information in $\mathbf{y}$ that gets mapped onto the zero
 vector via $\mathbf{A}$ (the \emph{null space}).
 %
@@ -1310,8 +1291,8 @@ only grow \emph{linearly}. Consequently, the information content of light
 curves is small for large scale surface features and \emph{vanishingly small}
 for small scale features.
 
-A direct consequence of this fact is that results based on analyses
-of individual light curves are necessarily prior-dominated; i.e.,
+A direct consequence of this fact is that \textbf{results based on analyses
+    of individual light curves are necessarily prior-dominated}; i.e.,
 the results are extremely sensitive to
 the particular assumptions of one's model. We therefore urge lots of care
 in these kinds of analyses, where assumptions of uniform-contrast, discrete, and
@@ -1516,9 +1497,28 @@ many thought-provoking discussions that helped shape this paper.
 
 \section{Decomposition of the flux operator}
 \label{sec:app-svd}
-
-In this section we show how to use SVD to decompose a surface map
-into its preimage and its null space (see \S\ref{sec:svd}).
+%
+In this section we show how to use singular value decomposition (SVD)
+to decompose a surface map
+into its preimage and its null space (see \S\ref{sec:svd}). By performing SVD, we
+may express the flux design matrix as
+%
+\begin{align}
+    \label{eq:svd}
+    \mathbf{A} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
+    \quad,
+\end{align}
+%
+where $\mathbf{U}$ is a $(K \times K)$ orthogonal matrix,
+$\mathbf{V}$ is a $(N \times N)$ orthogonal matrix,
+and $\mathbf{S}$ is a $(K \times N)$ diagonal matrix.
+%
+The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and right
+\emph{singular vectors} of $\mathbf{A}$, and the entries along the
+diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\mathbf{A}$
+has rank $R$, the first $R$ singular values will be nonzero, while the
+remaining $N - R$ will be identically zero.
+%
 If we assume for definitess that $K > N$ (i.e., we have more flux observations
 than surface map coefficients we're trying to constrain), we can express the
 matrices in Equation~(\ref{eq:svd}) as
