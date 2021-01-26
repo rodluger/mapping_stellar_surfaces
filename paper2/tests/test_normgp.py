@@ -60,7 +60,7 @@ def test_norm_cov():
     mu = 0.75
 
     # Dimension of the problem
-    K = 3
+    K = 10
 
     # Random covariance and its Cholesky decomp.
     L = 0.1 * np.tril(0.25 * np.random.randn(K, K) + np.eye(K))

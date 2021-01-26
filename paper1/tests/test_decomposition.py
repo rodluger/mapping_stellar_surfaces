@@ -37,10 +37,10 @@ def test_svd():
     yo = NULL @ y
 
     # Output vector
-    f = A @ y
+    f = 1 + A @ y
 
     # Check that the preimage maps onto the flux
-    assert np.allclose(f, A @ yx)
+    assert np.allclose(f - 1, A @ yx)
 
     # Check that the nullspace maps onto the zero vector
     assert np.allclose(0, A @ yo)

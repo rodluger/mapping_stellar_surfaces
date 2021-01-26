@@ -326,33 +326,35 @@ spherical harmonic coefficients $\mathbf{y}$ \citep{Luger2019}:
 %
 \begin{align}
     \label{eq:fAy}
-    \mathbf{f} = \mathbf{A} \, \mathbf{y}
+    \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}
     \quad,
 \end{align}
 %
-where $\mathbf{A}$ is the $(K \times N)$ \emph{design matrix} of the transformation, whose columns
+where $\pmb{\mathcal{A}}$ is the $(K \times N)$ \emph{design matrix} of the transformation, whose columns
 describe how each of the $N$ components in the spherical harmonic basis contribute
 to each of the $K$ points in the light curve.%
 \footnote{%
-    For rotational light curves, the rows of $\mathbf{A}$ are given by the
-    quantity $\mathbf{r}^\top \mathbf{A}_1 \mathbf{R}$ in Equation~(18) of
+    For rotational light curves, the rows of $\pmb{\mathcal{A}}$ are given by the
+    quantity $\mathbf{r}^\top \pmb{\mathcal{A}}_1 \mathbf{R}$ in Equation~(18) of
     \citet{Luger2019}, where $\mathbf{r}^\top$ is a vector of disk-integrated
-    intensities, $\mathbf{A}_1$ is a change of basis matrix, and $\mathbf{R}$
+    intensities, $\pmb{\mathcal{A}}_1$ is a change of basis matrix, and $\mathbf{R}$
     is a spherical harmonic rotation matrix that depends on the stellar inclination
-    and the rotational phase of the star. Refer to that paper for more details.
+    and the rotational phase of the star. In Equation~(\ref{eq:fAy}) we explicitly
+    add a vector of ones to enforce a unit baseline for spotless stars.
+    Refer to \citet{Luger2019} for more details.
 }
 %
 Even though we are explicitly choosing the spherical harmonics as the basis in which
 we describe the stellar surface, Equation~(\ref{eq:fAy}) is quite general and applies to
 \emph{any} basis that is linearly related to the flux. For instance, $\mathbf{y}$
-could instead describe the intensities in each of the $N$ pixels of a gridded stellar
-surface, in which case $\mathbf{A}$ would be the matrix of pixel visibilities that describe
+could instead describe the intensity deficits in each of the $N$ pixels of a gridded stellar
+surface, in which case $\pmb{\mathcal{A}}$ would be the matrix of pixel visibilities that describe
 how to sum each of the pixels to obtain the observed light curve.
 
 The size of the null space is called the \emph{nullity}, and it is equal to
 $N - R$, where $N$ is once again the number of coefficients describing the
-stellar surface and $R$ is the \emph{rank} of the flux operator $\mathbf{A}$.
-The rank $R$ is the number of linearly independent columns in $\mathbf{A}$, which
+stellar surface and $R$ is the \emph{rank} of the flux operator $\pmb{\mathcal{A}}$.
+The rank $R$ is the number of linearly independent columns in $\pmb{\mathcal{A}}$, which
 can be computed numerically using any standard linear algebra package. It is equal
 to the number of independent signals (or components) that can be measured given
 an observation of $\mathbf{f}$.
@@ -380,7 +382,7 @@ as a function of the resolution of the surface map (quantified as the
 spherical harmonic degree $l$ of the expansion). The orange
 curve is the number of spherical harmonic coefficients needed to
 represent a surface map up to degree $l$, and is equal to $N = (l + 1)^2$.
-The blue line shows the rank of the flux operator $\mathbf{A}$ as a function
+The blue line shows the rank of the flux operator $\pmb{\mathcal{A}}$ as a function
 of $l$, which scales as $R \approx 2l + 1$. The nullity is
 simply the difference between $N$ and $R$.
 
@@ -411,7 +413,7 @@ We will return to this point below.
 %
 In Appendix~\ref{sec:app-svd} we show that it is straightforward to
 construct linear operators $\mathbf{P}$ and $\mathbf{N}$ from the
-design matrix $\mathbf{A}$ such that
+design matrix $\pmb{\mathcal{A}}$ such that
 %
 \begin{align}
     \mathbf{y}_\bullet & = \mathbf{P} \, \mathbf{y}
@@ -428,10 +430,10 @@ is the component of the map in the \emph{null space}.
 The \emph{preimage operator} $\mathbf{P}$
 transforms a vector $\mathbf{y}$ in the surface map basis in such a way
 that it preserves the information in $\mathbf{y}$ that gets mapped
-onto the light curve $\mathbf{f}$ via $\mathbf{A}$ (the \emph{preimage}) and discards the rest. The
+onto the light curve $\mathbf{f}$ via $\pmb{\mathcal{A}}$ (the \emph{preimage}) and discards the rest. The
 \emph{null space operator} $\mathbf{N}$ does the opposite: it preserves only
 the information in $\mathbf{y}$ that gets mapped onto the zero
-vector via $\mathbf{A}$ (the \emph{null space}).
+vector via $\pmb{\mathcal{A}}$ (the \emph{null space}).
 %
 In other words,
 the $\mathbf{P}$ and $\mathbf{N}$ operators reveal the
@@ -495,7 +497,7 @@ It is instructive to visualize these components in
 an actual surface mapping exercise. Figure~\ref{fig:nullspace_preimage}
 shows the decomposition of four hypothetical surfaces (left
 column) into preimage (center) and null space (right)
-components under the flux operator $\mathbf{A}$, which we compute for
+components under the flux operator $\pmb{\mathcal{A}}$, which we compute for
 definiteness at an inclination of $I = 60^\circ$ over a full rotation.
 The light curves corresponding to each of these surfaces are also shown.
 Note that both the true map and its associated light curve are simply equal to
@@ -551,7 +553,7 @@ coefficients. In this case, the least squares solution is given by
     \label{eq:inference}
     \hat{\mathbf{y}}
     &=
-    \lim_{\lambda \rightarrow 0} \left( \mathbf{A}^\top \mathbf{A} + \lambda \mathbf{I}\right)^{-1} \mathbf{A}^\top \mathbf{f}
+    \lim_{\lambda \rightarrow 0} \left( \pmb{\mathcal{A}}^\top \pmb{\mathcal{A}} + \lambda \mathbf{I}\right)^{-1} \pmb{\mathcal{A}}^\top (\mathbf{f} - \mathbf{1})
     \nonumber\\
     &= \mathbf{y}_\bullet
     \quad.
@@ -1409,7 +1411,7 @@ can and cannot be learned about star spot configurations from individual
 light curves. That paper strongly urges against the common practice
 of interpreting
 light curves with one or two dips as originating from one or two spots,
-respectively, a point we strongly agree with (c.f. our Figure~\ref{fig:degeneracies}).
+respectively, a point we strongly agree with (see our Figure~\ref{fig:degeneracies}).
 It also reinforces our point about the additional degeneracies introduced
 by the unknown baseline inherent to single-band photometry.
 %
@@ -1505,7 +1507,7 @@ may express the flux design matrix as
 %
 \begin{align}
     \label{eq:svd}
-    \mathbf{A} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
+    \pmb{\mathcal{A}} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
     \quad,
 \end{align}
 %
@@ -1514,8 +1516,8 @@ $\mathbf{V}$ is a $(N \times N)$ orthogonal matrix,
 and $\mathbf{S}$ is a $(K \times N)$ diagonal matrix.
 %
 The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and right
-\emph{singular vectors} of $\mathbf{A}$, and the entries along the
-diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\mathbf{A}$
+\emph{singular vectors} of $\pmb{\mathcal{A}}$, and the entries along the
+diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\pmb{\mathcal{A}}$
 has rank $R$, the first $R$ singular values will be nonzero, while the
 remaining $N - R$ will be identically zero.
 %
@@ -1602,11 +1604,11 @@ $\mathbf{V}_\bullet^\top$ is $(R \times N)$,
 and
 $\mathbf{V}_\circ^\top$ is $(N - R \times N)$.
 %
-We may then express the decomposition of $\mathbf{A}$ as
+We may then express the decomposition of $\pmb{\mathcal{A}}$ as
 %
 \begin{align}
     \label{eq:A}
-    \mathbf{A} =
+    \pmb{\mathcal{A}} =
     \left(
     \begin{array}{c|c}
             \mathbf{U}_\bullet & \mathbf{U}_\circ
@@ -1633,7 +1635,7 @@ Inserting this into Equation~(\ref{eq:fAy}), we have
 %
 \begin{proof}{test_decomposition}
     \label{eq:ydecomp}
-    \mathbf{f} & = \mathbf{A} \, \mathbf{y}
+    \mathbf{f} - \mathbf{1} & = \pmb{\mathcal{A}} \, \mathbf{y}
     \nonumber                               \\
     & =
     \left(
@@ -1721,13 +1723,13 @@ Therefore we may write Equation~(\ref{eq:ydecomp}) as
 %
 \begin{proof}{test_decomposition}
     \boxed{
-        \mathbf{f} = \mathbf{A} \, \mathbf{y}_\bullet
+        \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}_\bullet
         +
         \mathbf{0} \, \mathbf{y}_\circ
     }
 \end{proof}
 %
-where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \mathbf{A}$
+where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \pmb{\mathcal{A}}$
 follows directly from Equations~(\ref{eq:A}) and (\ref{eq:S0}).
 %
 This is the decomposition of the surface map $\mathbf{y}$ into

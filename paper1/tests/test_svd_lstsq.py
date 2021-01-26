@@ -37,10 +37,10 @@ def test_svd():
     yo = NULL @ y
 
     # Output vector
-    f = A @ y
+    f = 1 + A @ y
 
     # Least squares solution
-    yls = np.linalg.lstsq(A, f, rcond=1e-12)[0]
+    yls = np.linalg.lstsq(A, f - 1, rcond=1e-12)[0]
 
     # Check that the least squares solution IS the preimage
     assert np.allclose(yx, yls)

@@ -15,6 +15,8 @@
 \patchcmd{\env@cases}{\quad}{\qquad\qquad}{}{}
 \makeatother
 
+\defcitealias{PaperI}{Paper I}
+
 \usepackage{enumitem}
 
 % Begin!
@@ -70,7 +72,7 @@
     mean and covariance of a Gaussian process model that describes
     the light curve of a rotating, evolving stellar surface
     conditioned on a given distribution of
-    star spot sizes, contrasts, and latitudes.
+    starspot sizes, contrasts, and latitudes.
     %
     We show that our GP is unbiased,
     allowing one to correctly infer physical parameters of interest from one
@@ -242,20 +244,24 @@ effective model of this sort is generally sufficient.
 
 When the goal is to understand
 the stellar surface itself, however, GPs have been less useful to date.
-While there have been several recent papers
+While recent papers have proposed several custom
+GP kernels that excel at modeling rotational variability, such as
+the exponential sine squared kernel \citep[Equation~\ref{eq:expsinsq};][]{Wang2012},
+the quasi-periodic kernel \citep{Angus2018}, and
+the \celerite \textsf{RotationTerm} \citep{ForemanMackey2017},
+the connection between the kernel hyperparameters and the physical spot
+properties is often qualitative. Recently, \citet{Perger2020} proposed
+an empirically-motivated quasi-periodic cosine kernel that can be used
+to infer spot lifetimes in the absence of differential rotation. However,
+an explicit connection between the GP hyperparameters and the size and
+spatial distribution of spots has not been explored in the literature.
 
-
-\xxx{...}
-the exponential sine squared kernel \citep[Equation~\ref{eq:expsinsq}][]{Wang2012},
-quasi-periodic kernel \citep{Angus2018},
-or the \celerite \textsf{RotationTerm} \citep{ForemanMackey2017}.
-quasi-periodic cosine kernel\citep[e.g.,][]{Perger2020}
-\xxx{...}
-
-Instead, the common approach is that discussed in the previous section:
+Instead, a common approach to inferring starspot properties from
+photometric datasets is
 to forward model the stellar surface and its effect on the light curve, then
 seek to constrain the surface properties by solving the inverse problem.
-As we discussed above, however, a unique solution to the surface map of
+We discussed this approach in \citet{PaperI} \citepalias[hereafter][]{PaperI},
+where we argued a unique solution to the surface map of
 the star from a rotational light curve is not possible without the use of
 aggressive (and often \emph{ad hoc}) priors. The degeneracies at play
 make it effectively impossible for one to know the exact configuration
@@ -271,7 +277,7 @@ We are hardly ever interested in the
 \emph{particular} properties of a \emph{particular} spot, as we wouldn't really
 know what to do with that information! Instead, we often treat
 (whether explicitly or not)
-the properties of a star spot as a draw from some parent distribution
+the properties of a starspot as a draw from some parent distribution
 controlling (say) the average and spread in the radii of the spots.
 The parameters controling this distribution are the ones that we can
 predict with physics; they are therefore also the ones we are usually
@@ -304,7 +310,7 @@ perform this marginalization for us!
 \textbf{In this paper, we derive an exact, closed-form expression for
     the Gaussian approximation to the marginal likelihood of a light curve
     conditioned on the statistical properties of starspots.} Our Gaussian
-process analytically marginalizes over the (degenerate, often unknowable)
+process analytically marginalizes over the degenerate and often unknowable
 distributions of properties of individual starspots, revealing the
 constraints imposed on the bulk spot properties without the need to
 explicitly model or sample over properties of individual spots. It inherits
@@ -312,28 +318,40 @@ the speed, ease-of-use, and all other properties of traditionally-used
 GPs, with the added benefit of direct physical interpretability of its
 hyperparameters.
 %
+In particular, \textbf{our GP is aimed at ensemble analyses of many light curves.}
+As we showed in \citetalias{PaperI}, the joint information content of
+the light curves of many stars can break many of the degeneracies in the
+mapping problem. We encourage readers to read \citetalias{PaperI} to
+better understand this and other points regarding the information theory
+behind stellar rotational light curves.
 
-The paper is organized as follows:
-we present an overview of the derivation of the GP in \S\ref{sec:gp}
+The present paper is organized as follows:
+we present an overview of the derivation of the GP in \S\ref{sec:main}
 and a suite of tests on synthetic data to show the model is calibrated
-in \S\ref{sec:calibration}. We discuss our GP from an information
-theory perspective in \S\ref{sec:discussion}, focusing on
-the various degeneracies our model can and cannot break when applied
-to ensembles of light curves. In \S\ref{sec:implementation} we present
-our implementation of the algorithm in the open-source \starryprocess package
-alongside speed and stability tests, and in \S\ref{sec:conclusions} we
-summarize our results. Most of the math behind the algorithm
+in \S\ref{sec:calibration}. We discuss our results and the limitations
+of our model in \S\ref{sec:discussion} and present straightforward
+extensions of the GP, including its application to time-variable
+surfaces, in \S\ref{sec:extensions}.
+In \S\ref{sec:conclusions} we summarize our results and discuss
+topics we will address in future papers in this series.
+
+
+Most of the math behind the algorithm
 is presented in the Appendix, followed by a series of supplementary figures
 (discussed in \S\ref{sec:calibration}). Appendix~\ref{sec:notation} discusses the
 notation we adopt throughout the paper and Table~\ref{tab:variables}
 lists the main symbols and variables, with links to their definitions.
+The algorithm developed in this paper is fully implemented in the \starryprocess code, which is
+available on \href{https://github.com/rodluger/starry_process}{GitHub}
+and is described in more detail in \citet{JOSSPaper}.
+%
 
 Finally, we note that all of the figures in this paper were auto-generated
 using the Azure Pipelines continuous integration (CI) service, which
 ensures they are up to date with the latest version of the
 \starryprocess code. In particular, icons next to each of the figures \codeicon \,
 link to the exact script used to generate them to ensure the reproducibility
-of our results. As in \citet{PaperI}, the principal equations are
+of our results. As in \citetalias{PaperI}, the principal equations are
 accompanied by
 ``unit tests'': \textsf{pytest}-compatible test scripts associated
 with the principal equations that pass (fail) if the equation is correct (wrong),
@@ -348,7 +366,7 @@ run on Azure Pipelines upon every commit of the code.
 
 In this section, we present an overview of the computation of our Gaussian
 process, which boils down to computing the mean and covariance of the stellar
-flux conditioned on certain physical properties of the star and its star spot
+flux conditioned on certain physical properties of the star and its starspot
 distribution. Most of the math is folded into the Appendix for readability;
 readers may want to refer to Appendix~\ref{sec:notation} in particular for
 a discussion of the notation and conventions we adopt.
@@ -373,7 +391,7 @@ a set of orthogonal functions on the surface of the sphere which we will use
 to describe the intensity field on the surface of a star
 (Figure~\ref{fig:ylms}). As we will see below,
 the spherical harmonics are a particularly convenient basis in which to
-describe star spot distributions%
+describe starspot distributions%
 \footnote{There are, of course, drawbacks to using this basis:
     in particular, the spherical harmonics are smooth, continuous functions that
     struggle (at finite degree $l$) to capture high resolution features such as
@@ -760,13 +778,21 @@ is constant:
 since by construction our GP is longitudinally isotropic
 (see Appendix~\ref{sec:inc-mom1}).
 
-\subsection{The baseline problem}
+\subsection{Normalization correction}
+\label{sec:baseline}
 
-\xxx{BLA BLA BLA}
-
-since we must be careful to distinguish between the
-\emph{sample} mean and the \emph{process} mean. When normalizing a light
-curve by the mean, the operation we perform is
+In \citetalias{PaperI} we discussed a subtle but important point
+about stellar light curves: the common procedure of normalizing
+light curves to their mean or median level changes the covariance
+structure of the data, since it correlates all the observations
+in a nontrivial way.
+%
+When normalizing a light
+curve by the mean,%
+\footnote{In practice, the expressions derived here also work well
+    for median-normalized light curves, since the distribution of the GP sample median
+    is usually close to the distribution of the sample mean.}
+the operation we perform is
 %
 \begin{align}
     \label{eq:ftilde}
@@ -790,8 +816,11 @@ with the GP variance.%
     surface properties (the process mean).
 }
 
-Computing the covariance of the normalized process is tricky, especially
+When modeling normalized light curves, we must correct our expression for
+the covariance matrix $\pmb{\Sigma}$ of the GP.
+Computing the new covariance matrix is tricky, especially
 because the normalized process is \emph{not} strictly Gaussian: the distribution
+of normalized light curves
 has heavy tails due to the fact that $\tilde{\mathbbb{f}\hspace{0.2em}}$ diverges as
 the sample mean approaches zero. In fact, because of these tails, the covariance
 of the normalized process is formally \emph{infinite}, since the probability of
@@ -799,7 +828,8 @@ drawing a sample whose mean is arbitrarily close to zero is finite.
 
 If this is all starting to sound like a bad idea, that's because it is!
 A much safer approach is to resist the temptation to normalize the light curve
-and instead model the unknown multiplicative amplitude as a latent variable. However,
+and instead model the (unknown) amplitude of the data as a multiplicative
+latent variable. However,
 this would require an extra parameter \emph{for every light curve}, so the
 computational savings we achieved by marginalizing out the inclination
 would be gone. Fortunately, in practice, the variance of a stellar light curve
@@ -858,9 +888,9 @@ assumed that the mean $\pmb{\mu}$ is constant, i.e., $\pmb{\mu} = \mu\, \mathbf{
 Since our Gaussian process is azimuthally isotropic (i.e., no preferred
 longitude), that is the case throughout this paper.
 
-\xxx{VERY IMPORTANT for this paper. The variance of the light curves, which scales their
-    amplitudes, depends on the process MEAN, which is unobservable. Studies that look at
-    light curve ``amplitudes'' are therefore biased, even if only slightly.}
+% The variance of the light curves, which scales their
+% amplitudes, depends on the process MEAN, which is unobservable. Studies that look at
+% light curve ``amplitudes'' are therefore biased, even if only slightly.
 
 What Equation~(\ref{eq:SigmaTilde}) allows us to do is effectively marginalize over
 the unknown baseline by modeling the \emph{normalized} flux as a draw
@@ -885,7 +915,7 @@ In cases where the light curve variability exceeds about ten percent, we recomme
 modeling the multiplicative amplitude in each light curve as a latent variable, as discussed
 above.
 
-\begin{figure}[p!]
+\begin{figure}[t!]
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/normgp.pdf}
         \oscaption{normgp}{%
@@ -894,13 +924,11 @@ above.
             normalized process (right), computed from Equation~(\ref{eq:SigmaTilde}).
             In addition to an offset and an overall scaling relative to the
             original covariance matrix, the covariance of the normalized process
-            is discernibly non-stationary (see Figure~\ref{fig:nonstationarity}).
+            is discernibly non-stationary.
             \label{fig:normgp}
         }
     \end{centering}
 \end{figure}
-
-
 
 Figure~\ref{fig:normgp} shows an example of a covariance matrix normalized
 according to the procedure outlined above. The principal difference between
@@ -960,9 +988,9 @@ spot distribution
 consisting of the number of spots $n$, their contrast $c$,
 the mode $\mu_\phi$ and standard deviation $\sigma_\phi$ of the latitude
 distribution, and the radius of the spots $r$.
-The quantity $\tilde{\pmb{\Sigma}}$ is the covariance of the (normalized) process
+The quantity $\tilde{\pmb{\Sigma}}$ is the covariance of the normalized process
 (Equation~\ref{eq:SigmaTilde}), which is a straightforward correction to the
-true covariance of the process, which accounts for
+true covariance of the process, accounting for
 changes in scale and phase introduced by the common process of
 normalizing light curves to a mean of unity. It depends on the
 true (constant) mean $\mu$
@@ -995,7 +1023,7 @@ be computed recursively, and many may be pre-computed, as they do not
 depend on user inputs.
 %
 It is therefore possible to evaluate $\tilde{\pmb{\Sigma}}$ in an
-efficient manner. In \S\ref{sec:implementation} we discuss our
+efficient manner. In the companion paper \citep{JOSSPaper}, we discuss our
 implementation of the algorithm in a user-friendly \Python package.
 
 \subsection{An example}
@@ -1373,15 +1401,20 @@ the log likelihood.
 Figure~\ref{fig:calibration_default_data} shows a synthetic dataset generated
 from the default values listed in Table~\ref{tab:synthetic}. While the
 light curves correspond to surfaces with the same statistical spot properties,
-they all look qualitatively different: the mapping from star spot properties
+they all look qualitatively different: the mapping from starspot properties
 to flux is nontrivial. In the inference step below, we assume we observe
 only these 50 light curves (the figure only shows 49 of them),
 with no knowledge of the inclination of any individual
 star, and attempt to infer the spot properties.
 
+% HACK HACK HACK HACK HACK
+\vfill
+\pagebreak
+% HACK HACK HACK HACK HACK
+
 \subsection{Inference}
 \label{sec:calibration-inference}
-We use our \Python-based implementation of the GP (\S\ref{sec:implementation})
+We use our \Python-based implementation of the GP \citep{JOSSPaper}
 to perform inference on the synthetic datasets. For simplicity, we assume we
 know the value of the period $P$, which is fixed at unity for all stars, as well
 as the value of the limb darkening coefficients (fixed at zero for the default
@@ -1397,10 +1430,6 @@ variational inference \citep[ADVI;][]{Kucukelbir2016,Blei2016}, and nested sampl
 We obtained the best performance using the nested sampling algorithm
 implemented in the \textsf{dynesty} package \citep{Speagle2020}, so that is what
 we will use below.
-
-% HACK HACK HACK HACK HACK
-\pagebreak
-% HACK HACK HACK HACK HACK
 
 Our sampling parameters are the number of spots $n$, their contrast $c$,
 their radius $r$, and the Beta distribution parameters $a$ and $b$ describing their
@@ -1435,7 +1464,7 @@ given by Equation~(\ref{eq:SigmaTilde}). Since we only consider light curves
 with variability limited to a few percent or less, the approximation for
 $\tilde{\pmb{\Sigma}}$ is always valid. Finally, we restrict our spherical
 harmonic expansion to $l_\mathrm{max} = 15$ as a compromise between
-resolution, computational speed, and numerical stability (see \S\ref{sec:implementation}).
+resolution, computational speed, and numerical stability \citep[see][]{JOSSPaper}.
 
 We use the standard implementation of the nested sampler,
 \textsf{dynesty.NestedSampler}, with all arguments set to their
@@ -1508,7 +1537,7 @@ and the spot contrast $c$ are fairly tight, while the distribution for
 the latitudinal scatter $\sigma_\phi$ has wider tails and the distribution for
 the number of spots $n$ is very poorly constrained. The latter, in particular, is
 degenerate with the spot contrast $c$; we discuss this at length in
-\S\ref{sec:breaking_baseline_degeneracy}.
+\citepalias{PaperI}.
 
 Figure~\ref{fig:calibration_default_latitude} shows samples from the spot
 latitude posterior (hyper)distribution. Since the parameters $\mu_\phi$
@@ -1607,9 +1636,9 @@ posteriors are very close to the true values, the distributions have long
 tails extending to high latitudes and high variance, respectively.
 
 The reason for this bias has to do with the baseline degeneracy discussed in
-\S\ref{sec:baseline} and illustrated in Figure~\ref{fig:mean_normalization}:
+\citetalias{PaperI}:
 the total spottiness of a stellar surface cannot be probed in relative
-photometry. In particular, this means spots near the poles lie almost
+photometry. In particular, this means spots near the poles lie \emph{almost}
 entirely in the null space. Applied to the problem at hand, this degeneracy
 makes it difficult to distinguish between stars with spots concentrated
 exclusively at mid-latitudes (in this case, the truth) and
@@ -1623,11 +1652,11 @@ scenarios, introducing the degeneracy we see in the posterior. In fact,
 it is clear that in the tails of the distribution, the mean spot latitude
 and the standard deviation of spot latitudes are positively correlated.
 The bias we see is therefore not a shortcoming of the model, but of the
-\emph{data} itself. To get around this, we either need to impose a
-shrinkage prior on $\sigma_\phi$ (\S\ref{sec:caveats}),
-observe in a different mode that is sensitive to baseline information
-(\S\ref{sec:breaking_baseline_degeneracy}), or simply collect more data.
-As we will see below, the degeneracy described above is not perfect:
+\emph{data} itself. To get around this, we either need to impose stronger
+priors on $\mu_\phi$ and $\sigma_\phi$ (\S\ref{sec:caveats}),
+observe in multiple wavelength bands
+\citepalias{PaperI}, or simply collect more data.
+As we will see below, the particular degeneracy described above is not perfect:
 for very large ($M \sim 1{,}000$) ensembles, high-variance polar spots
 can confidently be ruled out.
 
@@ -1640,7 +1669,7 @@ mean of the spot number distribution is roughly correct, the posterior
 is nearly unchanged across all runs, and equally uninformative in all
 of them. This is yet another manifestation of the baseline degeneracy:
 the total number of spots is not an observable in relative photometry
-(see \S\ref{sec:breaking_baseline_degeneracy}).
+\citepalias{PaperI}.
 
 There is one final distribution that is instructive to consider: the
 distribution of errors on the inferred stellar inclination.
@@ -1758,13 +1787,13 @@ infer both the radii and latitudes of the spots. Limb darkening has a complicate
 effect on the mapping between surface features and disk-integrated flux, as it
 reveals information about odd harmonics at
 the expense of introducing strong degeneracies with the even harmonics
-(\S\ref{sec:limbdark}). In practice, this leads to higher uncertainty in
+\citepalias{PaperI}. In practice, this leads to higher uncertainty in
 the spot radii and latitudes relative to the same dataset without limb
 darkening (Figure~\ref{fig:calibration_default_corner}). Fortunately,
 this uncertainty can be dramatically reduced with more data, as evident
 in Figure~\ref{fig:calibration_ld_1000}, which shows the results of the
 same run but with $M=1{,}000$ light curves in the ensemble. The constraints
-on $r$, $\mu_\phi$, $\sigma_\phi$, and $c$ are now much tighter and in
+on $r$, $\mu_\phi$, and $\sigma_\phi$ are now much tighter and in
 good agreement with the truth. Finally, Figure~\ref{fig:calibration_ld_500_no_ld}
 shows the results of inference on limb-darkened light curves under the
 (wrong) assumption that limb darkening is not present ($\mathbf{u} = \mathbf{0}$).
@@ -1772,7 +1801,7 @@ Neglecting the effect of limb darkening leads to significant biases in the spot 
 and latitude parameters. While the model still favors mid-latitude spots
 (at $\sim 45^\circ$ instead of $30^\circ$), the constraints are deceptively tight
 and discrepant by many standard deviations. We discuss these points in
-more detail in \S\ref{sec:limbdark}.
+more detail in \S\ref{sec:caveats}.
 
 The runs so far correspond to stars with many ($n = 20$) spots, for which the
 resulting light curves are smooth due to the fact that many spots are in
@@ -1783,13 +1812,12 @@ light curves being flat (and therefore extremely non-stationary)
 in these scenarios, the GP does surprisingly well, recovering the radii
 and latitude parameters within $2-3\sigma$ in both cases.
 Note that in order to preserve the same signal-to-noise ratio relative to
-the other runs, the spots in Figure~\ref{fig:calibration_hicontrast}
-have much higher contrast ($c = 0.5$). Even though the contrast is degenerate
+the other runs, we gave the spots in Figure~\ref{fig:calibration_hicontrast}
+a much higher contrast ($c = 0.5$). Even though the contrast is degenerate
 with the number of spots (which is unobservable), the $c$ posterior
-has a much heavier tail than in the other runs, showing that the model is
-in fact sensitive to the spot contrast to some degree.%
-\footnote{The sensitivity to $c$ is for the most part
-    due to our hard lower prior bound $n \ge 1$.}
+has a much heavier tail than in the other runs. This is largely coming
+from our prior, in which we assume that the spots must be dark and all have
+the same contrast.
 In Figure~\ref{fig:calibration_bigspots}, we compensate for the smaller number
 of spots by increasing the spot radius to $r = 45^\circ \pm 5^\circ$ instead,
 showing that the model can accurately model large spots, even in the
@@ -1819,21 +1847,18 @@ measure if the stars had no spots on them, and we \emph{do not}
 normalize them (see \S\ref{sec:baseline}). In practice, this would require
 knowledge of the brightness (or temperature) of the unspotted
 photosphere, which is not an observable in single-band relative photometry.
-This value can be probed, however, in multi-band photometry
-(see \S\ref{sec:breaking_baseline_degeneracy}), for which this trial is
+This value can in principle be probed, however, in multi-band photometry
+\citep[e.g.,][]{Gully2017,Guo2018}, for which this trial is
 extremely relevant. We again recover the radii and latitude parameters
 to within $2-3\sigma$, but most importantly, we also infer the correct
 spot contrast \emph{and} the correct number of spots with fairly high
 precision. In particular, knowledge of the baseline breaks the $c-N$ degeneracy.
 Photometric measurements in multiple bands (even just two!)
 are therefore extremely useful when inferring spot properties.
-We discuss this point at length in \S\ref{sec:breaking_baseline_degeneracy}.
+We discussed this point in \citetalias{PaperI}.
 
 \section{Discussion}
 \label{sec:discussion}
-
-
-
 
 \subsection{Small spots}
 \label{sec:tinyspots}
@@ -1844,10 +1869,10 @@ it imposes on the resolution of surface features. In order to maximize
 computational efficiency and numerical stability, our default approach is to
 model the surface using an expansion up to degree $l_\mathrm{max} = 15$,
 which can model features only as small as
-$\sim \nicefrac{180^\circ}{15} = 12^\circ$ on the surface. Even on scales
+$\sim \nicefrac{180^\circ}{15} = 12^\circ$ across. Even on scales
 slightly larger than this, the presence of ringing can be seen
-(c.f. panel (b) in Figure~\ref{fig:samples}, where ringing can just barely be
-seen in the equatorial region of the maps). The spherical harmonic basis consists
+(see panel (b) in Figure~\ref{fig:samples}, where ringing is just barely
+noticeable in the equatorial region of the maps). The spherical harmonic basis consists
 of global modes, all of which contribute to the intensity everywhere on the surface.
 Localized features require constructive interference of modes inside
 and destructive interference of modes outside, often leading to a wave-like ringing
@@ -1860,7 +1885,7 @@ difficult to find closed-form expressions for the expectation integrals
 
 One option is to bypass the computation of the covariance on the surface of
 the star and to write down an expression for the flux directly in terms of
-the properties of a star spot. Circular spots of uniform intensity can be
+the properties of a starspot. Circular spots of uniform intensity can be
 modeled as spherical caps, which are simply segments of ellipses when
 projeted onto the sky. It is possible to express in closed form the projected area
 they cover---and hence their contribution to the flux $\mathbbb{f}$---even in the case
@@ -1872,7 +1897,7 @@ the hyperparameter PDFs, as we did in \S\ref{sec:gp}.
 However, the expression for
 $\mathbbb{f}$ involves square roots and arctangents of functions of the spot
 latitude and longitude
-\citep[c.f. Equation~40 in][]{Luger2017},
+\citep[see Equation~40 in][]{Luger2017},
 so computing these integrals in closed form is
 likely to be very difficult. Even if a closed form solution can be found,
 incorporating limb darkening (which we argued can be extremely important)
@@ -1888,7 +1913,7 @@ of small spots, at the expense of the ability to model larger spots.
 In principle, small spots can be modeled under our current
 approach with negligible ringing by simply
 increasing the degree of the spherical harmonic expansion. As we discuss in
-\S\ref{sec:implementation}, however, the algorithm presented here becomes
+\citep{JOSSPaper}, however, the algorithm presented here becomes
 unstable for $l \gtrsim 15$, so doing so would require a reparametrization
 of the equations in the Appendix. Importantly, however, as we showed in
 \S\ref{sec:calibration}, the current implementation of the GP is suitable
@@ -1946,7 +1971,7 @@ fundamental issue with relative photometry: we lack any information about
 the true baseline level of the light curve.
 Consider the dependence of the (unnormalized) GP covariance on the
 contrast: it enters in a single place, via Equation~(\ref{eq:bigEc}),
-as $c^2$, meaning dark and bright spots models have exactly the same
+as $c^2$, meaning dark and bright spot models have exactly the same
 covariance. These models differ only in the mean of the unnormalized
 process, since that is proportional to $c$ (via Equation~\ref{eq:ec}).
 However, as we argue in \S\ref{sec:baseline}, the mean is not a direct
@@ -1983,17 +2008,15 @@ We can, however, skirt this degeneracy with observations in multiple bands,
 which can provide limited information about the baseline level. Recently,
 \citet{Morris2018} used approximately coeval \emph{Kepler} and \emph{Spitzer}
 light curves of TRAPPIST-1 to argue that a bright spot model for the star
-is more consistent with the data. We discuss the ability of multi-band
-photometry to break these degeneracies in the following section.
+is more consistent with the data. A detailed exploration of the
+effect of multi-band photometry on the degeneracies of the mapping problem
+is deferred to a future paper in this series.
 
-
-
-% HACK HACK HACK HACK HACK
-\pagebreak
-% HACK HACK HACK HACK HACK
 
 \subsection{Comparison to other work}
 \label{sec:other-work}
+
+\subsubsection{Synthetic likelihoods, random fields, and approximate inference}
 
 The core idea behind the methodology presented in this paper---to compute the
 Gaussian approximation to an intractable multidimensional distribution in order
@@ -2044,8 +2067,10 @@ computation (ABC), in which an (often intractable) likelihood function is
 replaced with an approximation computed from simulations from the prior
 \citep[e.g.,][]{Beaumont2019}.
 
-Finally, the methodology developed here is closely related to that in
-\citet{Perger2020}, who studied the effect of different star spot
+\subsubsection{Starspots and stellar variability}
+
+The methodology developed in this paper is closely related to that in
+\citet{Perger2020}, who studied the effect of different starspot
 configurations on the autocorrelation and covariance of stellar
 radial velocity (RV) measurements. The authors of that study compared the
 performance of various commonly used quasi-periodic kernels when applied
@@ -2057,21 +2082,15 @@ fashion. Their QPC kernel is a function of two interpretable hyperparameters
 (the rotation period and a spot timescale) as well as two amplitudes, which
 are not explicitly related to physical spot properties. Our GP, in contrast,
 is built from the ground up such that all of its hyperparameters directly
-correspond to physical spot properties, allowing one to use it in star spot
+correspond to physical spot properties, allowing one to use it in starspot
 inference (not just marginalization) problems. While the methodology presented
 here applies to photometry, it is possible to extend it to model RV
 datasets as well; we discuss this in \S\ref{sec:extensions}.
 
-\xxx{Similar to \citet{Morris2020}}.
-Our work builds on that of \citet{Morris2020} by deriving a closed form
-solution to the likelihood function (as opposed to a sample-based
-likelihood-free inference algorithm) and by harnessing the covariance
-structure of the data when doing inference (as opposed to relying solely
-on the amplitude of the data).
-
 Recently, \citet{Morris2020} used \emph{Kepler}, \emph{K2}, and \emph{TESS}
 light curves to derive a relationship between stellar age and spot
-coverage. Because of the intractability of the marginal likelihood function,
+coverage using an ensemble analysis similar to that proposed here.
+Because of the intractability of the marginal likelihood function,
 that study used an approximate Bayesian computation (ABC) method to
 infer spot properties from a large ensemble of stars. \citet{Morris2020}
 developed a fast, approximate forward model for light curves of spotted stars
@@ -2079,50 +2098,41 @@ developed a fast, approximate forward model for light curves of spotted stars
 number of prior samples for different values of the spot radii, contrasts,
 and latitude distributions. For each collection of samples generated from a
 given set of hyperparameters, \citet{Morris2020} computed the distribution of
-the ``smoothed amplitude'',
+the ``smoothed amplitude,''
 the peak-to-trough difference of the (normalized, de-trended) light curve.
 This distribution was then compared to the distribution of observed
 smoothed amplitude values among stellar clusters of different ages
 within an ABC algorithm, yielding approximate
 posterior distributions for the hyperparameters as a function of
-stellar age. \citet{Morris2020} found that the spot coverage $f_S$ as a
-function of age is well modeled by a simple power law, decreasing from
-${\sim}10\%$ for the youngest (${\sim}10$ Myr) stars
-to less than $1\%$ for the oldest (${\sim}5$ Gyr) stars.
+stellar age.
 %
-While this broadly agrees with the expectation that stellar
-magnetic activity decreases over time, our work strongly suggests
-that these results are predominantly prior-dominated. As we discussed
-in \S\ref{sec:baseline}, the fractional
-spot coverage $f_S$ is not an observable in single-band photometry.
+While we believe the spot coverage results of that paper are predominantly driven
+by the prior \citep[due to the strong degeneracy between the spot contrast
+    and the number of spots; see \S4.2 in][]{PaperI},
 %
-This is because the expression for $f_S$ (Equation~\ref{eq:fS}) depends on
-two quantities: the average spot radius $r$, which we showed can be
-constrained, and the total number of spots $n$, which
-we showed \emph{cannot} be constrained from single-band light curves.
+the ensemble analysis employed in that paper is nevertheless a powerful technique
+to infer spot properties.
 %
-In fact, \citet{Morris2020} assumed $n=3$ for simplicity when doing
-posterior inference. We therefore urge care in interpreting those results,
-as it is very likely this assumption does not hold across the large
-range of spectral types and stellar ages considered in that study.
-Nevertheless, the power law scaling of the smoothed amplitude with
-age suggests it is still a good metric for stellar ages.
+Our work builds on that of \citet{Morris2020} by deriving a closed form
+solution to the likelihood function (as opposed to a sample-based
+likelihood-free inference algorithm) and by harnessing the covariance
+structure of the data when doing inference (as opposed to relying solely
+on the amplitude of the data).
 
-\xxx{Basri:}
-Finally, \citet{Basri2020} present a large suite of forward models of light curves of
-spotted stars, which they use to discuss the (complicated) dependence of
+Finally, \citet{Basri2020} recently presented a large suite of forward models of light curves of
+spotted stars, which they used to discuss the (complicated) dependence of
 various light curve metrics on
-the physical spot parameters used to generate the data. They conclude that it
-is not possible to uniquely relate these metrics to the underlying star spot
+the physical spot parameters used to generate the data. They concluded that it
+is not possible to uniquely relate these metrics to the underlying starspot
 configuration. While we agree this is the case for individual stars, our work
 stresses that it is possible to break many of these degeneracies with
 ensemble analyses.
 %
-\citet{Basri2020} also conclude it is not in general possible to
+\citet{Basri2020} also concluded it is not in general possible to
 uniquely disentangle differential rotation from spot evolution when their
 timescales are comparable; nor is it possible to confidently measure a rotation
 period when the evolution timescale is very short. However, their study
-relies on the effect these processes have on simple light curve metrics,
+relied on the effect these processes have on simple light curve metrics,
 which are almost certainly not sufficient statistics of the data. Inference
 that takes into account the full covariance structure of the data, while
 considering large ensembles of light curves, could in principle break
@@ -2133,7 +2143,7 @@ this paper, it will be the subject of a future paper in this series.
 \label{sec:caveats}
 
 We conclude our discussion with a list of several notes and caveats that should be kept
-in mind when using our algorithm and/or its \Python implementation.
+in mind when using our algorithm and its \Python implementation.
 
 \begin{enumerate}
     \item \emph{The assumed latitude distribution is not Gaussian}.
@@ -2171,7 +2181,7 @@ in mind when using our algorithm and/or its \Python implementation.
           % has max amplitudes of more than 10\% and works great.
     \item \emph{Keep in mind the polar spot degeneracy}. Even when modeling
           ensembles of light curves, there are still strong degeneracies at
-          play. In particular, spots centered on the poles are always in
+          play \citepalias{PaperI}. In particular, spots centered on the poles are always in
           the null space, so it can be difficult in practice to rule out
           their presence. This can be seen in Figure~\ref{fig:calibration_hilat},
           in which the model cannot distinguish between spots localized
@@ -2182,9 +2192,12 @@ in mind when using our algorithm and/or its \Python implementation.
           the latitude (with density proportional to $\cos\mu_\phi$)
           to downweight very high latitude spots.
     \item \emph{Limb darkening matters!} The null space is extremely sensitive
-          to limb darkening (\S\ref{sec:limbdark}). It is therefore
+          to limb darkening \citepalias{PaperI}. It is therefore
           extremely important to model it correctly; otherwise, there may
-          be substantial bias in the inferred spot parameters.
+          be substantial bias in the inferred spot parameters. For stars with
+          transiting exoplanets, it may be possible to infer the limb darkening
+          coefficients empirically, but in general we recommend modeling them
+          as latent variables with priors informed by theoretical models.
     \item \emph{Careful with the data}. In general, covariances can be very
           hard to estimate from noisy data. This makes it especially important
           to ensure one is correctly modeling the noise. When applying our GP
@@ -2261,7 +2274,7 @@ number of spots $n$ to enforce any discrete distribution for that quantity.
 The reader should keep in mind that the cost of computing the GP
 covariance matrix will scale linearly with the number of GP components.
 In many cases, however, the computational bottleneck is the covariance factorization
-step (\S\ref{sec:implementation}), in which case adding components to the
+step \citep{JOSSPaper}, in which case adding components to the
 model will result in negligible overhead.
 
 \subsection{Time evolution}
@@ -2282,7 +2295,9 @@ we will make two simplifying assumptions:
 \begin{enumerate}
     \item \emph{The temporal process is stationary.} This implies that there is no
           preferred time (or phase) and that the spatial covariance is the
-          same at all points in time.
+          same at all points in time. Stars may still have active longitudes
+          under this assumption, but there is no preferred longitude
+          \emph{across all stars}.
     \item \emph{The temporal and spatial covariances are independent.} This implies
           that the evolution of each spherical harmonic mode in time is independent of the
           evolution of any of the other modes in time.
@@ -2431,10 +2446,6 @@ different times (top) and the light curve sample over ten rotations (bottom).
 The flux variability is qualitatively similar to that seen in
 temporally-variable \emph{Kepler} light curves.
 
-% HACK HACK HACK HACK HACK
-\pagebreak
-% HACK HACK HACK HACK HACK
-
 \subsection{Marginalizing over period and limb darkening}
 \label{sec:other-marg}
 
@@ -2485,7 +2496,7 @@ Equation~(\ref{eq:akT}) also makes clear the dependence of the GP on
 the limb darkening cofficients, which enter via the limb darkening
 operator $\mathbf{L}(\mathbf{u})$. The coefficients
 of this matrix are linear in the limb darkening coefficients $u_1$ and $u_2$
-(c.f. Equation~\ref{eq:ld:L}), so it should be possible to derive closed
+(see Equation~\ref{eq:ld:L}), so it should be possible to derive closed
 form solutions to the relevant integrals over $\mathbf{L}(\mathbf{u})$ to
 yield the GP covariance marginalized over $\mathbf{u}$. It may be
 possible to compute the marginalized covariance even when parametrizing
@@ -2498,7 +2509,7 @@ Given the complexity of the operations involved,
 performing these marginalizations is beyond the scope of the present paper.
 However, given the significant computational benefits of this marginalization,
 and given the fact that the mapping problem is particularly sensitive to
-the limb darkening coefficients (see \S\ref{sec:limbdark}), marginalizing over
+the limb darkening coefficients \citepalias{PaperI}, marginalizing over
 $P$ and $\mathbf{u}$ will be the subject of an upcoming paper.
 
 \subsection{Modeling transits and radial velocity datasets}
@@ -2571,16 +2582,17 @@ write
 \end{align}
 %
 where $\mathbbb{v}$ is the random variable representing the observed radial
-velocity timeseries and
+velocity time series,
 $\mathbbb{y}$ is the Gaussian random variable representing the spherical harmonic
-coefficients describing the stellar surface.
+coefficients describing the stellar surface, and the division is performed
+elementwise.
 %
-Since the $\mathbbb{v}$ is the ratio of two Gaussian random variables, its
+Since $\mathbbb{v}$ is the ratio of two Gaussian random variables, its
 distribution is not Gaussian. However, we can still compute the first two moments
 of the distribution of $\mathbbb{v}$ to derive a Gaussian approximation to it
 (similar to what we did in \S\ref{sec:baseline}), which will yield the mean
 and covariance of the Gaussian process representation of the radial velocity
-timeseries.
+time series.
 %
 Given the complexity of the operations described above,
 we defer this calculation (and the calibration of the resulting GP model)
@@ -2588,7 +2600,12 @@ to future work.
 
 \section{Conclusions}
 \label{sec:conclusions}
-We presented a new Gaussian process (GP) model for stellar variability
+
+This paper is the second in a series devoted to the development of
+statistically rigorous techniques to model stellar surfaces based on
+unresolved photometric and spectroscopic measurements.
+%
+Here, we presented a new Gaussian process (GP) model for stellar variability
 whose hyperparameters explicitly correspond to physical properties of the stellar
 surface. Our GP allows one to efficiently compute the likelihood function
 for stellar light curves
@@ -2606,8 +2623,9 @@ solution as a function of the spot parameters, it can be computed
 efficiently: a typical likelihood evaluation on a dataset
 consisting of $K \sim 1{,}000$ points takes about 20ms on a modern
 laptop. Our algorithm is implemented in the open-source, user-friendly
-\Python package \starryprocess, which is \textsf{pip}-installable and available on
-\href{https://github.com/rodluger/starry_process}{GitHub}.
+\Python package \starryprocess, which is \textsf{pip}-installable, available on
+\href{https://github.com/rodluger/starry_process}{GitHub}, and
+described in \citet{JOSSPaper}.
 The algorithm is implemented in a combination of \cpp and \Python,
 linked using the \theano package. Because our GP covariance has an exact
 representation, so too do its derivatives. We therefore implement
@@ -2618,8 +2636,8 @@ variational inference (ADVI), and gradient-based nested sampling.
 
 We devoted a large portion of this paper to testing the algorithm on a variety
 of synthetic datasets, showing that it is a well-calibrated and in most
-cases unbiased estimator for star spot properties. Below we list the main
-results concerning our GP:
+cases unbiased estimator for starspot properties. Below we list our main
+results:
 
 \begin{enumerate}
     \item \textbf{Our GP works best for ensemble analyses.} The light curve mapping
@@ -2634,6 +2652,16 @@ results concerning our GP:
           of analysis works best if the stars in the ensemble are statistically
           similar: i.e., the properties of their spots are all drawn from the
           same parent distribution, whose parameters we can constrain.
+    \item \textbf{Typically, an ensemble of at least $M \sim 50$ light curves
+              is needed to place meaningful constraints on starspot properties}.
+          This estimate is based on ensemble analyses of light curves with
+          $K = 1{,}000$ cadence each and per-cadence precision of one part
+          per thousand. Lower quality, shorter baseline observations, or
+          datasets contaminated by outliers will in general require larger values
+          of $M$ for the same constraining power. The presence of strong limb
+          darkening also degrades the information content of light curves, in
+          which case an ensemble of hundreds or even a thousand light curves
+          is recommended.
     \item \textbf{Our GP is an unbiased estimator for the spot radius and
               latitude distributions.} We showed that our GP can accurately infer the
           angular size of spots and the mode and standard deviation of their
@@ -2681,49 +2709,12 @@ results concerning our GP:
           be the subject of a future paper in this series.
 \end{enumerate}
 
-In this paper we also demonstrated and discussed four points that apply more
-broadly to stellar light curve variability modeling in general:
-
-\begin{enumerate}
-    \item \textbf{Typically, an ensemble of at least $M \sim 50$ light curves
-              is needed to place meaningful constraints on starspot properties}.
-          This estimate is based on ensemble analyses of light curves with
-          $K = 1{,}000$ cadence each and per-cadence precision of one part
-          per thousand. Lower quality, shorter baseline observations, or
-          datasets contaminated by outliers will in general require larger values
-          of $M$ for the same constraining power. The presence of strong limb
-          darkening also degrades the information content of light curves, in
-          which case an ensemble of hundreds or even a thousand light curves
-          is recommended.
-    \item \textbf{Limb darkening breaks degeneracies}. The presence of limb darkening
-          changes the structure of the null space. Even small variations in the
-          limb darkening coefficients among stars in an ensemble can effectively
-          increase the information content of their light curves when analyzed
-          jointly. However, this is both a blessing and a curse: it is very
-          important to accurately model limb darkening to infer starspot
-          properties without bias.
-    \item \textbf{Relative single-band photometry cannot uniquely constrain
-              the spot contrast, the total number of spots, or the total spot
-              coverage}. We showed that these two quantities
-          are perfectly degenerate with each other in relative single-band photometry.
-          Knowledge of the
-          unspotted photospheric brightness (or temperature) can break this
-          degeneracy, so analyses of multi-band light curves can in principle
-          infer the total spottiness of a stellar surface.
-    \item \textbf{Care should be taken when analyzing normalized light curves}.
-          We showed that the widely-adopted practice of normalizing light curves
-          to their mean, median, or maximum changes the covariance structure of
-          the data in potentially complex ways. In addition to changing the total
-          variance of the data, this normalization step introduces non-stationarity
-          in the covariance, which can lead to biases particularly when
-          modeling light curves of stars with very long rotation periods.
-\end{enumerate}
-
 The GP presented here has far-ranging applications for stellar light
 curve studies. It serves as a drop-in replacement for commonly used
 GP kernels for stellar variability, which currently do not have
-physically interpretable parameters other than (perhaps) the rotation
-period. As such, it can be used to marginalize over stellar rotational variability
+physically interpretable parameters other than the rotation
+period and, in some cases, a spot evolution timescale.
+As such, it can be used to marginalize over stellar rotational variability
 signals in (say) transiting exoplanet searches, asteroseismic characterization
 of stars, radial velocity searches, etc. It can also be used to learn
 about stellar surfaces directly: to infer spot properties of main sequence
@@ -2780,6 +2771,8 @@ We would like to thank David W. Hogg, Michael Gully-Santiago, and the
 Astronomical Data Group at the Center for Computational Astrophysics for
 many thought-provoking discussions that helped shape this paper.
 
+\vfill
+\pagebreak
 \bibliography{bib}
 
 %
@@ -2788,18 +2781,20 @@ many thought-provoking discussions that helped shape this paper.
 %
 
 \pagebreak
+
+\input{table}
+\vfill
+\clearpage
+
+\pagebreak
+
+%
+%
+%
+%
+
 \appendix
 
-%
-%
-%
-%
-
-\afterpage{
-    \input{table}
-    \vfill
-    \clearpage
-}
 
 %
 %
@@ -2957,7 +2952,7 @@ such that
 \end{align}
 %
 The row vector $\mathbf{a}_k^\top$ encodes how the spherical harmonic
-coefficient vector projects onto the $k^\mathrm{th}$ cadence in the flux timeseries, and
+coefficient vector projects onto the $k^\mathrm{th}$ cadence in the flux time series, and
 may be computed from
 %
 \begin{align}
@@ -2996,7 +2991,7 @@ we are now in the observer's frame.%
 
 Following \citet{Luger2019}, the next step is to project the representation of
 the star into a more convenient basis for performing the integration over the stellar
-disk. The change-of-basis matrix $\mathbf{A}_1$ \citep[c.f. Appendix~B in][]{Luger2019}
+disk. The change-of-basis matrix $\mathbf{A}_1$ \citep[see Appendix~B in][]{Luger2019}
 projects the stellar map into the \emph{polynomial basis}
 \citep[Equation~7 in][]{Luger2019}, comprised of the sequence of monomials in Cartesian
 coordinates
@@ -3826,7 +3821,7 @@ and $\imag$ is the imaginary unit
 \citep{AlvarezCollado1989}. The terms of the $d$-matrix
 depend on powers of $\sin\left(\nicefrac{\upbeta}{2}\right)$
 and $\cos\left(\nicefrac{\upbeta}{2}\right)$
-\citep[c.f. Equation C15 in][]{Luger2019}, but it is convenient to use
+\citep[see Equation C15 in][]{Luger2019}, but it is convenient to use
 the half-angle formula to express these terms instead as
 %
 \begin{proof}{test_dlmmp}
@@ -4889,7 +4884,7 @@ However, in practice, it is quite difficult to constrain the
 spot contrast from light curves, let alone higher moments of its
 distribution; this is due largely to the fact that the contrast
 is extremely degenerate with the total number of spots
-(see \S\ref{sec:breaking_baseline_degeneracy}).
+\citepalias{PaperI}.
 %
 In our implementation of the algorithm,
 we therefore choose the simplest possible probability distribution,
@@ -5470,7 +5465,7 @@ as is the case with \emph{Kepler} or \emph{TESS} light curves,
 this approximation leads to negligible error when $K' \approx K$,
 affording the same $\mathcal{O}(K)$ computational savings.
 Note that even in the case where the flux is normalized
-(c.f. \S\ref{sec:baseline}), the non-stationary correction to the
+(see \S\ref{sec:baseline}), the non-stationary correction to the
 covariance is applied \emph{after} the step where we marginalize
 over the inclination, so this approach is still valid.
 
@@ -5605,7 +5600,7 @@ over the inclination, so this approach is still valid.
             stars with (assumed known) limb darkening coefficients
             $u_1 = 0.50$ and $u_2 = 0.25$. Limb darkening makes it
             much harder to infer the variance of the distribution of
-            star spot latitudes.
+            starspot latitudes.
             \label{fig:calibration_ld}
         }
     \end{centering}
