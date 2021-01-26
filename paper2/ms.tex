@@ -22,6 +22,7 @@
 
 % Title
 \title{%
+    \vspace{-2em}
     \textbf{
         Mapping stellar surfaces\\
         II: An interpretable Gaussian process model for light curves
@@ -88,10 +89,10 @@
 \end{abstract}
 
 \section{Introduction}
-\label{sec:intro}
+\label{sec:intro-gps}
 
 Over the past decade, Gaussian processes (GPs) have gained traction as
-a leading tool for modeling correlated signals in astrophysical timeseries
+a leading tool for modeling correlated signals in stellar light curves
 \citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018}.
 Despite whatever mystique the words ``Gaussian process'' may evoke, a GP
 is nothing but a Gaussian distribution in many (formally infinite)
@@ -183,6 +184,7 @@ in modeling stellar variability: the exponential squared kernel,
     k_\mathrm{M^\frac{3}{2}}(\Delta t) & = \sigma^2 \left( 1 + \frac{\sqrt{3}\Delta t}{\tau} \right) \exp\left(-\frac{\sqrt{3}\Delta t}{\tau}\right)
     \quad,                                                                                                                                           \\
     \intertext{the exponential sine squared kernel,}
+    \label{eq:expsinsq}
     k_\mathrm{S^2}(\Delta t)           & = \sigma^2 \exp\left[-\Gamma\sin^2\left( \frac{\pi \Delta t}{P} \right)\right]
     \quad,                                                                                                                                           \\
     \intertext{the cosine kernel,}
@@ -203,10 +205,10 @@ entails optimizing or sampling over these few quantities, which in many
 cases can be done easily and efficiently.
 
 Which brings us, finally, to an important drawback of GPs when applied
-to modeling stellar spot-induced variability. While it is straightforward to derive
-posterior constraints on the hyperparameters of a GP, it is often
-not obvious what those constraints actually tell us about the star
-or its surface.
+to modeling stellar light curves, particularly when the variability is due
+to starspots rotating in and out of view. \textbf{While it is straightforward to derive
+    posterior constraints on the hyperparameters of a GP given a light curve, it is often
+    not obvious what those constraints actually tell us about the stellar surface.}
 Specifically, it is difficult to constrain the relationship between
 quantities like the amplitude $\sigma^2$
 and the timescale $\tau$ and physical properties of the surface.
@@ -239,7 +241,17 @@ In this case, the physics behind the variability is irrelevant, so an
 effective model of this sort is generally sufficient.
 
 When the goal is to understand
-the the stellar surface itself, however, GPs have been less useful to date.
+the stellar surface itself, however, GPs have been less useful to date.
+While there have been several recent papers
+
+
+\xxx{...}
+the exponential sine squared kernel \citep[Equation~\ref{eq:expsinsq}][]{Wang2012},
+quasi-periodic kernel \citep{Angus2018},
+or the \celerite \textsf{RotationTerm} \citep{ForemanMackey2017}.
+quasi-periodic cosine kernel\citep[e.g.,][]{Perger2020}
+\xxx{...}
+
 Instead, the common approach is that discussed in the previous section:
 to forward model the stellar surface and its effect on the light curve, then
 seek to constrain the surface properties by solving the inverse problem.
