@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 def RAxisAngle(axis=[0, 1, 0], theta=0):
@@ -218,4 +219,7 @@ for inc in [30, 45, 60, 75, 85]:
     )
 
     ax.axis("off")
-    fig.savefig("wireframe_{}.pdf".format(inc), dpi=300)
+    fig.savefig(
+        os.path.abspath(__file__).replace(".py", "_{}.pdf".format(inc)),
+        bbox_inches="tight",
+    )

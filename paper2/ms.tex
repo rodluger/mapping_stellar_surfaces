@@ -26,7 +26,7 @@
 
 % Title
 \title{%
-    \vspace{-2em}
+    \vspace{-3em}
     \textbf{
         Mapping stellar surfaces\\
         II: An interpretable Gaussian process model for light curves
@@ -97,9 +97,9 @@ Over the past decades, Gaussian processes (GPs) have gained traction as
 a leading tool for modeling correlated signals in astronomical time series datasets, especially photometric time series
 \citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018} and radial velocities (ADD CITATIONS).
 \dfm{LET'S START WITH A SIMPLE INTUITIVE INTRO HERE AND SAVE THE DETAILS UNTIL LATER! HERE'S A VERY ROUGH FIRST PASS:
-GPs are popular models for these applications because they allow marginalization over a stochastic noise process specified only by its autocorrelation structure or kernel.
-This is relatively straightforward to interpret and in some specific cases it can be related to physically motivated models (CITE SOME THINGS).
-Furthermore, there are several popular open source implementations that allow efficient evaluation of these models, and these have been widely demonstrated to be useful effective models for the time series when the stochastic variability is primarily a nuisance.}
+    GPs are popular models for these applications because they allow marginalization over a stochastic noise process specified only by its autocorrelation structure or kernel.
+    This is relatively straightforward to interpret and in some specific cases it can be related to physically motivated models (CITE SOME THINGS).
+    Furthermore, there are several popular open source implementations that allow efficient evaluation of these models, and these have been widely demonstrated to be useful effective models for the time series when the stochastic variability is primarily a nuisance.}
 
 % However, an important drawback of the typical uses of GPs when applied
 % to modeling stellar light curves, particularly when the variability is due
@@ -2955,9 +2955,9 @@ such that
     \setstackgap{L}{1.25\baselineskip}
     \fixTABwidth{T}
     \parenMatrixstack{
-    \mathbf{a}_0^\top \\
-    \mathbf{a}_1^\top \\
-    \vdots            \\
+        \mathbf{a}_0^\top \\
+        \mathbf{a}_1^\top \\
+        \vdots            \\
         \mathbf{a}_{K-1}^\top
     }\quad.
 \end{align}
