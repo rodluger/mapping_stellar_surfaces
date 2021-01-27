@@ -61,9 +61,12 @@
     starspots and other features on their surfaces.
     %
     Unfortunately, the problem of inferring stellar surface properties
-    from a rotational light curve is famously ill-posed;
-    any inference that relies exclusively on the light curve
-    of a single star is \emph{necessarily} prior-dominated.
+    from a rotational light curve is famously ill-posed,
+    as it often does not admit a unique solution.
+    %
+    Inference about the number, size, contrast, and location of spots
+    can therefore depend very strongly on the assumptions of the model,
+    the regularization scheme, or the prior.
     %
     The goal of this paper is twofold:
     (1) to explore the various degeneracies affecting the stellar
@@ -71,9 +74,14 @@
     what can and cannot be learned from a stellar surface
     given unresolved photometric measurements; and
     (2) to motivate ensemble analyses of the light curves of
-    many stars at once as a powerful method of breaking
-    these degeneracies.
+    many stars at once as a powerful data-driven alternative to common
+    priors adopted in the literature.
     %
+    We further derive novel results on the dependence of the null space
+    on stellar inclination and limb darkening and
+    show that single-band photometric measurements cannot uniquely
+    constrain quantities like the spot contrast or the total
+    spot coverage without the use of strong priors.
     %
     This is the first in a series of papers devoted to the development
     of novel algorithms and tools for the analysis of
@@ -212,8 +220,8 @@ null space intrinsic to the mapping from a two-dimensional surface to
 a one-dimensional light curve (\S\ref{sec:nullspace})
 and the degeneracy due to the unknowability of the true baseline in
 single-band photometry (\S\ref{sec:baseline}). Within each section we
-will discuss ways to either break these degeneracies or explicitly marginalize
-over degenerate quantities.
+will discuss ways to either break these degeneracies or marginalize
+over unknowable quantities.
 We will focus in particular on the power of ensemble analyses: the
 joint analysis of many light curves of statistically ``similar''
 stars. We will show that even though individual light curves are not very
@@ -227,16 +235,16 @@ spot coverage areas as a function of stellar age. However, one of
 the main conclusions of the present paper is that
 quantities like \textbf{the
     total spot coverage, the typical spot contrast, and the total number of
-    spots are not observables in single-band photometry.} Instead,
+    spots are not direct observables in single-band photometry.} Instead,
 any constraints placed on these quantities, even in the context of
-ensemble analyses, are driven by the choice of prior and other assumptions.
+ensemble analyses, are usually driven by the choice of prior and other assumptions.
 
 The present paper is also similar to \citet{Walkowicz2013} and
 \citet{Basri2020}, who explored the information content of
 stellar light curves from a large set of simulated spotted stellar
 surfaces. While our paper is largely complementary to
 that work, we instead approach the information content problem from
-a purely theoretical---as opposed to empirical---point of view.
+a theoretical---as opposed to empirical---point of view.
 %
 The present paper is the first in a series dedicated to the development of
 techniques to perform robust inference about stellar surfaces from
@@ -1534,7 +1542,8 @@ and $\mathbf{S}$ is a $(K \times N)$ diagonal matrix.
 %
 The columns of $\mathbf{U}$ and the rows of $\mathbf{V}^\top$ are the left and right
 \emph{singular vectors} of $\pmb{\mathcal{A}}$, and the entries along the
-diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}. If $\pmb{\mathcal{A}}$
+diagonal of $\mathbf{S}$ are the corresponding \emph{singular values}, arranged
+in descending order. If $\pmb{\mathcal{A}}$
 has rank $R$, the first $R$ singular values will be nonzero, while the
 remaining $N - R$ will be identically zero.
 %
@@ -1753,7 +1762,9 @@ This is the decomposition of the surface map $\mathbf{y}$ into
 its preimage $\mathbf{y}_\bullet$ and null space
 $\mathbf{y}_\circ$ components.
 %
-Note that because of the orthogonality of $\mathbf{V}$,
+
+Two things should be noted concerning this derivation. First,
+because of the orthogonality of $\mathbf{V}$,
 %
 \begin{proof}{test_PN}
     \mathbf{V} \mathbf{V}^\top &= \mathbf{I}
@@ -1766,5 +1777,18 @@ Note that because of the orthogonality of $\mathbf{V}$,
 %
 so it follows from Equations~(\ref{eq:yrow}) and (\ref{eq:ynull})
 that $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
+
+Second, the singular value decomposition is not always unique. The
+matrix of singular values $\mathbf{S}$ is unique provided we arrange
+them in decreasing order, but if there are degenerate or zero-valued
+singular values (as is the case here), the matrices $\mathbf{U}$ and
+$\mathbf{V}^\top$ (and thus $\mathbf{V}^\top_\bullet$ and $\mathbf{V}^\top_\circ$)
+are only well-defined up to arbitrary unitary
+transformations. However, the quantities
+$\mathbf{V}_\bullet\mathbf{V}^\top_\bullet$
+and
+$\mathbf{V}_\circ\mathbf{V}^\top_\circ$
+(which define the operators $\mathbf{P}$ and $\mathbf{N}$ above) \emph{are}
+unique, so the decomposition into null space and preimage is always well-defined.
 
 \end{document}
