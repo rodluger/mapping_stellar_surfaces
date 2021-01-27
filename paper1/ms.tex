@@ -218,8 +218,8 @@ stellar surface mapping problem from a theoretical standpoint.
 We will focus in particular on two sources of degeneracies: the
 null space intrinsic to the mapping from a two-dimensional surface to
 a one-dimensional light curve (\S\ref{sec:nullspace})
-and the degeneracy due to the unknowability of the true baseline in
-single-band photometry (\S\ref{sec:baseline}). Within each section we
+and the degeneracy due to the unknowability of the true normalization in
+single-band photometry (\S\ref{sec:normalization}). Within each section we
 will discuss ways to either break these degeneracies or marginalize
 over unknowable quantities.
 We will focus in particular on the power of ensemble analyses: the
@@ -310,7 +310,7 @@ This is also a topic that we discuss in much more detail in \citetalias{PaperII}
 
 \subsection{Rank of the flux operator}
 %
-In general, inferring the properties of a stellar surface from its light curve alone
+In general, inferring all of the properties of a stellar surface from its light curve alone
 is not
 only difficult, but \emph{formally impossible}. To understand why, consider
 an expansion of the stellar surface intensity in the spherical
@@ -374,7 +374,7 @@ $N - R$, where $N$ is once again the number of coefficients describing the
 stellar surface and $R$ is the \emph{rank} of the flux operator $\pmb{\mathcal{A}}$.
 The rank $R$ is the number of linearly independent columns in $\pmb{\mathcal{A}}$, which
 can be computed numerically using any standard linear algebra package. It is equal
-to the number of independent signals (or components) that can be measured given
+to the number of independent components that can be measured given
 an observation of $\mathbf{f}$.
 
 \begin{figure}[t!]
@@ -387,7 +387,7 @@ an observation of $\mathbf{f}$.
             harmonic degree (bottom axis) or, equivalently, up to an
             effective surface resolution (top axis). The blue curve shows
             the rank of the flux operator, corresponding to the maximum
-            number of independent signals that can be constrained from a
+            number of independent degrees of freedom that can be constrained from a
             light curve. The size of the null space (the nullity) is
             the difference between the two curves.
             \label{fig:rank}
@@ -408,10 +408,10 @@ The most striking feature in Figure~\ref{fig:rank} is how quickly the two
 curves diverge as $l$ increases. What this means for the mapping problem
 is that the number of surface modes---the total information needed to
 represent a surface map at some resolution---grows much more quickly than the
-number of independent signals in the light curve.
+number of independent degrees of freedom in the light curve.
 %
 At all but the lowest resolutions, there are always more features in the
-null space than signals one can measure in the light curve, a difference
+null space than components one can measure in the light curve, a difference
 that grows \emph{quadratically} with $l$.
 %
 This means that although a light curve can tell us some information about
@@ -481,7 +481,7 @@ information that cannot.
             to the rotational light curve. The preimage is the
             set of surfaces modes that map onto the light curve;
             the null space is the set of modes that do not.
-            An inclination of $60^\circ$ is assumed in all plots.
+            An inclination of $60^\circ$ is assumed when computing the flux.
             The vast majority of surface modes are in the null space
             of the light curve problem and therefore do not contribute
             to the observed flux.
@@ -519,7 +519,8 @@ shows the decomposition of four hypothetical surfaces (left
 column) into preimage (center) and null space (right)
 components under the flux operator $\pmb{\mathcal{A}}$, which we compute for
 definiteness at an inclination of $I = 60^\circ$ over a full rotation.
-The light curves corresponding to each of these surfaces are also shown.
+Surfaces are shown in an equal-area Mollweide projection alongside
+the corresponding light curves.
 Note that both the true map and its associated light curve are simply equal to
 the sum of the preimage and null space components (Appendix~\ref{sec:app-svd}).
 %
@@ -838,7 +839,7 @@ Interestingly, however,
 the symmetries at play require spots to be paired with antipodal dark mirror
 images in the preimage, and with \emph{bright} ones in the null space
 (which sum to perfectly cancel out in the true map). Thus, there are still
-degeneracies in the ensemble problem, but they are much easier to break
+degeneracies in this very idealized ensemble problem, but they are much easier to break
 with a suitable choice of prior. For instance, in the single spot case
 (top row), the ``ghost'' image in the southern hemisphere is surrounded by
 a bright ring (whose effect is to cancel out its contribution to the flux);
@@ -976,9 +977,10 @@ armed with a good model,
 we can learn \emph{a lot} about the distribution of starspot
 properties of a heterogenous group of stellar light curves.
 
-The second point is that while observing many stars at different
-inclinations breaks many of the degeneracies at play, our analysis
-above assumed we knew what the values of the inclinations were.
+The second point is that while observing many similar stars at different
+inclinations can greatly help us learn about their surfaces from a
+statistical standpoint, our analysis
+above assumed we knew what the values of the individual inclinations were.
 In practice, this will usually not be the case. While we may have
 good priors for some stars (from spectroscopic $v\sin i$ measurements,
 or from the assumption that transiting exoplanet hosts are likely
@@ -992,26 +994,26 @@ and the \emph{individual} stellar inclinations.
 
 The final point concerns limb darkening, which also has a strong
 effect on the structure of the null space. While limb darkening can
-help us by breaking degeneracies, in practice it is likely to be more
+help us in the same way as the inclination, in practice it is likely to be more
 of a problem, since the use of incorrect limb darkening coefficients can lead
 to bias in the spot properties when doing inference.
 It is therefore extremely important to use reliable limb darkening models
 when doing ensemble analyses; we also explore this in \citetalias{PaperII}.
 
-\section{The baseline degeneracy}
-\label{sec:baseline}
+\section{The normalization degeneracy}
+\label{sec:normalization}
 
 Thus far we have focused our discussion on theoretical aspects concerning
 what can and cannot be learned from disk-integrated photometric measurements
 of stellar surfaces. In this section, we discuss an important degeneracy
 introduced by how we actually measure stellar light curves, which we
-will refer to as the \emph{baseline degeneracy}. This degeneracy has been
+will refer to as the \emph{normalization degeneracy}. This degeneracy has been
 pointed out before \citep[e.g.,][]{Basri2018}, but it is useful to revisit and
 build on it here.
 
 \subsection{A fundamental issue of units}
 %
-To understand the baseline degeneracy, consider how we might go about simulating
+To understand the normalization degeneracy, consider how we might go about simulating
 a stellar surface.
 %
 We might add a dark spot somewhere on the surface, either by expanding
@@ -1032,7 +1034,7 @@ fraction of the flux we would measure if the star had no spots on it.
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/mean_normalization.pdf}
         \oscaption{mean_normalization}{%
-            An example of the baseline problem.
+            An example of the normalization problem.
             \emph{Top:} Consider a star with a single
             equatorial spot of contrast $c$ viewed at a certain inclination.
             The total flux (in some units) as a function of time is shown as
@@ -1058,7 +1060,7 @@ fraction of the flux we would measure if the star had no spots on it.
             exists a perfect degeneracy between the total spot coverage
             and the contrast of any individual feature on the surface.
             As a consequence, the total spot coverage of a star cannot be
-            inferred from single-band photometry.
+            uniquely inferred from single-band photometry.
             \label{fig:mean_normalization}
         }
     \end{centering}
@@ -1113,10 +1115,10 @@ us about either the contrast of individual spots or the total number of spots;
 in fact, in single-band photometry, these two quantities are perfectly
 degenerate with each other.
 
-\subsection{Ensemble analyses don't help}
+\subsection{Ensemble analyses don't necessarily help}
 \label{sec:basic-gp}
 %
-To explore this point in a bit more detail, let us consider the baseline
+To explore this point in a bit more detail, let us consider the normalization
 degeneracy in the context of ensemble analyses. Even though we can't
 uniquely infer contrasts or numbers of spots from individual light curves,
 perhaps we could harness the power of the ensemble.
@@ -1129,6 +1131,7 @@ decreases by an amount proportional to $c$, so to first order we can approximate
 individual light curve as
 %
 \begin{align}
+    \label{eq:fapprox}
     \mathbf{f}(c, n) = \mathbf{1} - c \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i)
 \end{align}
 %
@@ -1201,7 +1204,8 @@ and variance, respectively, and these are straightforward statistics to
 compute from the ensemble.
 %
 However, because of observations are made in \emph{relative} units, in which
-we typically normalize to the mean, photometry can only tell us about the \emph{ratio}
+we typically normalize to the mean, the amplitudes of features in light curves
+can only tell us about the \emph{ratio}
 %
 \begin{align}
     \label{eq:ratio}
@@ -1213,9 +1217,10 @@ for some value of $\alpha$.
 In other words, even photometric ensemble analyses cannot tell
 us about the values of the contrast and the number of spots independently.
 
-A direct consequence of this baseline degeneracy is that it is not in general
-possible to constrain the total spot coverage of a star from
-single-band photometry. Assuming no spot overlap, the total spot coverage $f_S$
+A direct consequence of this normalization degeneracy is that it is not
+possible to uniquely constrain the total spot coverage of a star from
+single-band photometry without strong prior assumptions.
+The total spot coverage $f_S$
 is simply the (average) area of a spot
 times the total number of spots divided by the total area of the sphere, which
 may be expressed as
@@ -1235,16 +1240,37 @@ of the distribution of light curves in an ensemble.
 It is possible, at least in principle, that higher order moments of the data
 could encode information to
 break the $c-N$ degeneracy, but these are in general much more difficult
-to constrain from the data. And even if this were the case, the fact remains
+to constrain from the data. It is also possible that we could place a
+\emph{lower limit} on the spot contrast based on the normalized light
+curve. In Equation~(\ref{eq:fapprox}) we implicitly assumed that
+spots are allowed to overlap; under this assumption, it is possible to
+double the contrast of a spot by simply adding another spot on top
+of it. We could therefore generate light curves with arbitrarily
+large dips by choosing a small value for $c$ and a very large value for $n$.
+In reality, spots do not behave in this way: many overlapping spots
+likely still have the same effective temperature! Therefore,
+assuming there are no bright spots,
+the maximum depth of a feature in the light curve (even in relative units)
+could be used to place a lower limit on the spot contrast.
+
+Nevertheless, even with these caveats in mind, the fact remains
 that degeneracies like the polar spot effect are fundamental: recall
 Figure~\ref{fig:mean_normalization}, in which the two stars
 have identical relative light curves, but very different spot coverage
-fractions.
+fractions. In general, any azimuthally-symmetric mode on the surface
+is in the null space of the \emph{normalized} light curve problem. These
+components contribute a constant value to the flux at all phases, which
+effectively gets normalized away when we measure the light curve. A
+polar spot is just one manifestation of this degeneracy. Bands, or
+band-like arrangements of spots, will be at least partly in the null
+space of normalized light curves. These features change the total ``spot coverage''
+of the surface but do not affect the light curve in a uniquely measurable
+way.
 
 \subsection{Effect on the covariance structure}
 \label{sec:covariance}
 
-There is one final subtle point concerning the baseline degeneracy that merits discussion.
+There is one final subtle point concerning the normalization degeneracy that merits discussion.
 The common procedure of normalizing light curves to their mean, median, or
 maximum level does not only change the \emph{units} of the data: it changes
 the very covariance structure of the light curves.
@@ -1313,28 +1339,29 @@ For rotational light curves, we showed that the vast majority of the information
 about the surface intensity is in the null space and therefore cannot
 be inferred from unresolved photometric measurements. We showed, in particular,
 that the size of the null space grows \emph{quadratically} with increasing spatial
-resolution, while the number of signals one can infer from a light curve
+resolution, while the number of independent degrees of freedom in the light curve
 only grow \emph{linearly}. Consequently, the information content of light
 curves is small for large scale surface features and \emph{vanishingly small}
 for small scale features.
 
 A direct consequence of this fact is that \textbf{results based on analyses
-    of individual light curves are necessarily prior-dominated}; i.e.,
-the results are extremely sensitive to
-the particular assumptions of one's model. We therefore urge lots of care
+    of individual light curves are often extremely sensitive to
+    the particular assumptions of one's model.} We therefore urge lots of care
 in these kinds of analyses, where assumptions of uniform-contrast, discrete, and
-circular spots, or maximum entropy or ``simplicity'' assumptions may
+circular spots, or alternatively of maximum entropy or ``simplicity'' may
 result in significant bias. In this respect, we agree with the recent
 paper by \citep{Basri2020}, which cautions against the association of
 invidual dips in light curves with individual, discrete spots.
 
 One of the main results in this paper concerning the null space is its
-dependence on stellar inclination (\S\ref{sec:inclination}). Because the modes that lie in the null
+dependence on stellar inclination (\S\ref{sec:inclination}).
+Because the modes that lie in the null
 space change depending on the viewing angle, observations of a star at many
-inclinations break many of the degeneracies in the mapping problem. While
+inclinations would break many of the degeneracies in the mapping problem. While
 this is obviously infeasible in practice, the dependence of the null
 space on inclination motivates ensemble analyses of many similar stars
-as a way of circumventing the mapping degeneracies. As we show in
+as a way of circumventing the mapping degeneracies by
+providing a strong data-driven prior. As we show in
 \citetalias{PaperII} in this series, the joint analysis of tens to hundreds
 of light curves can uniquely constrain the distribution of starspot
 sizes and latitudes among the stars in the sample. In that paper,
@@ -1363,11 +1390,11 @@ of spots in the path of the occultor, as was done (for example)
 by \citet[e.g.,][]{Morris2017}. A detailed investigation of the null space
 for the occultation problem is beyond the scope of this work.
 
-\subsection{Degeneracies due to the unknown baseline}
+\subsection{Degeneracies due to the unknown normalization}
 
 The second major source of degeneracies is the fundamental
-unknowability of the true baseline level in single-band
-photometry (\S\ref{sec:baseline}), which is summarized in
+unknowability of the true normalization in single-band
+photometry (\S\ref{sec:normalization}), which is summarized in
 Figure~\ref{fig:mean_normalization}. In a nutshell, the relationship
 between the amplitude of a feature in the light curve and the contrast
 of the feature that gave rise to it depends on quantities like the
@@ -1379,12 +1406,13 @@ light curves, as demonstrated in the figure.
 In practice, this degeneracy usually manifests as a nonlinear correlation
 between the contrast $c$ of a spot and the total number $n$
 of spots on the surface of the star. Even in ensemble analyses,
-one cannot in general learn these two quantities independently,
+one cannot in general learn these two quantities independently from
+the data alone,
 only a (complicated) function of the two (Equation~\ref{eq:ratio}).
 %
-A direct consequence of this degeneracy is that \textbf{it is not in general
-    possible to uniquely constrain the total spot coverage of
-    a star from single-band light curves.}
+A direct consequence of this degeneracy is that \textbf{constraints on
+    the total spot coverage of a star from single-band light curves
+    depend strongly on the model assumptions.}
 
 Recently, \citet{Morris2020} performed an ensemble analysis of
 \emph{Kepler}, \emph{K2}, and \emph{TESS}
@@ -1408,16 +1436,16 @@ to less than $1\%$ for the oldest (${\sim}5$ Gyr) stars.
 %
 While this broadly agrees with the expectation that stellar
 magnetic activity decreases over time, our work strongly suggests
-that these results are predominantly prior-dominated.
+that these results depend heavily on the prior.
 %
 This is because the expression for $f_S$ (Equation~\ref{eq:fS}) depends on
 two quantities: the average spot radius $r$, which can be
 constrained \citep[see][]{PaperII}, and the total number of spots $n$, which
-we showed \emph{cannot} be constrained from single-band light curves.
+we showed \emph{cannot} be uniquely constrained from single-band light curves.
 %
 In fact, \citet{Morris2020} assumed $n=3$ for simplicity when doing
 posterior inference. We therefore urge care in interpreting those results,
-as it is very likely this assumption does not hold across the large
+as it is possible this assumption does not hold across the large
 range of spectral types and stellar ages considered in that study.
 %
 Nevertheless, the other central result of that paper, the relationship
@@ -1438,21 +1466,22 @@ of interpreting
 light curves with one or two dips as originating from one or two spots,
 respectively, a point we strongly agree with (see our Figure~\ref{fig:degeneracies}).
 It also reinforces our point about the additional degeneracies introduced
-by the unknown baseline inherent to single-band photometry.
+by the unknown normalization inherent to single-band photometry.
 %
 
-% SOLUTIONS TO BASELINE DEGENERACY
+% SOLUTIONS TO normalization degeneracy
 
 As with the degeneracies due to the null space, there are potential ways
-to break the baseline degeneracy.
+to break the normalization degeneracy.
 %
 In principle, the maximum level of a light curve could set a lower limit on
-the location of the baseline (or, equivalently, the brightness of the
-unspotted photosphere), particularly for long-baseline, time-variable
+the brightness of the
+unspotted photosphere, particularly for long-baseline, time-variable
 surfaces \citep{Basri2018}. However, this would work only if the surface is
 known to be made up \emph{exclusively} of dark spots. The presence of bright
 spots (faculae), which are common on the Sun, make it difficult
-for one to infer the baseline from single-band photometry in practice.
+for one to infer this quantity (and hence the correct normalization)
+from single-band photometry in practice.
 
 A better approach may be to collect photometric data in
 multiple wavelength bands, an idea that has
@@ -1464,7 +1493,7 @@ temperature, and hence the contrast, of the spots. This effectively breaks the
 $c-N$ degeneracy. In practice, the effective size of spots may be different
 at different wavelengths, which could complicate this picture somewhat, but
 the point still stands that light curves collected in multiple bands
-contain at least \emph{partial} information about the baseline.
+contain at least \emph{partial} information about the correct normalization.
 %
 A more detailed analysis of the information content of multi-band light curves,
 and, by extension, spectroscopic timeseries, is deferred to a future paper
