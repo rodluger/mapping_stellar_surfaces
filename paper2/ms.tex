@@ -94,23 +94,37 @@
 \label{sec:intro-gps}
 
 Over the past decades, Gaussian processes (GPs) have gained traction as
-a leading tool for modeling correlated signals in astronomical time series datasets, especially photometric time series
-\citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018} and radial velocities (ADD CITATIONS).
-\dfm{LET'S START WITH A SIMPLE INTUITIVE INTRO HERE AND SAVE THE DETAILS UNTIL LATER! HERE'S A VERY ROUGH FIRST PASS:
-    GPs are popular models for these applications because they allow marginalization over a stochastic noise process specified only by its autocorrelation structure or kernel.
-    This is relatively straightforward to interpret and in some specific cases it can be related to physically motivated models (CITE SOME THINGS).
-    Furthermore, there are several popular open source implementations that allow efficient evaluation of these models, and these have been widely demonstrated to be useful effective models for the time series when the stochastic variability is primarily a nuisance.}
+a leading tool for modeling correlated signals in astronomical time series datasets,
+especially photometric time series
+\citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018}
+and radial velocities (ADD CITATIONS).
+GPs are popular models for these applications because they allow marginalization
+over a stochastic noise process specified only by its autocorrelation structure
+or kernel.
+This is relatively straightforward to interpret and in some specific cases it
+can be related to physically motivated models (CITE SOME THINGS).
+Furthermore, there are several popular open source implementations that allow
+efficient evaluation of these models, and these have been widely demonstrated
+to be useful effective models for the time series when the stochastic
+variability is primarily a nuisance.
 
 % However, an important drawback of the typical uses of GPs when applied
 % to modeling stellar light curves, particularly when the variability is due
 % to starspots rotating in and out of view.
-If, however, one hopes to make inferences about the stellar surface itself, GP models, as they are typically applied, are not so useful.
+
+If, however, one hopes to make inferences about the stellar surface itself,
+GP models, as they are typically applied, are not so useful.
 \textbf{While it is straightforward to derive
-    posterior constraints on the hyperparameters of an effective GP model for observations of a star, it is not clear what those constraints actually tell us about the stellar surface.}
-Specifically, in all but a few restricted cases, there is no first principles relationship between the descriptive parameters of a typical GP model (see section WHATEVER below)
+    posterior constraints on the hyperparameters of an effective GP model for
+    observations of a star, it is not clear what those constraints actually
+    tell us about the stellar surface.}
+Specifically, in all but a few restricted cases, there is no first principles
+relationship between the descriptive parameters of a typical GP model
+(see section WHATEVER below)
 and the physical properties of the stellar surface surface that is being observed.
-For instance, it may be tempting to interpret the amplitude of the variability as some measure of the spot
-contrast or the total number of spots, or the timescale of the variations as the
+For instance, it may be tempting to interpret the amplitude of the variability
+as some measure of the spot contrast or the total number of spots,
+or the timescale of the variations as the
 spot lifetime, but there are no guarantees these interpretations will
 hold in general. After all, the choice of kernel is quite often \emph{ad hoc},
 providing an \emph{effective}---as opposed to \emph{interpretable}---description

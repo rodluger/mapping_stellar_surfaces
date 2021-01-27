@@ -21,6 +21,7 @@ calibrate.run_batch(
     plot_corner_transformed=False,
     plot_latitude_pdf=False,
     plot_inclination_pdf=False,
+    fail_on_kwargs_mismatch=False,
 )
 
 # Copy output to this directory
