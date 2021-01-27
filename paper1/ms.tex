@@ -109,7 +109,8 @@ are also magnetically driven \citep[e.g.,][]{Berdyugina2005}.
 Constraining the sizes,
 contrasts, locations, and number of spots on stars can therefore reveal
 information about stellar magnetic activity, stellar interior structure,
-and how these quantities vary across spectral type and over time.
+and how these quantities vary across spectral type and over time
+\citep[e.g.,][]{Garraffo2018}.
 A detailed understanding of the stellar surface is also crucial to
 mitigating systematics in the radial velocity search for exoplanets
 \citep[e.g.,][]{Lanza2011} and in the spectroscopic characterization of their
@@ -283,11 +284,17 @@ run on Azure Pipelines upon every commit of the code.%
 In this section, we define the concept of the \emph{null space}
 and present some demonstrations showing how it can affect inferences
 about stellar surfaces.
+For simplicity, we assume we know quantities like the stellar
+inclination, rotation period, and limb darkening coefficients
+exactly, and we assume the stellar surface does not vary in time.
+Because of these assumptions, our constraints on the information
+content of light curves should be viewed as strict \emph{upper limits}.
+
 We also present some examples of how the degeneracies due to
 the null space can be tackled.
-While our specific examples may appear somewhat idealized, at the end
+While our examples below may appear somewhat idealized, at the end
 of this section we discuss how our ideas generalize to more
-realistic scenarios.
+realistic scenario; we also revisit these assumptions in \S\ref{sec:caveats}.
 This is also a topic that we discuss in much more detail in \citetalias{PaperII}.
 
 \begin{figure}[t!]
@@ -982,7 +989,7 @@ inclinations can greatly help us learn about their surfaces from a
 statistical standpoint, our analysis
 above assumed we knew what the values of the individual inclinations were.
 In practice, this will usually not be the case. While we may have
-good priors for some stars (from spectroscopic $v\sin i$ measurements,
+good priors for some stars (from spectroscopic $v\sin I$ measurements,
 or from the assumption that transiting exoplanet hosts are likely
 to have inclinations close to $I=90^\circ$), for the vast majority
 of field stars we won't know much a priori. Since the inclination
@@ -1232,7 +1239,7 @@ may be expressed as
 \end{proof}
 %
 given an angular spot radius $r$.
-While $r$ may be constrained from the covariance structure of the data
+While $r$ may be uniquely constrained from the covariance structure of the data
 \citepalias{PaperII}, $n$ cannot.
 
 The arguments above are heuristic and based on only the first two moments
@@ -1498,6 +1505,54 @@ contain at least \emph{partial} information about the correct normalization.
 A more detailed analysis of the information content of multi-band light curves,
 and, by extension, spectroscopic timeseries, is deferred to a future paper
 in this series.
+
+\subsection{Caveats}
+\label{sec:caveats}
+
+There are several simplifying assumptions we made in this paper that
+are worth discussing. First, in our characterization of the null space
+we assumed we knew the stellar inclination, the stellar rotation period,
+and the limb darkening coefficients
+exactly, and we computed the information content of stellar light curves
+in the limit of infinite SNR. None of these assumptions are valid in
+practice. In realistic scenarios, the posterior shrinkage will be
+necessarily \emph{lower} than what we presented here: the curves in
+Figure~\ref{fig:nullspace_ensemble}, for instance, are therefore
+strict upper bounds on the amount of information that can be learned about
+the surface. In some cases, it may be possible to infer the inclination
+from spectroscopic $v \sin I$ measurements, or the limb darkening coefficients
+from the shape of transiting exoplanet light curves; but any uncertainty
+in these quantities will degrade our ability to constrain
+information about the surface.
+
+Moreover, our constraints on the information content of ensembles of light curvesare
+also strict upper limits, since we assumed all stars in the ensemble
+are identical. Variance in the surface maps of stars in
+a population makes it effectively impossible to infer detailed
+properties of the individual stellar surfaces in the ensemble.
+We argued without proof that what we can learn instead are properties of the
+\emph{distribution} of stellar surfaces among the population, such as
+the distribution of spot sizes and active latitudes.
+Demonstrating this point is more difficult, so we defer it to
+\citetalias{PaperII}, where we construct a custom Gaussian process model
+and show that it can be used to infer such population-level parameters
+from ensembles of light curves.
+
+Finally, we limited our discussion to static stellar surfaces.
+Real stellar surfaces vary
+with time as individual spots form, evolve, and dissipate, or as a star progresses
+through its activity cycle. This, too, makes it more difficult to constrain
+the stellar surface at a particular point in time, since the amount of
+data corresponding to a particular surface configuration is more limited.
+On the other hand, a time-variable surface could be used to our advantage
+from an ensemble standpoint. Although we are unable to uniquely infer
+invididual spot properties, we could treat each point in the light curve
+as a realization of a random process (i.e., a draw from some distribution)
+describing the stellar surface at a high level. In this sense, we could
+harness the fact that we can measure the light curves of many ``similar''
+surfaces to learn something about their statistical properties.
+Demonstrating this is beyond the scope of the present work, but we
+return to this point in \citetalias{PaperII}.
 
 \subsection{Future work}
 
