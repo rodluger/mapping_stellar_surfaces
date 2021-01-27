@@ -137,7 +137,14 @@ given any light curve, there exist an infinite number of surfaces that
 could have generated it. These degeneracies are illustrated in
 Figure~\ref{fig:degeneracies}, where six synthetic stellar surfaces
 are shown (rows) at twelve different phases (columns), all at an
-inclination $I=60^\circ$. Each surface
+inclination $I=60^\circ$.%
+\footnote{
+    In this paper, we adopt the common convention where $I$ is the angle
+    between the stellar spin axis and the line of sight,
+    spanning $-90^\circ \leq I \leq 90^\circ$. An inclination $I=0^\circ$ therefore
+    corresponds to a pole-on orientation.
+}
+Each surface
 consists of a different number of dark spots on a brighter, heterogeneous
 background.
 
@@ -279,10 +286,13 @@ This is also a topic that we discuss in much more detail in \citetalias{PaperII}
     \begin{centering}
         \includegraphics[width=\linewidth]{figures/ylms.pdf}
         \oscaption{ylms}{%
-            The real spherical harmonics in the polar frame up to
-            $l = 5$, where dark colors correspond to negative intensity
-            and bright colors to positive intensity.
-            Rows correspond to the degree $l$ and columns to
+            The real spherical harmonics in the polar frame
+            ($\hat{\mathbf{x}}$ points to the right,
+            $\hat{\mathbf{y}}$ points up, and $\hat{\mathbf{z}}$
+            points out of the page)
+            up to $l = 5$. Dark colors correspond to negative intensity
+            and bright colors to positive intensity;
+            rows correspond to the degree $l$ and columns to
             the order $m$. The set of all spherical harmonics forms a
             complete, orthogonal basis on the sphere.
             \label{fig:ylms}
@@ -446,8 +456,9 @@ information that cannot.
 \begin{figure}[p!]
     \begin{centering}
         %
-        \textbf{Single light curve at $I = 60^\circ$}
-        \\[1em]
+        \vspace{-4em}
+        \includegraphics[width=1in]{figures/wireframe_60.pdf}
+        \\[0.5em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_60a.pdf}
         \\[1em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_60b.pdf}
@@ -474,8 +485,9 @@ information that cannot.
 \begin{figure}[p!]
     \begin{centering}
         %
-        \textbf{Single light curve at $I = 85^\circ$}
-        \\[1em]
+        \vspace{-4em}
+        \includegraphics[width=1in]{figures/wireframe_85.pdf}
+        \\[0.5em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_85a.pdf}
         \\[1em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_85b.pdf}
@@ -772,8 +784,13 @@ and assuming all stars in the sample have identical surfaces,
 \begin{figure}[p!]
     \begin{centering}
         %
-        \textbf{Ensemble of light curves at many inclinations}
-        \\[1em]
+        %
+        \vspace{-4em}
+        \includegraphics[width=1in]{figures/wireframe_30.pdf}
+        \includegraphics[width=1in]{figures/wireframe_45.pdf}
+        \includegraphics[width=1in]{figures/wireframe_60.pdf}
+        \includegraphics[width=1in]{figures/wireframe_75.pdf}
+        \\[0.5em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_a.pdf}
         \\[1em]
         \includegraphics[width=\linewidth]{figures/nullspace_preimage_b.pdf}
