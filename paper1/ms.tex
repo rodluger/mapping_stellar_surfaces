@@ -575,23 +575,44 @@ light curve signals and their corresponding surface modes (the left and right
 singular vectors in SVD, respectively). Inference was then carried out in
 the basis spanned by the components in the preimage, which can be uniquely
 constrained by the data.
+\dfm{I think this paragraph needs a little more... e.g. This is all good and well when the inclination, rotation period, and limb darkening are known, so the data can be uniquely projected. But that is no longer true when these are parameters. Or is there more to it?}
 
-Let us therefore consider Figure~\ref{fig:nullspace_preimage} in the
-context of an inference exercise. One can equivalently think of
-the preimage as the solution to a least squares inference problem
-in which a completely uninformative prior%
-\footnote{%
-    More specifically, a zero-mean, infinite variance Gaussian prior on the coefficients of $\mathbf{y}$.
-}
-is placed on the spherical harmonic
-coefficients. In this case, the least squares solution is given by
+The model mapping spherical harmonic coefficients to observed fluxes described in the preceding sections is linear, so we might expect that we could fit for the spherical harmonics using linear least-squares
+%
+\begin{align}
+    \label{eq:linlstsq}
+    \hat{\mathbf{y}} & \stackrel{?}{=} \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
+    \quad.
+\end{align}
+%
+But, since the flux operator $\pmb{\mathcal{A}}$ is low-rank, the model is underdetermined, so the above operation is not defined and, equivalently, the Fisher information matrix
+%
+\begin{align}
+    \label{eq:fisher-info}
+    \pmb{\mathcal{I}}(\mathbf{y}) & = \frac{1}{\sigma^2} \, \pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}
+\end{align}
+%
+is singular.
+In Equation~(\ref{eq:fisher-info}), $\sigma$ is the flux measurement uncertainty.
+There exist many methods and procedures for linear regression for underdetermined models, but all solutions amount to imposing stronger assumptions about the model in order to break the degeneracies.
+
+One standard method is regularized least squares where Equation~(\ref{eq:linlstsq}) becomes
+%
+\begin{align}
+    \hat{\mathbf{y}}_\lambda & \equiv \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
+\end{align}
+%
+where $\mathbf{I}$ is the identity matrix and $\lambda$ is a parameter controlling the strength of the regularization.
+In a Bayesian context, this can be interpreted as placing a Gaussian prior with inverse variance $\sigma^2\,\lambda$ on the spherical harmonic coefficients.
+
+In the limit of infinitesimal regularization, it can be demonstrated \citep[see][for example]{Hogg2021} \dfm{(TODO: I think I know how to prove this)} that
 %
 \begin{proof}{test_svd_lstsq}
     \label{eq:inference}
-    \hat{\mathbf{y}}
-    &=
-    \lim_{\lambda \rightarrow 0} \left( \pmb{\mathcal{A}}^\top \pmb{\mathcal{A}} + \lambda \mathbf{I}\right)^{-1} \pmb{\mathcal{A}}^\top (\mathbf{f} - \mathbf{1})
-    \nonumber\\
+    \lim_{\lambda \rightarrow 0_+} \hat{\mathbf{y}}_\lambda
+    % &=
+    % \lim_{\lambda \rightarrow 0} \left( \pmb{\mathcal{A}}^\top \pmb{\mathcal{A}} + \lambda \mathbf{I}\right)^{-1} \pmb{\mathcal{A}}^\top (\mathbf{f} - \mathbf{1})
+    % \nonumber\\
     &= \mathbf{y}_\bullet
     \quad.
 \end{proof}
@@ -599,7 +620,22 @@ coefficients. In this case, the least squares solution is given by
 In this sense, $\mathbf{y}_\bullet$ represents our knowledge about the
 surface of a star after an observation if we have no prior information
 whatsoever on $\mathbf{y}$.
-\emph{Any other information about the surface must come from the prior.}%
+\emph{Any other information about the surface is entirely driven by our assumptions.}%
+
+It is interesting to quantify the information content of a light curve as a function of spherical harmonic coefficients.
+While Equation~(\ref{eq:fisher-info}) provides a compact expression for the Fisher information matrix, the most important feature that we want to quantify is the covariance between coefficients.
+This is most naturally captured by the covariance matrix of the likelihood function for the spherical harmonic coefficients:
+%
+\begin{align}
+    \pmb{\Sigma}_\lambda & = \sigma^2\,\left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1} \quad.
+\end{align}
+%
+Below, we use this to quantify the width of the likelihood for each spherical harmonic coefficient by plotting the ``relative variance'' $S$, which we define as the diagonal of the matrix $\pmb{\Sigma}_\lambda$ in units of $\lambda / \sigma^2$ in the limit where $\lambda \to 0_+$.
+This choice of units constrains $0 \le S \le 1$ and allows easy comparisons between the information content of different datasets without being sensitive to the specific modeling assumptions.
+Under this definition, when $S$ approaches one for a particular coefficient, this means that the likelihood function provides no information about that coefficient, while $S = 0$ indicates that that coefficient can be perfectly measured.
+
+This relative variance $S$ can be interpreted either as the Cram\'er--Rao lower bound on the variance of an estimator for a spherical harmonic \citep[e.g.,][]{Li2012}, although our specific choice of units are somewhat non-standard.
+Similarly, in a Bayesian context, this is the ``posterior shrinkage'', the ratio of the posterior variance to the prior variance in the limit of infinite prior variance \citep[e.g.,][]{Betancourt2018}.
 
 Equation~(\ref{eq:inference}) is the solution to the surface map
 we would obtain if we knew \emph{nothing} about the stellar surface
@@ -614,10 +650,10 @@ like the preimage in the bottom row of
 Figure~\ref{fig:nullspace_preimage} (for example) could be
 confidently ruled out.
 
-The effect of different priors on the structure and size of the null
+The effect of different modeling assumptions on the structure and size of the null
 space is beyond the scope of this paper. In general, this is a particularly
 difficult question to address because non-Gaussian priors on the
-surface map break the linearity of the problem. While compactness priors
+surface map break the linearity of the problem. While compactness constraints
 (like the assumption of a small number of discrete circular spots) can
 break many of the degeneracies discussed here, simulation-based
 arguments show that it is still not possible to uniquely constrain
