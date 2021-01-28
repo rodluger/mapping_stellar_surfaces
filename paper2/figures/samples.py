@@ -14,10 +14,10 @@ t = np.linspace(0, 4, 1000)
 cmap = plt.get_cmap("plasma_r")
 color = lambda i: cmap(0.1 + 0.8 * i / (len(incs) - 1))
 kwargs = [
-    dict(r=10, a=0.40, b=0.27, c=0.1, N=10, seed=0),
-    dict(r=10, a=0.31, b=0.36, c=0.1, N=10, seed=1),
-    dict(r=30, a=0.28, b=0.0, c=0.05, N=10, seed=2),
-    dict(r=10, a=0.06, b=0.0, c=0.1, N=20, seed=3),
+    dict(r=10, a=0.40, b=0.27, c=0.1, n=10, seed=0),
+    dict(r=10, a=0.31, b=0.36, c=0.1, n=10, seed=1),
+    dict(r=30, a=0.28, b=0.0, c=0.05, n=10, seed=2),
+    dict(r=10, a=0.06, b=0.0, c=0.1, n=20, seed=3),
 ]
 
 map = starry.Map(15, lazy=False)
