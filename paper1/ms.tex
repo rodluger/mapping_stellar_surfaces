@@ -26,6 +26,7 @@
 
 % Title
 \title{%
+    \vspace{-3em}
     \textbf{
         Mapping stellar surfaces\\
         I: Degeneracies in the rotational light curve problem
@@ -42,9 +43,16 @@
 \affil{Center~for~Computational~Astrophysics,~Flatiron~Institute,~New~York,~NY}
 %
 \author[0000-0002-3385-8391]{Christina Hedges}
-\affil{Bay~Area~Environmental~Research~Institute,~P.O.~Box~25,~Moffett~Field,~CA~94035,~USA}
+\affil{Bay~Area~Environmental~Research~Institute,~Moffett~Field,~CA}
 \affil{NASA~Ames~Research~Center,~Moffett~Field,~CA}
 %
+\author[0000-0003-2866-9403]{David W. Hogg}
+\affil{Center~for~Computational~Astrophysics,~Flatiron~Institute,~New~York,~NY}
+\affil{Center~for~Cosmology~and~Particle~Physics,~New~York~University,~New~York,~NY}
+\affil{Center~for~Data~Science,~New~York~University,~New~York,~NY}
+\affil{Max-Planck-Institut~f\"ur~Astronomie,~Heidelberg,~Germany}
+%
+
 
 \keywords{time series analysis --- light curves --- stellar surfaces --- starspots}
 
@@ -286,7 +294,8 @@ and present some demonstrations showing how it can affect inferences
 about stellar surfaces.
 For simplicity, we assume we know quantities like the stellar
 inclination, rotation period, and limb darkening coefficients
-exactly, and we assume the stellar surface does not vary in time.
+exactly, and we assume the stellar surface does not vary in time
+(i.e., spots do not evolve and the star rotates as a rigid body).
 Because of these assumptions, our constraints on the information
 content of light curves should be viewed as strict \emph{upper limits}.
 
@@ -329,7 +338,7 @@ harmonic basis out to arbitrary order%
 Assuming (for the moment) that the
 star rotates about an axis that points up along the page, the observed
 light curve may be expressed as a weighted sum of the disk-integrated intensity
-of each of the spherical harmonics as they rotate about that same axis.
+of each of the spherical harmonics as they rotate about that same axis \citep{Luger2019}.
 However, not all spherical harmonics will contribute to the full light curve,
 as many (in fact, most) of the spherical harmonics are perfectly antisymmetric
 about the equator. This is the case for
@@ -343,7 +352,7 @@ the set of modes on the surface that do not contribute to the observed
 light curve and therefore cannot be probed from photometry.
 
 For rotational light curves,
-the vast majority of the surface modes lie at least partly in the null
+the vast majority of the surface modes lie in the null
 space. To show this, we will make use of the fact that we can express
 the vector of $K$ observed fluxes $\mathbf{f}$ (i.e., the light curve)
 as a linear operation on the vector of $N$
@@ -550,7 +559,7 @@ many, smaller spots. The locations, sizes, and the very existence
 of most of the spots are simply not encoded in the light curve.
 Even with an extremely restrictive prior, it may be difficult---if
 not impossible---to learn the properties of the spots
-from these light curves.
+from the individual light curves.
 
 The final row corresponds to a surface with much higher resolution
 features; this example highlights how the information content of
@@ -759,8 +768,8 @@ identical stars viewed at random inclinations.
         \oscaption{nullspace_ensemble}{%
             Similar to Figure~\ref{fig:nullspace_ensemble_single}, but
             assuming the observer can measure the light curves
-            of 1 (blue), 3 (orange), 10 (green), and 30 (red) \emph{identical} stars
-            viewed at random orientations.
+            of 1 (blue), 3 (orange), 10 (green), and 30 (red) \emph{identical}
+            stars--(same surface map, same rotational phase--but viewed at random orientations.
             As we saw in Figure~\ref{fig:nullspace_ensemble_single},
             the information content in the light curve of a star observed
             from a single vantage point approaches zero as $l$
@@ -996,7 +1005,8 @@ of field stars we won't know much a priori. Since the inclination
 is typically degenerate with the spot latitude \citep[e.g.,][]{Walkowicz2013},
 this decreases the constraining power of ensemble analyses.
 However, as we show in \citetalias{PaperII}, there is still enough
-information in a large ensemble to independently constrain the spot latitudes
+information in ensembles of $\gtrsim 50$ light curves
+to independently constrain the spot latitudes
 and the \emph{individual} stellar inclinations.
 
 The final point concerns limb darkening, which also has a strong
@@ -1090,11 +1100,15 @@ in the previous section).
 
 However, \textbf{we do not observe stellar light curves in fractional units.}
 Instead, we typically observe in units of counts on
-the detector, which depend on the luminosity of the star, the distance to
-the star, and various properties of the telescope. But even if we knew all these
-things, we usually do not know the brightness of the unspotted
-photosphere, the quantity we need in order to scale each observed light curve
-to transform it into the fractional units of the top panel of the figure.
+the detector, which depend (among other things) on various properties of the telescope.
+But even if we knew all these things, as well as the true luminosity
+of the star and the precise distance to it, and we could truly
+perform \emph{absolute photometry}, that \emph{still would not be enough}
+to correctly calibrate the light curve into the units we need.
+\textbf{To convert to fractional units, we would need to know the brightness we would
+    measure if the star had no spots on it.} This depends on the brightness
+of the unspotted photosphere, which cannot be measured directly unless
+we actually resolve the star (i.e., interferometrically)!
 
 Usually, this isn't much of an issue. Astronomers typically circumvent
 this by self-normalizing the data: i.e., dividing the flux by the mean,
@@ -1525,7 +1539,7 @@ from the shape of transiting exoplanet light curves; but any uncertainty
 in these quantities will degrade our ability to constrain
 information about the surface.
 
-Moreover, our constraints on the information content of ensembles of light curvesare
+Moreover, our constraints on the information content of ensembles of light curves are
 also strict upper limits, since we assumed all stars in the ensemble
 are identical. Variance in the surface maps of stars in
 a population makes it effectively impossible to infer detailed
