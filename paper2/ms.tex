@@ -93,38 +93,44 @@
 \section{Introduction}
 \label{sec:intro-gps}
 
-Over the past decades, Gaussian processes (GPs) have gained traction as
-a leading tool for modeling correlated signals in astronomical time series datasets,
-especially photometric time series
-\citep[e.g.,][]{RasmussenWilliams2005,BrewerStello2009,Luger2016,ForemanMackey2017,Angus2018}
-and radial velocities (ADD CITATIONS).
+Over the past two decades, Gaussian processes (GPs) have gained traction as
+a leading tool for modeling correlated signals in astronomical datasets
+\citep[][]{RasmussenWilliams2005}.
+In particular, GPs are commonly used to model
+stellar variability in photometric time series
+\citep[e.g.,][]{BrewerStello2009,Aigrain2016,Luger2016,ForemanMackey2017,Angus2018}
+and radial velocity measurements \citep[e.g.,][]{Rajpaul2015,Jones2017,Perger2020}.
 GPs are popular models for these applications because they allow marginalization
-over a stochastic noise process specified only by its autocorrelation structure
-or kernel.
-This is relatively straightforward to interpret and in some specific cases it
-can be related to physically motivated models (CITE SOME THINGS).
-Furthermore, there are several popular open source implementations that allow
-efficient evaluation of these models, and these have been widely demonstrated
+over a stochastic noise process specified only by a kernel describing its autocorrelation structure.
+%
+There are several popular open source implementations that allow
+efficient evaluation of GPs, and these have been widely demonstrated
 to be useful effective models for the time series when the stochastic
-variability is primarily a nuisance.
+variability due to the star is primarily a nuisance
+\citep[e.g.,][]{Ambikasaran2015,ForemanMackey2017,Gilbertson2020}.
 
 % However, an important drawback of the typical uses of GPs when applied
 % to modeling stellar light curves, particularly when the variability is due
 % to starspots rotating in and out of view.
 
-If, however, one hopes to make inferences about the stellar surface itself,
-GP models, as they are typically applied, are not so useful.
+A major source of stellar variability in both light curves and radial velocity
+datasets is the modulation induced by surface features like starspots
+rotating in and out of view. While GPs excel at marginalizing over stellar rotational
+variability, they have been less useful when the goal is to make
+inferences about the actual source of this variability, such as the
+properties of starspots and the magnetic processes that generate them.
 \textbf{While it is straightforward to derive
     posterior constraints on the hyperparameters of an effective GP model for
     observations of a star, it is not clear what those constraints actually
     tell us about the stellar surface.}
-Specifically, in all but a few restricted cases, there is no first principles
+Specifically, in all but a few restricted cases, there is no \emph{first principles}
 relationship between the descriptive parameters of a typical GP model
-(see section WHATEVER below)
-and the physical properties of the stellar surface surface that is being observed.
-For instance, it may be tempting to interpret the amplitude of the variability
+(see \S\ref{sec:gp-intro})
+and the physical properties of the stellar surface that is being observed.
+%
+For instance, it may be tempting to interpret the GP amplitude hyperparameter
 as some measure of the spot contrast or the total number of spots,
-or the timescale of the variations as the
+or the GP timescale hyperparameter as the
 spot lifetime, but there are no guarantees these interpretations will
 hold in general. After all, the choice of kernel is quite often \emph{ad hoc},
 providing an \emph{effective}---as opposed to \emph{interpretable}---description
@@ -151,23 +157,25 @@ used to remove (or, better yet, to marginalize over) the stellar variability
 In this case, the physics behind the variability is irrelevant, so an
 effective model of this sort is generally sufficient.
 
-When the goal is to understand
-the stellar surface itself, however, GPs have been less useful to date.
-While recent papers have proposed several custom
-GP kernels that excel at modeling rotational variability, such as
-the exponential sine squared kernel \citep[Equation~\ref{eq:expsinsq};][]{Wang2012},
-the quasi-periodic kernel \citep{Angus2018}, and
-the \celerite \textsf{RotationTerm} \citep{ForemanMackey2017},
-the connection between the kernel hyperparameters and the physical spot
-properties is often qualitative. Recently, \citet{Perger2020} proposed
-an empirically-motivated quasi-periodic cosine kernel that can be used
-to infer spot lifetimes in the absence of differential rotation. However,
-an explicit connection between the GP hyperparameters and the size and
-spatial distribution of spots has not been explored in the literature.
+Understanding the properties of starspots, faculae, plages, and other
+features on the surfaces of stars is crucial to \xxx{UNDERSTANDING MAGNETIC
+    FIELDS, STELLAR INTERIORS, MITIGATING EXOPLANET SYSTEMATICS} \citep{Rackham2018}.
 
-Instead, a common approach to inferring starspot properties from
-photometric datasets is
-to forward model the stellar surface and its effect on the light curve, then
+% Recent papers have proposed several custom
+% GP kernels that excel at modeling rotational variability, such as
+% the exponential sine squared kernel \citep[Equation~\ref{eq:expsinsq};][]{Wang2012},
+% the quasi-periodic kernel \citep{Angus2018}, and
+% the \celerite \textsf{RotationTerm} \citep{ForemanMackey2017}.
+% However, the connection between the kernel hyperparameters and the physical spot
+% properties is often qualitative. Recently, \citet{Perger2020} proposed
+% an empirically-motivated quasi-periodic cosine kernel that can be used
+% to infer spot lifetimes in the absence of differential rotation. However,
+% an explicit connection between the GP hyperparameters and the size and
+% spatial distribution of spots has not been explored in the literature.
+
+When the goal is to learn about the stellar surface, the common approach
+in the literature
+has been to explicitly \emph{forward model} the stellar surface and its effect on the light curve, then
 seek to constrain the surface properties by solving the inverse problem.
 We discussed this approach in \citet{PaperI} \citepalias[hereafter][]{PaperI},
 where we argued a unique solution to the surface map of
@@ -188,7 +196,7 @@ know what to do with that information! Instead, we often treat
 (whether explicitly or not)
 the properties of a starspot as a draw from some parent distribution
 controlling (say) the average and spread in the radii of the spots.
-The parameters controling this distribution are the ones that we can
+The parameters controlling this distribution are the ones that we can
 predict with physics; they are therefore also the ones we are usually
 interested in.
 
@@ -333,8 +341,8 @@ rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$
 (see Appendix~\ref{sec:starry} for details).
 
 
-\subsection{Gaussian processes in general}
-
+\subsection{Brief overview of Gaussian processes}
+\label{sec:gp-intro}
 Despite whatever mystique the words ``Gaussian process'' may evoke, a GP
 is nothing but a Gaussian distribution in many (formally infinite)
 dimensions. Specifically, it is a Gaussian distribution over
@@ -413,6 +421,7 @@ the actual value of the time $t$); rather, it depends only on the \emph{differen
 between the phases of two data points. The kernel of a stationary process is
 therefore a one-dimensional function, typically chosen from a set of
 standard functions with desirable smoothness and spectral properties.
+\xxx{REMOVE THESE EXAMPLES; NOT NEEDED.}
 Among a vast number of kernels are a few that are commonly used
 in modeling stellar variability: the exponential squared kernel,
 %
@@ -444,7 +453,7 @@ Once a kernel has been chosen, these scalar quantities fully
 specify the covariance of the Gaussian process. GP-based inference
 entails optimizing or sampling over these few quantities, which in many
 cases can be done easily and efficiently.
-
+\xxx{BETTER TRANSITION HERE.}
 
 \subsection{Computing the GP}
 \label{sec:gp}
