@@ -114,7 +114,7 @@ variability due to the star is primarily a nuisance
 % to starspots rotating in and out of view.
 
 A major source of stellar variability in both light curves and radial velocity
-datasets is the modulation induced by surface features like starspots
+datasets is the modulation induced by magnetically-driven surface features like starspots
 rotating in and out of view. While GPs excel at marginalizing over stellar rotational
 variability, they have been less useful when the goal is to make
 inferences about the actual source of this variability, such as the
@@ -157,9 +157,31 @@ used to remove (or, better yet, to marginalize over) the stellar variability
 In this case, the physics behind the variability is irrelevant, so an
 effective model of this sort is generally sufficient.
 
-Understanding the properties of starspots, faculae, plages, and other
-features on the surfaces of stars is crucial to \xxx{UNDERSTANDING MAGNETIC
-    FIELDS, STELLAR INTERIORS, MITIGATING EXOPLANET SYSTEMATICS} \citep{Rackham2018}.
+However, understanding the properties of stellar surfaces and starspots
+in particular is a crucial step
+toward understanding stellar magnetism, which plays a fundamental part
+in stellar interior structure and evolution. Stellar magnetic fields
+control the spin-down of stars over time, on which the field of
+gyrochronology is founded \citep[][]{Barnes2001,Angus2019}. They affect
+wave propagation in stellar interiors and must be properly
+understood to interpret asteroseismic measurements \citep[e.g.,][]{Fuller2015}.
+Strong magnetic fields are also likely the driving force behind chemical
+peculiarity in Ap/Bp stars~\citep{Turcotte2003,Sikora2018}, as well as
+radius inflation in M dwarfs \citep{Gough1966,Ireland2018}.
+Significant effort has thus been spent on theoretical and numerical approaches to understanding
+magnetohydrodynamics (MHD) in stars~\citep[e.g.,][]{Miesch2009}.
+Theoretical progress is challenging; MHD equations are nonlinear, since
+magnetism often emerges in regions of highly developed turbulence. There is a
+large separation of scales between the size of a star and the
+magnetic/thermal/momentum diffusion length-scales, and so numerical
+simulations at realistic resolutions remain out of reach. As a result
+there is still significant theoretical uncertainty over how dynamos
+manifest in stars of different masses, how magnetism interacts with rotation,
+and how star spots form \citep{Yadav2015,Weber2016}. Because of the
+significant impacts of magnetism on every branch of stellar astrophysics,
+these difficulties make new constraints from observations especially valuable.
+
+\xxx{MITIGATING EXOPLANET SYSTEMATICS} \citep{Rackham2018}.
 
 % Recent papers have proposed several custom
 % GP kernels that excel at modeling rotational variability, such as
@@ -2801,7 +2823,7 @@ presented here \testpassicon/\testfailicon.
 
 \vspace{2em}
 
-We would like to thank David W. Hogg, Michael Gully-Santiago, and the
+We would like to thank David W. Hogg, Michael Gully-Santiago, Adam Jermyn, and the
 Astronomical Data Group at the Center for Computational Astrophysics for
 many thought-provoking discussions that helped shape this paper.
 
