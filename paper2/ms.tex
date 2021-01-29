@@ -848,8 +848,10 @@ and the inclination second moment integral
     \mathrm{E} \Big[ \mathbbb{y} \, \mathbbb{y}^\top \, \Big| \, \pmb{\theta}_\bullet \Big] \,
     \pmb{\mathcal{A}}^\top(\mathbb{I}, P, \mathbf{u})
     p(\mathbb{I}) \, \mathrm{d}\mathbb{I}
-    \quad.
+    \quad,
 \end{align}
+%
+and $\mathbb{I}$ is the random variable corresponding to the inclination.
 %
 The expectations inside the integrals in the expressions for
 $\mathbf{e}_I$ and $\mathbf{E}_I$
@@ -1247,7 +1249,7 @@ show that, despite the issues raised above, the GP is in general unbiased and
 correctly estimates the posterior variance when used to infer the spot
 properties $\pmb{\theta}_\bullet$.
 
-But before we dive in, it is worth pausing for a moment to take another
+But before we dive into calibration tests, it is worth pausing for a moment to take another
 look at Figure~\ref{fig:samples}. While we focused on the shortcomings of
 the GP as a prior in the discussion above, it is important to appreciate
 that it even works in the first place!
@@ -1264,9 +1266,9 @@ to certain latitudes; in fact, in most applications of GPs to mapping
 problems in astronomy \citep[such as in models of the cosmic microwave
     background; e.g.,][]{Wandelt2012}, the process is assumed to be isotropic,
 with no preferred angular direction.
-The fact that we are able to construct a GP that captures discrete
-features restricted to certain regions on the surface (albeit with
-some issues) is remarkable.
+However, by prescribing the correct structure to the covariance matrix,
+we are able to approximately model compact spot-like
+features with given sizes and restricted to particular latitudes.
 
 \section{Calibration}
 \label{sec:calibration}
