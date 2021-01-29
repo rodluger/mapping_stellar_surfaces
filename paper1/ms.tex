@@ -90,7 +90,7 @@
     We further derive novel results on the dependence of the null space
     on stellar inclination and limb darkening and
     show that single-band photometric measurements cannot uniquely
-    constrain quantities like the spot contrast or the total
+    constrain quantities like the total
     spot coverage without the use of strong priors.
     %
     This is the first in a series of papers devoted to the development
@@ -1311,10 +1311,10 @@ can only tell us about the \emph{ratio}
 \end{align}
 %
 for some value of $\alpha$.
-In other words, even photometric ensemble analyses cannot tell
+In other words, even photometric ensemble analyses may not be able to tell
 us about the values of the contrast and the number of spots independently.
 
-A direct consequence of this normalization degeneracy is that it is not
+A direct consequence of this normalization degeneracy is that it may not be
 possible to uniquely constrain the total spot coverage of a star from
 single-band photometry without strong prior assumptions.
 The total spot coverage $f_S$
@@ -1336,7 +1336,7 @@ The arguments above are heuristic and based on only the first two moments
 of the distribution of light curves in an ensemble.
 It is possible, at least in principle, that higher order moments of the data
 could encode information to
-break the $c-N$ degeneracy, but these are in general much more difficult
+break the $c-n$ degeneracy, but these are in general more difficult
 to constrain from the data. It is also possible that we could place a
 \emph{lower limit} on the spot contrast based on the normalized light
 curve. In Equation~(\ref{eq:fapprox}) we implicitly assumed that
@@ -1349,6 +1349,9 @@ likely still have the same effective temperature! Therefore,
 assuming there are no bright spots,
 the maximum depth of a feature in the light curve (even in relative units)
 could be used to place a lower limit on the spot contrast.
+Moreover, in \citetalias{PaperII} we empirically show that, depending on the choice
+of prior, ensemble analyses may be able to place stronger constraints on
+the contrast $c$ than on the number of spots $n$.
 
 Nevertheless, even with these caveats in mind, the fact remains
 that degeneracies like the polar spot effect are fundamental: recall
@@ -1506,9 +1509,12 @@ of spots on the surface of the star. Even in ensemble analyses,
 one cannot in general learn these two quantities independently from
 the data alone,
 only a (complicated) function of the two (Equation~\ref{eq:ratio}).
+In \citetalias{PaperII} we show empirically that
+careful analysis of the covariance structure of ensembles of light curves
+may shed some light on $c$ but cannot uniquely constrain $n$.
 %
 A direct consequence of this degeneracy is that \textbf{constraints on
-    the total spot coverage of a star from single-band light curves
+    the total number of spots or on the spot coverage of a star from single-band light curves
     depend strongly on the model assumptions.}
 
 Recently, \citet{Morris2020} performed an ensemble analysis of
@@ -1587,7 +1593,7 @@ locations and sizes of a star's spots are constant in wavelength, the amplitude
 of the light curve in different bands (and in particular its slope as a function
 of wavelength) can be used to directly constrain the
 temperature, and hence the contrast, of the spots. This effectively breaks the
-$c-N$ degeneracy. In practice, the effective size of spots may be different
+$c-n$ degeneracy. In practice, the effective size of spots may be different
 at different wavelengths, which could complicate this picture somewhat, but
 the point still stands that light curves collected in multiple bands
 contain at least \emph{partial} information about the correct normalization.

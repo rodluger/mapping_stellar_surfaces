@@ -292,7 +292,7 @@ better understand this and other points regarding the information theory
 behind stellar rotational light curves.
 
 The present paper is organized as follows:
-we present an overview of the derivation of the GP in \S\ref{sec:main}
+we present an overview of the derivation of the GP in \S\ref{sec:gp}
 and a suite of tests on synthetic data to show the model is calibrated
 in \S\ref{sec:calibration}. We discuss our results and the limitations
 of our model in \S\ref{sec:discussion} and present straightforward
@@ -328,70 +328,25 @@ a numerical solution. Like the figure scripts, the equation unit tests are
 run on Azure Pipelines upon every commit of the code.
 
 \section{A Gaussian Process for starspots}
-\label{sec:main}
+\label{sec:gp}
 
-In this section, we present an overview of the computation of our Gaussian
-process, which boils down to computing the mean and covariance of the stellar
+In this section, we provide a brief overview of Gaussian processes
+(\S\ref{sec:gp-intro}) and spherical harmonics (\S\ref{sec:gp-ylms}),
+followed by an outline of the derivation of our interpretable GP
+(\S\ref{sec:gp-gp}).
+This derivation boils down to computing the mean and covariance of the stellar
 flux conditioned on certain physical properties of the star and its starspot
-distribution. Most of the math is folded into the Appendix for readability;
+distribution.
+In \S\ref{sec:gp-inc} and \S\ref{sec:gp-norm} we derive useful extensions
+of the model. For convenience, we summarize the results of this entire section in
+\S\ref{sec:gp-summary}.
+Most of the math is folded into the Appendix for readability;
 readers may want to refer to Appendix~\ref{sec:notation} in particular for
 a discussion of the notation and conventions we adopt.
 
-\subsection{Spherical harmonics}
-
-\begin{figure}[t!]
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/ylms.pdf}
-        \oscaption{ylms}{%
-            The real spherical harmonics in the polar frame up to
-            $l = 5$, where dark colors correspond to negative intensity
-            and bright colors to positive intensity.
-            Rows correspond to the degree $l$ and columns to
-            the order $m$. The set of all spherical harmonics forms a
-            complete, orthogonal basis on the sphere.
-            \label{fig:ylms}
-        }
-    \end{centering}
-\end{figure}
-
-Before we dive in, it is useful to introduce the spherical harmonics,
-a set of orthogonal functions on the surface of the sphere which we will use
-to describe the intensity field on the surface of a star
-(Figure~\ref{fig:ylms}). As we will see below,
-the spherical harmonics are a particularly convenient basis in which to
-describe starspot distributions%
-\footnote{There are, of course, drawbacks to using this basis:
-    in particular, the spherical harmonics are smooth, continuous functions that
-    struggle (at finite degree $l$) to capture high resolution features such as
-    small starspots. We discuss this point at length in \S\ref{sec:tinyspots},
-    where we show that our model is useful even when applied to stars with spots
-    smaller than the effective resolution of the GP.}, as they will allow us to compute
-moments of the intensity distribution analytically. Of more immediate concern,
-\citet{Luger2019} showed that there is a linear relationship between the
-spherical harmonic expansion of a stellar surface and the total disk-integrated
-flux $\mathbf{f}$ (i.e., the light curve)
-one would observe as the star rotates about a fixed axis.
-If the stellar surface intensity is described by a spherical harmonic
-coefficient vector $\mathbf{y}$ (up to a certain degree $l_\mathrm{max}$),
-the flux is given by
-%
-\begin{align}
-    \label{eq:fAy}
-    \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}}(I, P, \mathbf{u}) \, \mathbf{y}
-    \quad,
-\end{align}
-%
-where $\mathbf{1}$ is the ones vector and
-$\pmb{\mathcal{A}}$ is the \starry
-design matrix, a purely linear operator that transforms from the spherical
-harmonic basis to the flux basis; it is
-a function of the stellar inclination $I$, the stellar
-rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$
-(see Appendix~\ref{sec:starry} for details).
-
-
 \subsection{Brief overview of Gaussian processes}
 \label{sec:gp-intro}
+
 Despite whatever mystique the words ``Gaussian process'' may evoke, a GP
 is nothing but a Gaussian distribution in many (formally infinite)
 dimensions. Specifically, it is a Gaussian distribution over
@@ -426,7 +381,7 @@ GPs are easy to sample from.%
     sampling from the corresponding GP (if it exists)
     can be done in a single line of code by calling
     \texttt{numpy.random.multivariate\_normal(mean, cov)}.}
-But the real showstopper is the application of GPs to inference problems.
+But, as we alluded to earlier, the real showstopper is the application of GPs to inference problems.
 Multivariate Gaussian distributions have a closed-form (marginal) likelihood
 function, so it is easy to compute the probability
 of one's data conditioned on a given value of $\pmb{\mu}$ and $\pmb{\Sigma}$
@@ -470,42 +425,104 @@ the actual value of the time $t$); rather, it depends only on the \emph{differen
 between the phases of two data points. The kernel of a stationary process is
 therefore a one-dimensional function, typically chosen from a set of
 standard functions with desirable smoothness and spectral properties.
-\xxx{REMOVE THESE EXAMPLES; NOT NEEDED.}
-Among a vast number of kernels are a few that are commonly used
-in modeling stellar variability: the exponential squared kernel,
+
+The GP we derive in this paper is stationary and admits a representation
+as a one-dimensional kernel function. However, as we show in
+\S\ref{sec:gp-norm}, the common practice of normalizing stellar light curves to
+their mean or median value breaks this stationarity. For this reason,
+it is more convenient to derive and present our GP covariance as a
+$(K \times K)$ matrix $\pmb{\Sigma}$ and our GP mean as a
+$(K \times 1)$ vector $\pmb{\mu}$ for arbitrary $K$ instead of
+as a kernel and a mean function. Note, importantly, that these representations
+are equivalent given the definitions above.
+
+% Among a vast number of kernels are a few that are commonly used
+% in modeling stellar variability: the exponential squared kernel,
+% %
+% \begin{align}
+%     \label{eq:expsq}
+%     k_\mathrm{E^2}(\Delta t)           & = \sigma^2 \exp\left(-\frac{\Delta t^2}{2\tau}\right)
+%     \quad,                                                                                                                                           \\
+%     \intertext{the Mat\'ern-3/2 kernel,}
+%     \label{eq:mat32}
+%     k_\mathrm{M^\frac{3}{2}}(\Delta t) & = \sigma^2 \left( 1 + \frac{\sqrt{3}\Delta t}{\tau} \right) \exp\left(-\frac{\sqrt{3}\Delta t}{\tau}\right)
+%     \quad,                                                                                                                                           \\
+%     \intertext{the exponential sine squared kernel,}
+%     \label{eq:expsinsq}
+%     k_\mathrm{S^2}(\Delta t)           & = \sigma^2 \exp\left[-\Gamma\sin^2\left( \frac{\pi \Delta t}{P} \right)\right]
+%     \quad,                                                                                                                                           \\
+%     \intertext{the cosine kernel,}
+%     k_\mathrm{C}(\Delta t)             & = \sigma^2 \cos\left( \frac{2\pi \Delta t}{P} \right)
+%     \quad,
+% \end{align}
+% %
+% or any linear combination and/or product of these. In the expressions above,
+% $\sigma$, $\tau$, $\Gamma$, and $P$ are
+% the \emph{hyperparameters} of the kernels.
+% Specifically, $\sigma^2$ is the variance (the value
+% of the kernel when $t_i = t_j$), $\tau$ is a typical timescale over which
+% data are correlated, $\Gamma$ is a dimensionless scale parameter, and $P$ is
+% a period.
+% Once a kernel has been chosen, these scalar quantities fully
+% specify the covariance of the Gaussian process. GP-based inference
+% entails optimizing or sampling over these few quantities, which in many
+% cases can be done easily and efficiently.
+
+\subsection{Spherical harmonics}
+\label{sec:gp-ylms}
+
+\begin{figure}[t!]
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/ylms.pdf}
+        \oscaption{ylms}{%
+            The real spherical harmonics in the polar frame up to
+            $l = 5$, where dark colors correspond to negative intensity
+            and bright colors to positive intensity.
+            Rows correspond to the degree $l$ and columns to
+            the order $m$. The set of all spherical harmonics forms a
+            complete, orthogonal basis on the sphere.
+            \label{fig:ylms}
+        }
+    \end{centering}
+\end{figure}
+
+Before we dive into the computation of our GP, it is useful to introduce the spherical harmonics,
+a set of orthogonal functions on the surface of the sphere which we will use
+to describe the intensity field on the surface of a star
+(Figure~\ref{fig:ylms}). As we will see below,
+the spherical harmonics are a particularly convenient basis in which to
+describe starspot distributions%
+\footnote{There are, of course, drawbacks to using this basis:
+    in particular, the spherical harmonics are smooth, continuous functions that
+    struggle (at finite degree $l$) to capture high resolution features such as
+    small starspots. We discuss this point at length in \S\ref{sec:tinyspots},
+    where we show that our model is useful even when applied to stars with spots
+    smaller than the effective resolution of the GP.}, as they will allow us to compute
+moments of the intensity distribution analytically. Of more immediate concern,
+\citet{Luger2019} showed that there is a linear relationship between the
+spherical harmonic expansion of a stellar surface and the total disk-integrated
+flux $\mathbf{f}$ (i.e., the light curve)
+one would observe as the star rotates about a fixed axis.
+If the stellar surface intensity is described by a spherical harmonic
+coefficient vector $\mathbf{y}$ (up to a certain degree $l_\mathrm{max}$),
+the flux is given by
 %
 \begin{align}
-    \label{eq:expsq}
-    k_\mathrm{E^2}(\Delta t)           & = \sigma^2 \exp\left(-\frac{\Delta t^2}{2\tau}\right)
-    \quad,                                                                                                                                           \\
-    \intertext{the Mat\'ern-3/2 kernel,}
-    \label{eq:mat32}
-    k_\mathrm{M^\frac{3}{2}}(\Delta t) & = \sigma^2 \left( 1 + \frac{\sqrt{3}\Delta t}{\tau} \right) \exp\left(-\frac{\sqrt{3}\Delta t}{\tau}\right)
-    \quad,                                                                                                                                           \\
-    \intertext{the exponential sine squared kernel,}
-    \label{eq:expsinsq}
-    k_\mathrm{S^2}(\Delta t)           & = \sigma^2 \exp\left[-\Gamma\sin^2\left( \frac{\pi \Delta t}{P} \right)\right]
-    \quad,                                                                                                                                           \\
-    \intertext{the cosine kernel,}
-    k_\mathrm{C}(\Delta t)             & = \sigma^2 \cos\left( \frac{2\pi \Delta t}{P} \right)
+    \label{eq:fAy}
+    \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}}(I, P, \mathbf{u}) \, \mathbf{y}
     \quad,
 \end{align}
 %
-or any linear combination and/or product of these. In the expressions above,
-$\sigma$, $\tau$, $\Gamma$, and $P$ are
-the \emph{hyperparameters} of the kernels.
-Specifically, $\sigma^2$ is the variance (the value
-of the kernel when $t_i = t_j$), $\tau$ is a typical timescale over which
-data are correlated, $\Gamma$ is a dimensionless scale parameter, and $P$ is
-a period.
-Once a kernel has been chosen, these scalar quantities fully
-specify the covariance of the Gaussian process. GP-based inference
-entails optimizing or sampling over these few quantities, which in many
-cases can be done easily and efficiently.
-\xxx{BETTER TRANSITION HERE.}
+where $\mathbf{1}$ is the ones vector and
+$\pmb{\mathcal{A}}$ is the \starry
+design matrix, a purely linear operator that transforms from the spherical
+harmonic basis to the flux basis; it is
+a function of the stellar inclination $I$, the stellar
+rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$
+(see Appendix~\ref{sec:starry} for details).
 
 \subsection{Computing the GP}
-\label{sec:gp}
+\label{sec:gp-gp}
 %
 
 Let
@@ -513,7 +530,11 @@ $\mathbbb{f} = \left( \mathbb{f}_0 \,\, \mathbb{f}_1 \,\, \cdots \,\,  \mathbb{f
 denote a random vector of $K$ flux measurements at times
 $\mathbf{t} = \left( t_0 \,\,  t_1 \,\,  \cdots \,\, t_{K-1} \right)^\top$,
 defined in units such that a star with no spots on it will have
-unit flux.
+unit flux.%
+\footnote{
+    Note, importantly, that these are not the units we observe in! See \citetalias{PaperI}
+    and \S\ref{sec:gp-norm} below.
+}
 Conditioned on the stellar inclination $I$, the rotational period $P$,
 a set of limb darkening coefficients $\mathbf{u}$, and
 on certain properties of the starspots $\pmb{\theta}_\bullet$
@@ -727,7 +748,7 @@ from light curves with minimal bias.
 
 
 \subsection{Marginalizing over inclination}
-\label{sec:inclination}
+\label{sec:gp-inc}
 %
 As we mentioned in the previous section,
 the equations for the mean and covariance of our GP
@@ -840,7 +861,7 @@ If we are able to perform the integrals in those expressions,
 we can \emph{dramatically} reduce the number of
 parameters in our ensemble problem.
 %
-As we show in Appendix~\ref{sec:inclination}, if we assume that stellar
+As we show in Appendix~\ref{sec:gp-inc}, if we assume that stellar
 inclinations are distributed isotropically, these integrals
 do in fact have closed-form solutions.
 
@@ -862,7 +883,7 @@ since by construction our GP is longitudinally isotropic
 (see Appendix~\ref{sec:inc-mom1}).
 
 \subsection{Normalization correction}
-\label{sec:baseline}
+\label{sec:gp-norm}
 
 In \citetalias{PaperI} we discussed a subtle but important point
 about stellar light curves: the common procedure of normalizing
@@ -1022,13 +1043,13 @@ a light curve is now slightly dependent on their phases.
 
 
 \subsection{Summary}
-\label{sec:summary}
+\label{sec:gp-summary}
 %
 As the computation of the GP relies on many interdependent equations
 scattered throughout the previous sections and the Appendix, it
 is useful to summarize the procedure for the case where we marginalize
-over the inclination (\S\ref{sec:inclination}) and the light curves are
-normalized to their means (\S\ref{sec:baseline}), which is likely to be the primary
+over the inclination (\S\ref{sec:gp-inc}) and the light curves are
+normalized to their means (\S\ref{sec:gp-norm}), which is likely to be the primary
 use case for our algorithm.
 
 We model the mean-normalized flux $\tilde{\mathbbb{f}\hspace{0.2em}}$
@@ -1098,7 +1119,7 @@ While lengthy (and quite tedious), all of the computations described above rely
 on equations whose solutions have a closed form.%
 %
 \footnote{The exception to this is the
-    normalization correction (\S\ref{sec:baseline}), which depends on a
+    normalization correction (\S\ref{sec:gp-norm}), which depends on a
     fast-to-evaluate series and thus adds negligible overhead to the computation.}
 %
 Moreover, most of the terms in the expectation vectors and matrices may
@@ -1187,7 +1208,7 @@ circular spots to a gridded stellar surface:
           latitudes where no spots are present.
     \item \emph{There aren't exactly 10 (or 20) spots in those maps.} This is
           most obvious in row (c), where only a few large distinct spots,
-          plus maybe (?) a few smaller ones, are visible.
+          plus maybe a few smaller ones, are visible.
     \item \emph{There are bright spots in addition to dark spots.} This may be
           the most glaring issue. We explicitly model spots as being dark, and yet
           there are (almost) just as many bright spots, particularly in row (d).
@@ -1490,11 +1511,6 @@ only these 50 light curves (the figure only shows 49 of them),
 with no knowledge of the inclination of any individual
 star, and attempt to infer the spot properties.
 
-% HACK HACK HACK HACK HACK
-\vfill
-\pagebreak
-% HACK HACK HACK HACK HACK
-
 \subsection{Inference}
 \label{sec:calibration-inference}
 We use our \Python-based implementation of the GP \citep{JOSSPaper}
@@ -1513,6 +1529,11 @@ variational inference \citep[ADVI;][]{Kucukelbir2016,Blei2016}, and nested sampl
 We obtained the best performance using the nested sampling algorithm
 implemented in the \textsf{dynesty} package \citep{Speagle2020}, so that is what
 we will use below.
+
+% HACK HACK HACK HACK HACK
+\vfill
+\pagebreak
+% HACK HACK HACK HACK HACK
 
 Our sampling parameters are the number of spots $n$, their contrast $c$,
 their radius $r$, and the Beta distribution parameters $a$ and $b$ describing their
@@ -1620,7 +1641,7 @@ and the spot contrast $c$ are fairly tight, while the distribution for
 the latitudinal scatter $\sigma_\phi$ has wider tails and the distribution for
 the number of spots $n$ is very poorly constrained. The latter, in particular, is
 degenerate with the spot contrast $c$; we discuss this at length in
-\citepalias{PaperI}.
+\citetalias{PaperI}.
 
 Figure~\ref{fig:calibration_default_latitude} shows samples from the spot
 latitude posterior (hyper)distribution. Since the parameters $\mu_\phi$
@@ -1718,9 +1739,9 @@ posterior means are biased high. While the \emph{modes} of their
 posteriors are very close to the true values, the distributions have long
 tails extending to high latitudes and high variance, respectively.
 
-The reason for this bias has to do with the baseline degeneracy discussed in
+The reason for this bias has to do with the normalization degeneracy discussed in
 \citetalias{PaperI}:
-the total spottiness of a stellar surface cannot be probed in relative
+the total spottiness of a stellar surface is not an observable in single-band
 photometry. In particular, this means spots near the poles lie \emph{almost}
 entirely in the null space. Applied to the problem at hand, this degeneracy
 makes it difficult to distinguish between stars with spots concentrated
@@ -1750,8 +1771,8 @@ reveals that it too is positively correlated with the mean spot latitude
 and therefore suffers from the same degeneracy as above. And while the
 mean of the spot number distribution is roughly correct, the posterior
 is nearly unchanged across all runs, and equally uninformative in all
-of them. This is yet another manifestation of the baseline degeneracy:
-the total number of spots is not an observable in relative photometry
+of them. This is yet another manifestation of the normalization degeneracy:
+the total number of spots is not an observable in single-band photometry
 \citepalias{PaperI}.
 
 There is one final distribution that is instructive to consider: the
@@ -1927,7 +1948,7 @@ Our final trial is shown in Figure~\ref{fig:calibration_unnorm}, in which
 we assume we know the true baseline of each light curve. That is, we
 assume that we can measure all light curves in units of the flux we would
 measure if the stars had no spots on them, and we \emph{do not}
-normalize them (see \S\ref{sec:baseline}). In practice, this would require
+normalize them (see \S\ref{sec:gp-norm}). In practice, this would require
 knowledge of the brightness (or temperature) of the unspotted
 photosphere, which is not an observable in single-band relative photometry.
 This value can in principle be probed, however, in multi-band photometry
@@ -1976,7 +1997,7 @@ where part of the spot is on the hemisphere facing away from the observer.
 This was done in \citet{Luger2017}, who solved this problem in closed form
 (see \S3.3.2 and Appendix A.3 in that paper). Computing the GP is then a matter of
 integrating $\mathbbb{f}$ and $\mathbbb{f}\,\mathbbb{f}^\top$, weighted by
-the hyperparameter PDFs, as we did in \S\ref{sec:gp}.
+the hyperparameter PDFs, as we did in \S\ref{sec:gp-gp}.
 However, the expression for
 $\mathbbb{f}$ involves square roots and arctangents of functions of the spot
 latitude and longitude
@@ -2024,7 +2045,7 @@ stars with small spots.
             Comparison of GP samples with dark spots (top) and bright
             spots (center) alongside their corresponding light curves
             viewed at $I = 75^\circ$ (bottom). Without knowledge of
-            the baseline (\S\ref{sec:baseline}), it is very
+            the baseline (\S\ref{sec:gp-norm}), it is very
             difficult to differentiate between the two from stellar
             light curves.
             \label{fig:brightspots}
@@ -2057,7 +2078,7 @@ contrast: it enters in a single place, via Equation~(\ref{eq:bigEc}),
 as $c^2$, meaning dark and bright spot models have exactly the same
 covariance. These models differ only in the mean of the unnormalized
 process, since that is proportional to $c$ (via Equation~\ref{eq:ec}).
-However, as we argue in \S\ref{sec:baseline}, the mean is not a direct
+However, as we argue in \S\ref{sec:gp-norm}, the mean is not a direct
 observable. Instead, in relative photometry, we are only sensitive to
 the \emph{ratio} of the covariance to the square of the mean
 (see Equation~\ref{eq:SigmaTilde}). From that equation, we can deduce
@@ -2253,7 +2274,7 @@ in mind when using our algorithm and its \Python implementation.
           easier in practice to sample over using modern inference
           techniques such as MCMC, HMC, ADVI, and nested sampling.
     \item \emph{Care should be taken when modeling large-amplitude light curves}.
-          We discussed this point at length in \S\ref{sec:baseline}. Modeling
+          We discussed this point at length in \S\ref{sec:gp-norm}. Modeling
           a light curve that has been normalized to its mean (or median) as a
           Gaussian process is conceptually a bad idea when the amplitude
           of variability is large compared to the mean. As a rule of thumb, if
@@ -2478,7 +2499,7 @@ at a single phase.
 
 In the temporally-variable version of our GP, the covariance matrix in
 Equation~(\ref{eq:SigmatSlow}) replaces the standard covariance
-$\pmb{\Sigma}$; it can similarly be modified (\S\ref{sec:baseline})
+$\pmb{\Sigma}$; it can similarly be modified (\S\ref{sec:gp-norm})
 to obtain the covariance of the normalized process. While $\pmb{\Sigma}^\mathbf{(t)}$
 is $(K \times K)$, it is computed from the contraction of a much larger
 $(NK \times NK)$ matrix, which is extremely inefficient to instantiate and
@@ -2532,7 +2553,7 @@ temporally-variable \emph{Kepler} light curves.
 \subsection{Marginalizing over period and limb darkening}
 \label{sec:other-marg}
 
-In \S\ref{sec:inclination} we discussed the value of marginalizing over the
+In \S\ref{sec:gp-inc} we discussed the value of marginalizing over the
 stellar inclination when computing the GP covariance (and thus the likelihood).
 When jointly analyzing the light curves of many stars (which we have repeatedly
 argued is the best way to infer their spot properties), it can be extremely useful to
@@ -2673,7 +2694,7 @@ elementwise.
 Since $\mathbbb{v}$ is the ratio of two Gaussian random variables, its
 distribution is not Gaussian. However, we can still compute the first two moments
 of the distribution of $\mathbbb{v}$ to derive a Gaussian approximation to it
-(similar to what we did in \S\ref{sec:baseline}), which will yield the mean
+(similar to what we did in \S\ref{sec:gp-norm}), which will yield the mean
 and covariance of the Gaussian process representation of the radial velocity
 time series.
 %
@@ -3008,7 +3029,7 @@ the equations and/or section in which they are presented.
 \subsection{Basic expression}
 %
 \label{sec:starry:basic}
-As we mentioned in \S\ref{sec:gp}, the flux $\mathbf{f}$ is a purely
+As we mentioned in \S\ref{sec:gp-gp}, the flux $\mathbf{f}$ is a purely
 linear function of the spherical harmonic coefficient vector $\mathbf{y}$:
 %
 \begin{align}
@@ -3187,7 +3208,7 @@ stellar surface $\mathbbb{y}$,
 \end{align}
 %
 which are linearly related to the mean and the covariance of our GP
-(\S\ref{sec:gp}).
+(\S\ref{sec:gp-gp}).
 %
 Recall that $\mathbbb{x}$ is a vector of parameters describing the exact
 configuration of features on the surface of a star, and
@@ -5549,7 +5570,7 @@ as is the case with \emph{Kepler} or \emph{TESS} light curves,
 this approximation leads to negligible error when $K' \approx K$,
 affording the same $\mathcal{O}(K)$ computational savings.
 Note that even in the case where the flux is normalized
-(see \S\ref{sec:baseline}), the non-stationary correction to the
+(see \S\ref{sec:gp-norm}), the non-stationary correction to the
 covariance is applied \emph{after} the step where we marginalize
 over the inclination, so this approach is still valid.
 
