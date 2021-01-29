@@ -21,6 +21,7 @@ pip-wheel-metadata/
 metadata.json
 *.npz
 *.pkl
+*.tar.gz
 
 # TeX
 *latexindent*

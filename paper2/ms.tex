@@ -93,9 +93,8 @@
 \section{Introduction}
 \label{sec:intro-gps}
 
-Over the past two decades, Gaussian processes (GPs) have gained traction as
-a leading tool for modeling correlated signals in astronomical datasets
-\citep[][]{RasmussenWilliams2005}.
+Over the past two decades, Gaussian processes \citep[GPs;][]{RasmussenWilliams2005} have gained traction as
+a leading tool for modeling correlated signals in astronomical datasets.
 In particular, GPs are commonly used to model
 stellar variability in photometric time series
 \citep[e.g.,][]{BrewerStello2009,Aigrain2016,Luger2016,ForemanMackey2017,Angus2018}
@@ -155,9 +154,7 @@ search for a planetary signal in a radial velocity dataset, a GP might be
 used to remove (or, better yet, to marginalize over) the stellar variability
 \citep[e.g.,][]{Haywood2014,Rajpaul2015,Luger2017b}.
 In this case, the physics behind the variability is irrelevant, so an
-effective model of this sort is generally sufficient.
-
-\xxx{WORK IN PROGRESS:}
+effective model of this sort may be sufficient.
 
 However, understanding the properties of stellar surfaces and starspots
 in particular is a crucial step
@@ -171,17 +168,37 @@ Strong magnetic fields are also likely the driving force behind chemical
 peculiarity in Ap/Bp stars~\citep{Turcotte2003,Sikora2018}, as well as
 radius inflation in M dwarfs \citep{Gough1966,Ireland2018}.
 Stellar magnetohydrodynamics (MHD) is therefore an active area of
-research \citep[e.g.,][]{Miesch2009,XXX}.
+research, with many open questions \citep[e.g.,][]{Miesch2009}.
 %
-But because of the nonlinearity of the MHD equations and the vast range
-of scales on which magnetic processes operate, theoretical progress
-is difficult; there is still significant theoretical uncertainty over how dynamos
-manifest in stars of different masses, how magnetism interacts with rotation,
-and how star spots form \citep{Yadav2015,Weber2016}. Because of the
-significant impacts of magnetism on every branch of stellar astrophysics,
-these difficulties make new constraints from observations especially valuable.
+Because of the nonlinearity of the MHD equations and the vast range
+of scales on which magnetic processes operate,
+there is still significant theoretical uncertainty concerning how dynamos
+operate in stars of different masses, how magnetic fields affect stellar rotation,
+and how star spots form \citep{Yadav2015,Weber2016}.
+Observational constraints on starspots and other magnetically-controlled
+surface features are therefore extremely valuable to understanding various problems in
+stellar astrophysics.
 
-\xxx{MITIGATING EXOPLANET SYSTEMATICS} \citep{Rackham2018}.
+Moreover, even when the stellar signal is considered a nuisance, a
+physically-driven variability model may be a better choice than an
+effective model in some cases, particularly when the signal of interest is small
+compared to the systematics. A specific example of this is in transmission
+spectroscopy of transiting exoplanets, where the contribution from
+unocculted spots and faculae to the spectrum
+can be an order of magnitude larger than that of the planet atmosphere
+\citep{Rackham2018}. In this case, failure to explicitly model the effect of starspots
+can lead to spurious features in the planet spectrum.
+%
+A similar situation arises in extreme precision radial velocity (EPRV)
+searches for planets, where the stellar signal can be orders of magnitude
+larger than the planetary signal. While effective models of
+variability have often been successful at disentangling the planetary
+and stellar contributions \xxx{\citep{XXX}}, these models can struggle
+when the (a priori unknown) orbital period of the planet
+is close to an alias of the rotational period of the star \xxx{\citep{XXX}}.
+In this case, a physically-driven model of variability would likely
+perform better.
+
 
 % Recent papers have proposed several custom
 % GP kernels that excel at modeling rotational variability, such as
@@ -196,16 +213,19 @@ these difficulties make new constraints from observations especially valuable.
 % spatial distribution of spots has not been explored in the literature.
 
 When the goal is to learn about the stellar surface, the common approach
-in the literature
-has been to explicitly \emph{forward model} the stellar surface and its effect on the light curve, then
-seek to constrain the surface properties by solving the inverse problem.
-We discussed this approach in \citet{PaperI} \citepalias[hereafter][]{PaperI},
+in the literature has not been to use GPs, but to explicitly
+\emph{forward model} the surface. Such a model allows one to
+compute a stellar light curve or spectral timeseries conditioned
+on certain surface properties, a procedure that must then be inverted
+in order to constrain the surface given a dataset.
+We discussed this approach for rotational light curves of stars
+in \citet{PaperI} \citepalias[hereafter][]{PaperI},
 where we argued a unique solution to the surface map of
-the star from a rotational light curve is not possible without the use of
-aggressive (and often \emph{ad hoc}) priors. The degeneracies at play
-make it effectively impossible for one to know the exact configuration
-of starspots and other features on the surface of a star from its rotational
-light curve alone.
+the star is not possible without the use of
+aggressive (and often \emph{ad hoc}) priors. \textbf{The degeneracies at play
+    make it effectively impossible for one to know the exact configuration
+    of starspots and other features on the surface of a star from its rotational
+    light curve alone.}
 
 However, it is hardly ever the case that this is actually our end goal.
 After all, physics can be used to predict properties of stellar surfaces at a fairly
@@ -222,7 +242,7 @@ The parameters controlling this distribution are the ones that we can
 predict with physics; they are therefore also the ones we are usually
 interested in.
 
-Thus, if we were able to derive robust posterior constraints
+Thus, if it were possible to derive robust posterior constraints
 on the properties of each of the spots on a star, we could then
 \emph{marginalize} (integrate) over them to infer the properties
 describing the distribution of all the spots as a whole.
@@ -231,12 +251,14 @@ describing the distribution of all the spots as a whole.
 %strong degeneracies: as we will see, the statistical properties of
 %starspots have a much smaller null space than the properties of
 %individual spots.
-We could do this in the usual way described above, by
-modeling the properties of each of the spots in a posterior sampling
-scheme, but also including a few
+We could do this using the forward model approach described above, by
+modeling the properties of each of the spots and computing the
+corresponding light curves. Then, we could solve the ``inverse'' problem
+via a posterior sampling scheme, such as Markov Chain Monte Carlo (MCMC),
+while including a few
 \emph{hyperparameters} controlling the distribution of those properties
-across all spots (acting, therefore, as a prior term): i.e., a one-level
-hierarchical model. The marginal posteriors for the hyperparameters, then,
+across all spots: i.e., a one-level hierarchical model.
+The marginal posteriors for the hyperparameters, then,
 would encode what we actually wish to know.
 %
 In practice, however, the degeneracies and often extreme multi-modality
@@ -248,8 +270,10 @@ perform this marginalization for us!
 
 \textbf{In this paper, we derive an exact, closed-form expression for
     the Gaussian approximation to the marginal likelihood of a light curve
-    conditioned on the statistical properties of starspots.} Our Gaussian
-process analytically marginalizes over the degenerate and often unknowable
+    conditioned on the statistical properties of starspots,} which allows us
+define an interpretable Gaussian process for stellar light curves.
+%
+Our GP analytically marginalizes over the degenerate and often unknowable
 distributions of properties of individual starspots, revealing the
 constraints imposed on the bulk spot properties without the need to
 explicitly model or sample over properties of individual spots. It inherits
@@ -259,8 +283,11 @@ hyperparameters.
 %
 In particular, \textbf{our GP is aimed at ensemble analyses of many light curves.}
 As we showed in \citetalias{PaperI}, the joint information content of
-the light curves of many stars can break many of the degeneracies in the
-mapping problem. We encourage readers to read \citetalias{PaperI} to
+the light curves of many stars can be harnessed to constrain
+statistical properties of the surfaces of those stars, even in the
+presence of degeneracies that preclude knowledge about the surfaces
+of individual stars.
+We encourage readers to read \citetalias{PaperI} to
 better understand this and other points regarding the information theory
 behind stellar rotational light curves.
 
@@ -2823,7 +2850,8 @@ presented here \testpassicon/\testfailicon.
 
 \vspace{2em}
 
-We would like to thank David W. Hogg, Michael Gully-Santiago, Adam Jermyn, and the
+We would like to thank David W. Hogg, Michael Gully-Santiago, Adam Jermyn,
+Megan Bedell, and the
 Astronomical Data Group at the Center for Computational Astrophysics for
 many thought-provoking discussions that helped shape this paper.
 
