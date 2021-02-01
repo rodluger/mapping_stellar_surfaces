@@ -338,8 +338,8 @@ This derivation boils down to computing the mean and covariance of the stellar
 flux conditioned on certain physical properties of the star and its starspot
 distribution.
 In \S\ref{sec:gp-inc} and \S\ref{sec:gp-norm} we derive useful extensions
-of the model. For convenience, we summarize the results of this entire section in
-\S\ref{sec:gp-summary}.
+of the model. \textbf{For convenience, we summarize the results of this entire section in
+    \S\ref{sec:gp-summary}.}
 Most of the math is folded into the Appendix for readability;
 readers may want to refer to Appendix~\ref{sec:notation} in particular for
 a discussion of the notation and conventions we adopt.
@@ -662,13 +662,24 @@ For simplicity, the PDFs for the spot radius, the spot contrast, and the number
 of spots are chosen to be delta functions centered at $r$, $c$, and $n$, respectively
 (Appendices \ref{sec:size} and \ref{sec:contrast}),
 while
+the spot longitude is assumed to be uniformly distributed
+(Appendix \ref{sec:lon}).
+%
+Finally,
 the PDF for the latitude $\phi$ of the spots is chosen to be a Beta distribution in
 $\cos\phi$ with (normalized) parameters $a$ and $b$,
 which have a one-to-one correspondence to the mode $\mu_\phi$ and
 standard deviation $\sigma_\phi$ of the distribution in $\phi$
-(Appendix \ref{sec:lat}). Finally,
-the spot longitude is assumed to be uniformly distributed
-(Appendix \ref{sec:lon}).
+(Appendix \ref{sec:lat}). This allows us to model starspot distributions
+with ``active latitudes'' of tunable width that are symmetric about
+the equator. The distribution is flexible enough to also model equatorial
+spots and isotropically-distributed spots. Stars with multiple active
+latitudes can easily be modeled as a sum of Gaussian processes
+(\S\ref{sec:mixture}). These choices for the spatial distribution of
+spots are based on the Sun, whose spots emerge in azimuthally-symmetric
+belts at roughly the same latitude in both hemispheres, then
+migrate toward the equator over the course of the 11-year cycle
+\citep{Solanki2006}.
 
 In this paper, we assume that the parameters $\pmb{\theta}_\bullet$
 described above are the \emph{physically interesting} ones. That is,
@@ -1270,6 +1281,11 @@ However, by prescribing the correct structure to the covariance matrix,
 we are able to approximately model compact spot-like
 features with given sizes and restricted to particular latitudes.
 
+% HACK HACK HACK HACK HACK
+\vfill
+\pagebreak
+% HACK HACK HACK HACK HACK
+
 \section{Calibration}
 \label{sec:calibration}
 
@@ -1513,6 +1529,11 @@ only these 50 light curves (the figure only shows 49 of them),
 with no knowledge of the inclination of any individual
 star, and attempt to infer the spot properties.
 
+% HACK HACK HACK HACK HACK
+\vfill
+\pagebreak
+% HACK HACK HACK HACK HACK
+
 \subsection{Inference}
 \label{sec:calibration-inference}
 We use our \Python-based implementation of the GP \citep{JOSSPaper}
@@ -1531,11 +1552,6 @@ variational inference \citep[ADVI;][]{Kucukelbir2016,Blei2016}, and nested sampl
 We obtained the best performance using the nested sampling algorithm
 implemented in the \textsf{dynesty} package \citep{Speagle2020}, so that is what
 we will use below.
-
-% HACK HACK HACK HACK HACK
-\vfill
-\pagebreak
-% HACK HACK HACK HACK HACK
 
 Our sampling parameters are the number of spots $n$, their contrast $c$,
 their radius $r$, and the Beta distribution parameters $a$ and $b$ describing their
@@ -1653,7 +1669,17 @@ latitude distribution. Thus, the ensemble of blue curves in
 Figure~\ref{fig:calibration_default_latitude} quantifies our knowledge of
 how spots are distributed on the surfaces of the stars in the dataset.
 These distributions are again consistent with the true distribution used
-to generate the spots (orange curve) within less than 2 standard deviations.
+to generate the spots (orange curve) within less than 2 standard deviations.%
+\footnote{%
+    If the results in Figure~\ref{fig:calibration_default_latitude}
+    seem biased, recall from Figure~\ref{fig:calibration_default_corner}
+    that the mean of the latitude distribution is
+    consistent with the truth at $2-3\sigma$. That is roughly the difference
+    between the orange curve and the average of the blue curves. As we
+    will see, inference with a larger ensemble
+    (Figure~\ref{fig:calibration_default_1000})
+    allows us to infer the mean latitude to within about two degrees.
+}
 
 Even though we explicitly marginalized over inclination, we can still
 derive posterior constraints on the inclinations of the individual stars in
@@ -1930,7 +1956,7 @@ about the contrast and--to a much lesser extent--the number of spots.
 In Figure~\ref{fig:calibration_bigspots}, we compensate for the smaller number
 of spots by increasing the spot radius to $r = 45^\circ \pm 5^\circ$ instead,
 showing that the model can accurately model large spots, even in the
-presence of some (unmodelled) scatter in their sizes.
+presence of some (unmodeled) scatter in their sizes.
 
 In Figure~\ref{fig:calibration_variance} we add variance to all the spot
 properties when generating the light curves: we add $n = 20 \pm 3$ spots
@@ -2099,7 +2125,7 @@ the total number of spots.%
     of entries in the covariance matrix to the mean, so it is of little help
     in breaking the degeneracy.}
 
-We therefore conclude that \textbf{relative single-band photometry is largely insensitive to
+We therefore conclude that \textbf{single-band photometry is largely insensitive to
     the difference between bright spots and dark spots}. However, it is
 important to bear in mind that the
 degeneracy described above exists only for the \emph{Gaussian approximation}
