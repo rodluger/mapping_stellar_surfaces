@@ -1599,6 +1599,11 @@ Convergence---defined as when the estimate of the remaining evidence $\Delta\ln 
 below $0.5$---is usually attained after $5{,}000$ to $10{,}000$ samples and
 within a couple hours on a typical machine for most of the trials we perform.
 
+Below we describe several calibration \emph{runs}: experiments where we generate
+an ensemble of light curves from synthetic stars with given properties
+(\S\ref{sec:calibration-setup}) and attempt to infer their statistical spot
+properties.
+
 \subsection{Default run}
 \label{sec:inference-default}
 
@@ -1665,7 +1670,7 @@ Figure~\ref{fig:calibration_default_latitude} shows samples from the spot
 latitude posterior (hyper)distribution. Since the parameters $\mu_\phi$
 and $\sigma_\phi$ characterize a distribution over spot latitudes, uncertainty
 in their values translates to uncertainty in the actual shape of the spot
-latitude distribution. Thus, the ensemble of blue curves in
+latitude distribution. Thus, the collection of blue curves in
 Figure~\ref{fig:calibration_default_latitude} quantifies our knowledge of
 how spots are distributed on the surfaces of the stars in the dataset.
 These distributions are again consistent with the true distribution used
@@ -1683,7 +1688,7 @@ to generate the spots (orange curve) within less than 2 standard deviations.%
 
 Even though we explicitly marginalized over inclination, we can still
 derive posterior constraints on the inclinations of the individual stars in
-our sample by computing the log-likelihood as a function of $I$
+our ensemble by computing the log-likelihood as a function of $I$
 conditioned on the value of $\pmb{\theta}_\bullet$ from a particular draw from
 the posterior. We do this in Figure~\ref{fig:calibration_default_inclination},
 where blue curves again correspond to samples from the posterior hyperdistribution,
@@ -1741,11 +1746,11 @@ $2{-}3\sigma$.
 
 The results in
 Figures~\ref{fig:calibration_default_corner}---\ref{fig:calibration_default_inclination}
-are based on a single realization of the light curve ensemble conditioned on
+are based on a single run: i.e., a single realization of the light curve ensemble conditioned on
 the properties of Table~\ref{tab:synthetic}. To properly gauge potential biases
-in our model, it is useful to re-run the experiment under many different realizations
+in our model, it is useful to perform the run under many different realizations
 of the dataset. We therefore generate 100 ensembles of light curves in
-exactly the same way as above and run inference on each of them.
+exactly the same way as above and perform inference on each of them.
 Figure~\ref{fig:calibration_batch_default_corner} shows the marginal and joint
 posterior distributions for $\pmb{\theta}_\bullet$ for all 100 trials.
 Posteriors for individual trials are shown as the transluscent colored curves
@@ -1819,7 +1824,7 @@ individual stellar inclinations.
 
 Finally, Figure~\ref{fig:calibration_batch_default_1000} shows
 the same posterior distributions as in Figure~\ref{fig:calibration_batch_default_corner},
-but for 100 trials each with $M=1{,}000$ light curves. In addition to the
+but for 100 runs each with $M=1{,}000$ light curves. In addition to the
 constraints on all parameters (except the number of spots) being much
 tighter, the larger amount of data breaks the polar spot degeneracy discussed
 above. Given enough light curves, the model is capable of differentiating between
@@ -1842,13 +1847,13 @@ dataset, and the corresponding figures are presented at the end of the Appendix.
 Figures~\ref{fig:calibration_midlat}---\ref{fig:calibration_isotropic}
 show the results for different latitudinal
 distributions, keeping all other values in Table~\ref{tab:synthetic} the same.
-Specifically, Figure~\ref{fig:calibration_midlat} corresponds to a trial
+Specifically, Figure~\ref{fig:calibration_midlat} corresponds to a run
 with mid-latitude ($\mu_\phi = 45^\circ$ and $\sigma_\phi = 5^\circ$) spots,
-Figure~\ref{fig:calibration_hilat} to a trial with high-latitude
+Figure~\ref{fig:calibration_hilat} to a run with high-latitude
 ($\mu_\phi = 60^\circ$ and $\sigma_\phi = 5^\circ$) spots,
-Figure~\ref{fig:calibration_equatorial} to a trial with equatorial
+Figure~\ref{fig:calibration_equatorial} to a run with equatorial
 ($\mu_\phi = 0^\circ$ and $\sigma_\phi = 5^\circ$) spots, and
-Figure~\ref{fig:calibration_isotropic} to a trial with isotropically-distributed
+Figure~\ref{fig:calibration_isotropic} to a run with isotropically-distributed
 spots ($\bbphi \sim \cos$).
 The results are largely consistent with those of the default run: in all
 cases we infer the correct spot radius, the mean and standard deviation of
@@ -1930,7 +1935,7 @@ on $r$, $\mu_\phi$, and $\sigma_\phi$ are now much tighter and in
 good agreement with the truth. Finally, Figure~\ref{fig:calibration_ld_500_no_ld}
 shows the results of inference on limb-darkened light curves under the
 (wrong) assumption that limb darkening is not present ($\mathbf{u} = \mathbf{0}$).
-Neglecting the effect of limb darkening leads to significant biases in the spot radius
+Neglecting the effect of limb darkening can lead to biases in the spot radius
 and latitude parameters. While the model still favors mid-latitude spots
 (at $\sim 45^\circ$ instead of $30^\circ$), the constraints are deceptively tight
 and discrepant by many standard deviations. We discuss these points in
@@ -1952,7 +1957,7 @@ has a much heavier tail than in the other runs.
 Thus, in spite of the arguments in \citet{PaperI} about the difficulty in
 constraining $c$ and $n$ from single-band photometry, it is evident that
 the full covariance structure of the data encodes \emph{some} information
-about the contrast and--to a much lesser extent--the number of spots.
+about the contrast and---to a much lesser extent---the number of spots.
 In Figure~\ref{fig:calibration_bigspots}, we compensate for the smaller number
 of spots by increasing the spot radius to $r = 45^\circ \pm 5^\circ$ instead,
 showing that the model can accurately model large spots, even in the
@@ -1962,7 +1967,7 @@ In Figure~\ref{fig:calibration_variance} we add variance to all the spot
 properties when generating the light curves: we add $n = 20 \pm 3$ spots
 to each star with radii $r = 15^\circ \pm 3^\circ$, contrasts
 $c = 0.05 \pm 0.01$, and at latitudes $\phi = 30^\circ \pm 5^\circ$.
-As before, we only explicitly account for the latitude variance in our
+As before, we only explicitly account for the variance of the latitude distribution in our
 model. We correctly infer the latitude parameters and the contrast, but
 our radii appear to be biased high. This is likely due to the fact that
 larger spots have a bigger impact on the signal, so our inferred radius
@@ -1971,11 +1976,11 @@ derive an expression for the moment integrals of the spot size distribution
 assuming a uniform distribution between $r - \Delta r$ and $r + \Delta r$
 (instead of a delta function at $r$), which can be used to compute the
 GP if one wishes to explicitly account for scatter in the spot sizes.
-We find that repeating the trial shown in Figure~\ref{fig:calibration_variance}
+We find that repeating the run shown in Figure~\ref{fig:calibration_variance}
 while explicitly sampling over the distribution in $\Delta r$ shifts the
 posterior mass to lower radii, mitigating the bias described above.
 
-Our final trial is shown in Figure~\ref{fig:calibration_unnorm}, in which
+Our final run is shown in Figure~\ref{fig:calibration_unnorm}, in which
 we assume we know the true normalization of each light curve. That is, we
 assume that we can measure all light curves in units of the flux we would
 measure if the stars had no spots on them, and we \emph{do not}
@@ -1983,7 +1988,7 @@ normalize them (see \S\ref{sec:gp-norm}). In practice, this would require
 knowledge of the brightness (or temperature) of the unspotted
 photosphere, which is not an observable in single-band photometry.
 This value can in principle be probed, however, in multi-band photometry
-\citep[e.g.,][]{Gully2017,Guo2018}, for which this trial is
+\citep[e.g.,][]{Gully2017,Guo2018}, for which this run is
 extremely relevant. We again recover the radii and latitude parameters
 to within $2-3\sigma$, but most importantly, we also infer the correct
 spot contrast \emph{and} the correct number of spots with fairly high
