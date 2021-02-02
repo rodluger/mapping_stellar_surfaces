@@ -185,7 +185,9 @@ def run_tests():
 
 
 def build_pdf():
-    subprocess.check_output(["tectonic", "ms.tex", "--keep-logs"])
+    subprocess.check_output(
+        ["tectonic", "ms.tex", "--keep-logs", "--keep-intermediates"]
+    )
 
 
 def build():

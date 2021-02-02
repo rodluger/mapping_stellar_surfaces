@@ -5,7 +5,9 @@ MISC = $(patsubst misc/%,%,$(wildcard misc/*))
 default:
 	cp misc/* .
 	python -c "from build import build; build()"
+	echo $(MISC)
 	rm -f $(MISC)
+
 clean:
 	cp misc/* .
 	python -c "from build import clean; clean()"

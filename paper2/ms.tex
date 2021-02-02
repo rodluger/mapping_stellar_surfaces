@@ -281,15 +281,32 @@ the speed, ease-of-use, and all other properties of traditionally-used
 GPs, with the added benefit of direct physical interpretability of its
 hyperparameters.
 %
-In particular, \textbf{our GP is aimed at ensemble analyses of many light curves.}
+
+While our GP can be used to model light curves of individual
+stars, it is particularly useful for \textbf{ensemble analyses of light curves of
+    many similar stars.}
 As we showed in \citetalias{PaperI}, the joint information content of
-the light curves of many stars can be harnessed to constrain
+the light curves of many similar stars can be harnessed to constrain
 statistical properties of the surfaces of those stars, even in the
 presence of degeneracies that preclude knowledge about the surfaces
 of individual stars.
+By ``similar'', we do not mean stars that \emph{look} similar, but
+whose spot properties are drawn from
+the same parent distribution. The parameters of this parent distribution
+are the ones we can constrain; the are also usually the physically
+interesting ones, such as the typical spot sizes or typical active
+latitudes and the variance in those quantites across the
+population.
+Ensembles may thus comprise light curves of stars in
+a narrow spectral type, metallicity, and rotation period bin,
+which we might reasonably expect to have \emph{statistically}
+similar surfaces.
+%
 We encourage readers to read \citetalias{PaperI} to
 better understand this and other points regarding the information theory
 behind stellar rotational light curves.
+
+\vspace{1em}
 
 The present paper is organized as follows:
 we present an overview of the derivation of the GP in \S\ref{sec:gp}
@@ -518,8 +535,8 @@ $\pmb{\mathcal{A}}$ is the \starry
 design matrix, a purely linear operator that transforms from the spherical
 harmonic basis to the flux basis; it is
 a function of the stellar inclination $I$, the stellar
-rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$
-(see Appendix~\ref{sec:starry} for details).
+rotation period $P$, and the stellar limb darkening coefficients $\mathbf{u}$,
+as well as the observation times (see Appendix~\ref{sec:starry} for details).
 
 \subsection{Computing the GP}
 \label{sec:gp-gp}
@@ -653,7 +670,9 @@ our default representation of the GP hyperparameters is
     \quad,
 \end{align}
 %
-where $n$ is the number of starspots, $c$ is their contrast,
+where $n$ is the number of starspots, $c$ is their contrast
+(defined as the intensity difference between the spot and the
+background intensity, as a fraction of the background intensity),
 $\mu_\phi$ and $\sigma_\phi$ are the mode and standard deviation
 of the spot latitude distribution, respectively, and $r$ is the radius
 of the spots.
@@ -683,15 +702,16 @@ migrate toward the equator over the course of the 11-year cycle
 
 In this paper, we assume that the parameters $\pmb{\theta}_\bullet$
 described above are the \emph{physically interesting} ones. That is,
-given a set of $M$ light curves
+given a light curve $\mathbf{f}$ or an ensemble of $M$ light curves of
+statistically similar stars
 $\left( \mathbf{f}_0 \,\, \mathbf{f}_1 \,\, \cdots \,\,  \mathbf{f}_{M-1} \right)^\top$,
 we wish to infer the statistical properties of the starspots, encoded in
 the entries of the vector $\pmb{\theta}_\bullet$.
 %
 This is typically a tall order, since it requires marginalizing over all
 the nuisance parameters, which include the nitty-gritty details of the
-size, contrast, and location of \emph{every spot} on \emph{every star}
-in the sample. Fortunately, however, the Gaussian process we constructed
+size, contrast, and location of \emph{every spot} (and, if $M > 1$, on \emph{every star}
+in the ensemble). Fortunately, however, the Gaussian process we constructed
 does just that. Specifically, given the mean and covariance of the process,
 we are able to directly evaluate the log marginal likelihood of the $m^\mathrm{th}$
 dataset
@@ -719,7 +739,7 @@ $P$, and $\mathbf{u}$):
     \mathbf{C}_m
     \Big|
     -
-    \frac{K_m}{2}
+    \frac{K}{2}
     \ln \left( 2 \pi \right)
     \quad,
 \end{align}
@@ -738,7 +758,16 @@ $\mathbf{C}_m$ is the data covariance
 (which in most cases is a diagonal matrix whose entries
 are the squared uncertainty corresponding to each data point in the light curve),
 %
-$| \cdots |$ denotes the determinant, and $K_m$ is the number of data points.
+$| \cdots |$ denotes the determinant, and $K$ is the number of data points in
+each light curve.%
+\footnote{
+    In Equation~(\ref{eq:log-like}) we implicitly assume all stars in the
+    ensemble are observed at the same set of times $\mathbf{t}$.
+    If this is not the case, the mean and covariance of the GP for each
+    star must be computed from Equations~(\ref{eq:mean}) and (\ref{eq:cov})
+    with the flux design matrix $\pmb{\mathcal{A}}(\mathbf{t}_m)$ evaluated
+    at the particular observation times $\mathbf{t}_m$.
+}
 In an ensemble analysis, the joint marginal likelihood of all datasets is
 simply the product of the individual likelihoods, so in log space we have
 %
@@ -1102,7 +1131,8 @@ spot distribution
     \quad,
 \end{align}
 %
-consisting of the number of spots $n$, their contrast $c$,
+consisting of the number of spots $n$, their contrast $c$ (the fractional
+intensity difference between the background and the spot),
 the mode $\mu_\phi$ and standard deviation $\sigma_\phi$ of the latitude
 distribution, and the radius of the spots $r$.
 The quantity $\tilde{\pmb{\Sigma}}$ is the covariance of the normalized process
@@ -1281,11 +1311,6 @@ However, by prescribing the correct structure to the covariance matrix,
 we are able to approximately model compact spot-like
 features with given sizes and restricted to particular latitudes.
 
-% HACK HACK HACK HACK HACK
-\vfill
-\pagebreak
-% HACK HACK HACK HACK HACK
-
 \section{Calibration}
 \label{sec:calibration}
 
@@ -1341,7 +1366,7 @@ of parameter space, it is certainly a poor approximation in others.
 %
 In this section, we will show that, fortunately, the non-Gaussianity of the
 distribution is not in general an issue when doing inference with our GP,
-as the resulting posteriors are unbiased.
+as the resulting posteriors are correctly calibrated.
 
 \subsection{Setup}
 \label{sec:calibration-setup}
@@ -1520,6 +1545,11 @@ the log likelihood.
     \end{centering}
 \end{figure}
 
+% HACK HACK HACK HACK HACK
+\vfill
+\pagebreak
+% HACK HACK HACK HACK HACK
+
 Figure~\ref{fig:calibration_default_data} shows a synthetic dataset generated
 from the default values listed in Table~\ref{tab:synthetic}. While the
 light curves correspond to surfaces with the same statistical spot properties,
@@ -1528,11 +1558,6 @@ to flux is nontrivial. In the inference step below, we assume we observe
 only these 50 light curves (the figure only shows 49 of them),
 with no knowledge of the inclination of any individual
 star, and attempt to infer the spot properties.
-
-% HACK HACK HACK HACK HACK
-\vfill
-\pagebreak
-% HACK HACK HACK HACK HACK
 
 \subsection{Inference}
 \label{sec:calibration-inference}
@@ -1839,6 +1864,7 @@ harmonic degree. Some minor disagreement is therefore to be expected in the infe
 radii.
 
 \subsection{Other runs}
+\label{sec:inference-other}
 In this section we test the robustness of our model by changing one or
 more of the fiducial values listed in Table~\ref{tab:synthetic}.
 Each of the runs below corresponds to a single realization of the ensemble
@@ -2815,7 +2841,7 @@ results:
           darkening also degrades the information content of light curves, in
           which case an ensemble of hundreds or even a thousand light curves
           is recommended.
-    \item \textbf{Our GP is an unbiased estimator for the spot radius and
+    \item \textbf{Our GP is in most cases an unbiased estimator for the spot radius and
               latitude distributions.} We showed that our GP can accurately infer the
           angular size of spots and the mode and standard deviation of their
           distribution in latitude from stellar light curves. For the fiducial
@@ -5631,6 +5657,18 @@ over the inclination, so this approach is still valid.
 %
 %
 %
+
+\clearpage
+\pagebreak
+\vspace*{\fill}
+\section*{S. Supplementary figures}
+%
+Figures~\ref{fig:calibration_midlat}-\ref{fig:calibration_unnorm} below
+are referenced in \S\ref{sec:inference-other} discussing additional
+calibration runs for our GP.
+\vspace*{\fill}
+\clearpage
+\pagebreak
 
 \renewcommand{\thefigure}{S\arabic{figure}}
 
