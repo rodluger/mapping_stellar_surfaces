@@ -20,6 +20,7 @@
 \makeatother
 
 \defcitealias{PaperI}{Paper I}
+\newcommand{\edited}[1]{\textbf{#1}}
 
 \usepackage{enumitem}
 
@@ -105,7 +106,7 @@ rotating in and out of view. While GPs excel at marginalizing over stellar rotat
 variability, they have been less useful when the goal is to make
 inferences about the actual source of this variability, such as the
 properties of starspots and the magnetic processes that generate them.
-\textbf{While it is straightforward to derive
+\edited{While it is straightforward to derive
     posterior constraints on the hyperparameters of an effective GP model for
     observations of a star, it is not clear what those constraints actually
     tell us about the stellar surface.}
@@ -585,11 +586,11 @@ we may write the mean and covariance of our GP as
 %
 \begin{linenomath}\begin{align}
         \label{eq:mean_f}
-        \pmb{\mu}(P, \mathbf{u}, \pmb{\theta}_\bullet)
+        \pmb{\mu}(I, P, \mathbf{u}, \pmb{\theta}_\bullet)
          & = \mathbf{1} + \pmb{\mathcal{A}}(I, P, \mathbf{u}) \, \pmb{\mu}_{\mathbf{y}}(\pmb{\theta}_\bullet)
         \\
         \label{eq:cov_f}
-        \pmb{\Sigma}(P, \mathbf{u}, \pmb{\theta}_\bullet)
+        \pmb{\Sigma}(I, P, \mathbf{u}, \pmb{\theta}_\bullet)
          & = \pmb{\mathcal{A}}(I, P, \mathbf{u}) \, \pmb{\Sigma}_{\mathbf{y}}(\pmb{\theta}_\bullet) \, \pmb{\mathcal{A}}^\top(I, P, \mathbf{u})
         \quad,
     \end{align}\end{linenomath}
@@ -1592,7 +1593,13 @@ enforce a uniform prior on $\mu_\phi$ and $\sigma_\phi$. As we mentioned
 above, the fact that $P$, $\mathbf{u}$, and $\sigma_f$ are shared among
 all $M$ light curves means that $\pmb{\Sigma} + \mathbf{C}_m$ is the same for all
 of them, greatly speeding up the likelihood evaluation since we need
-only invert (or factorize) it a single time per sample. Our
+only invert (or factorize) it a single time per sample.%
+%
+\footnote{\edited{Re-factorization would incur a computational cost
+        on the order of 10ms per target per likelihood evaluation for the
+        datasets we consider here.}}
+%
+Our
 covariance is the covariance of the \emph{normalized} process,
 given by Equation~(\ref{eq:SigmaTilde}). Since we only consider light curves
 with variability limited to a few percent or less, the approximation for
@@ -1945,7 +1952,11 @@ this uncertainty can be dramatically reduced with more data, as evident
 in Figure~\ref{fig:calibration_ld_1000}, which shows the results of the
 same run but with $M=1{,}000$ light curves in the ensemble. The constraints
 on $r$, $\mu_\phi$, and $\sigma_\phi$ are now much tighter and in
-good agreement with the truth. Finally, Figure~\ref{fig:calibration_ld_500_no_ld}
+good agreement with the truth. \textbf{While there is evidence for slight bias
+    in the inferred radius, this is likely due to the difference between the model
+    used to generate the spots and that used for inference, as discussed in the
+    previous section.}
+Finally, Figure~\ref{fig:calibration_ld_500_no_ld}
 shows the results of inference on limb-darkened light curves under the
 (wrong) assumption that limb darkening is not present ($\mathbf{u} = \mathbf{0}$).
 Neglecting the effect of limb darkening can lead to biases in the spot radius
@@ -2792,7 +2803,7 @@ contrasts within a star and/or across many stars in an ensemble.
 Because our expression for the GP covariance has an exact, closed-form
 solution as a function of the spot parameters, it can be computed
 efficiently: a typical likelihood evaluation on a dataset
-consisting of $K \sim 1{,}000$ points takes about 20ms on a modern
+consisting of $K \sim 1{,}000$ points takes \edited{between 30ms and 60ms} on a modern
 laptop. Our algorithm is implemented in the open-source, user-friendly
 \Python package \starryprocess, which is \textsf{pip}-installable, available on
 \href{https://github.com/rodluger/starry_process}{GitHub}, and
@@ -2867,7 +2878,7 @@ results:
           tied to the timescale on which the surface evolves. More
           complex temporal variability, such as that induced by differential
           rotation, will be the subject of a future paper in this series.
-    \item \textbf{Our GP can be used in exoplanet transit modeling and
+    \item \textbf{Our GP can be used in exoplanet transit modeling and extended to
               radial velocity datasets.} At its core, the \starryprocess GP
           defines a distribution over spherical harmonic representations
           of stellar surfaces. It can therefore be used as a physically
@@ -3101,13 +3112,21 @@ As we mentioned in \S\ref{sec:gp-gp}, the flux $\mathbf{f}$ is a purely
 linear function of the spherical harmonic coefficient vector $\mathbf{y}$:
 %
 \begin{linenomath}\begin{align}
+        \label{eq:f1Ay}
         \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}
         \quad.
     \end{align}\end{linenomath}
 %
+\edited{In this expression, we assume $\mathbf{y}$
+    describes the surface intensity of the star at time $t = 0$
+    in a frame where $\hat{\mathbf{x}}$
+    points to the right, $\hat{\mathbf{y}}$ points up, and $\hat{\mathbf{z}}$
+    points out of the page.}
+%
 Even though this is derived in detail in \citet{Luger2019}, it is useful to
-expand on the computation of the design matrix $\pmb{\mathcal{A}}$ in more
-detail here. Let $\mathbf{a}_k^\top$ denote the $k^{th}$ row of $\pmb{\mathcal{A}}$,
+expand on the computation of the design matrix $\pmb{\mathcal{A}}$, \edited{which
+    transforms from spherical harmonics to flux}.
+Let $\mathbf{a}_k^\top$ denote the $k^{th}$ row of $\pmb{\mathcal{A}}$,
 such that
 %
 \begin{linenomath}\begin{align}
@@ -3138,12 +3157,9 @@ may be computed from
         \quad.
     \end{align}\end{linenomath}
 %
-To understand the expression above, let us proceed from right to left,
-starting with the spherical harmonic vector $\mathbbb{y}$, which we assume
-describes the surface intensity of the star at time $t = 0$
-in a frame where $\hat{\mathbf{x}}$
-points to the right, $\hat{\mathbf{y}}$ points up, and $\hat{\mathbf{z}}$
-points out of the page. The quantity $\mathbf{R}_{\hat{\mathbf{x}}}$
+To understand the expression above, let us \edited{consider how each of its terms operate on
+    the spherical harmonic representation $\mathbf{y}$} from right to left.
+The quantity $\mathbf{R}_{\hat{\mathbf{x}}}$
 is a Wigner rotation matrix
 (described in detail in \S\ref{sec:wigner}),
 which in this case rotates the spherical harmonic representation
