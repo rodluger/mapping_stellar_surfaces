@@ -1,11 +1,15 @@
 % !TeX root = ./ms.tex
-\documentclass[modern]{aastex62}
+\documentclass[modern,linenumbers]{aastex62}
 
 % Load the corTeX style definitions
 \input{cortex}
 
 % Load custom style
 \input{style}
+
+% Force line numbers
+\usepackage{lineno}
+\linenumbers
 
 % Bibliography
 \bibliographystyle{aasjournal}
@@ -360,11 +364,11 @@ the vector of $K$ observed fluxes $\mathbf{f}$ (i.e., the light curve)
 as a linear operation on the vector of $N$
 spherical harmonic coefficients $\mathbf{y}$ \citep{Luger2019}:
 %
-\begin{align}
-    \label{eq:fAy}
-    \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:fAy}
+        \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}
+        \quad,
+    \end{align}\end{linenomath}
 %
 where $\pmb{\mathcal{A}}$ is the $(K \times N)$ \emph{design matrix} of the transformation, whose columns
 describe how each of the $N$ components in the spherical harmonic basis contribute
@@ -451,15 +455,15 @@ In Appendix~\ref{sec:app-svd} we show that it is straightforward to
 construct linear operators $\mathbf{P}$ and $\mathbf{N}$ from the
 design matrix $\pmb{\mathcal{A}}$ such that
 %
-\begin{align}
-    \mathbf{y}_\bullet & = \mathbf{P} \, \mathbf{y}
-\end{align}
+\begin{linenomath}\begin{align}
+        \mathbf{y}_\bullet & = \mathbf{P} \, \mathbf{y}
+    \end{align}\end{linenomath}
 %
 is the component of the surface map in the \emph{preimage} and
 %
-\begin{align}
-    \mathbf{y}_\circ & = \mathbf{N} \, \mathbf{y}
-\end{align}
+\begin{linenomath}\begin{align}
+        \mathbf{y}_\circ & = \mathbf{N} \, \mathbf{y}
+    \end{align}\end{linenomath}
 %
 is the component of the map in the \emph{null space}.
 %
@@ -574,21 +578,21 @@ The model mapping spherical harmonic coefficients to observed fluxes described
 in the preceding sections is linear, so we might expect that we could fit
 for the spherical harmonics using linear least-squares
 %
-\begin{align}
-    \label{eq:linlstsq}
-    \hat{\mathbf{y}} & \stackrel{?}{=}
-    \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
-    \quad.
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:linlstsq}
+        \hat{\mathbf{y}} & \stackrel{?}{=}
+        \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
+        \quad.
+    \end{align}\end{linenomath}
 %
 But, since the flux operator $\pmb{\mathcal{A}}$ is low-rank, the model is
 underdetermined, so the above operation is not defined and, equivalently,
 the Fisher information matrix
 %
-\begin{align}
-    \label{eq:fisher-info}
-    \pmb{\mathcal{I}}(\mathbf{y}) & = \frac{1}{\sigma_f^2} \, \pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:fisher-info}
+        \pmb{\mathcal{I}}(\mathbf{y}) & = \frac{1}{\sigma_f^2} \, \pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}}
+    \end{align}\end{linenomath}
 %
 is singular.
 In Equation~(\ref{eq:fisher-info}), $\sigma_f$ is the flux measurement uncertainty.
@@ -599,10 +603,10 @@ model in order to break the degeneracies.
 One standard method is regularized least squares, in which
 Equation~(\ref{eq:linlstsq}) becomes
 %
-\begin{align}
-    \hat{\mathbf{y}}_\lambda & \equiv
-    \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
-\end{align}
+\begin{linenomath}\begin{align}
+        \hat{\mathbf{y}}_\lambda & \equiv
+        \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1}\,\pmb{\mathcal{A}}^\top\,\left(\mathbf{f} - \mathbf{1}\right)
+    \end{align}\end{linenomath}
 %
 where $\mathbf{I}$ is the identity matrix and $\lambda$ is a parameter
 controlling the strength of the regularization.
@@ -612,15 +616,15 @@ with variance $\sigma_0^{2} = \nicefrac{\sigma_f^2}{\lambda}$ on the spherical h
 In the limit of infinitesimal regularization, it can be demonstrated
 \citep[see][for example]{Hogg2021} that
 %
-\begin{proof}{test_svd_lstsq}
-    \label{eq:inference}
-    \lim_{\lambda \rightarrow 0_+} \hat{\mathbf{y}}_\lambda
-    % &=
-    % \lim_{\lambda \rightarrow 0} \left( \pmb{\mathcal{A}}^\top \pmb{\mathcal{A}} + \lambda \mathbf{I}\right)^{-1} \pmb{\mathcal{A}}^\top (\mathbf{f} - \mathbf{1})
-    % \nonumber\\
-    &= \mathbf{y}_\bullet
-    \quad.
-\end{proof}
+\begin{linenomath}\begin{proof}{test_svd_lstsq}
+        \label{eq:inference}
+        \lim_{\lambda \rightarrow 0_+} \hat{\mathbf{y}}_\lambda
+        % &=
+        % \lim_{\lambda \rightarrow 0} \left( \pmb{\mathcal{A}}^\top \pmb{\mathcal{A}} + \lambda \mathbf{I}\right)^{-1} \pmb{\mathcal{A}}^\top (\mathbf{f} - \mathbf{1})
+        % \nonumber\\
+        &= \mathbf{y}_\bullet
+        \quad.
+    \end{proof}\end{linenomath}
 %
 In this sense, $\mathbf{y}_\bullet$ represents our knowledge about the
 surface of a star after an observation if we have no prior information
@@ -635,10 +639,10 @@ whatsoever on $\mathbf{y}$.
 % This is most naturally captured by the covariance matrix of the likelihood
 % function for the spherical harmonic coefficients:
 % %
-% \begin{align}
+% \begin{linenomath}\begin{align}
 %     \pmb{\Sigma}_\lambda & =
 %     \sigma^2\,\left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1} \quad.
-% \end{align}
+% \end{align}\end{linenomath}
 % %
 % Below, we use this to quantify the width of the likelihood for each spherical
 % harmonic coefficient by plotting the ``relative variance'' $S$, which we define
@@ -731,29 +735,29 @@ This, in turn, results in the dependence of the null space on inclination.
 
 To better understand this effect, let us define the quantity
 %
-\begin{align}
-    S \equiv
-    1 -
-    \lim_{\lambda \rightarrow 0_+}
-    \mathrm{diag}
-    \left(
-    \lambda
-    \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1}
-    \right)
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        S \equiv
+        1 -
+        \lim_{\lambda \rightarrow 0_+}
+        \mathrm{diag}
+        \left(
+        \lambda
+        \left(\pmb{\mathcal{A}}^\top\,\pmb{\mathcal{A}} + \lambda\,\mathbf{I}\right)^{-1}
+        \right)
+        \quad,
+    \end{align}\end{linenomath}
 %
 which we will refer to as the \emph{\shrinkage}
 of the coefficients $\mathbf{y}$ characterizing the stellar surface.
 Note that in a Bayesian context, this is
 equivalent to the \emph{posterior shrinkage}
 %
-\begin{align}
-    \label{eq:shrinkage}
-    S = 1 - \lim\limits_{\sigma_0^2 \rightarrow \infty}
-    \frac{\sigma^2}{\sigma_0^2}
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:shrinkage}
+        S = 1 - \lim\limits_{\sigma_0^2 \rightarrow \infty}
+        \frac{\sigma^2}{\sigma_0^2}
+        \quad,
+    \end{align}\end{linenomath}
 %
 where $\sigma_0^2$ is the prior variance
 and $\sigma^2$ is the posterior variance
@@ -1227,10 +1231,10 @@ every time we add a spot the flux (in fractional units)
 decreases by an amount proportional to $c$, so to first order we can approximate an
 individual light curve as
 %
-\begin{align}
-    \label{eq:fapprox}
-    \mathbf{f}(c, n) = \mathbf{1} - c \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i)
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:fapprox}
+        \mathbf{f}(c, n) = \mathbf{1} - c \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i)
+    \end{align}\end{linenomath}
 %
 where $\mathbf{g}(\pmb{\theta}_i)$ is some (complicated) function of the properties
 of the $i^\mathrm{th}$ spot
@@ -1243,37 +1247,37 @@ $p(\pmb{\theta})$.
 The mean of the distribution of
 light curves (still in fractional units) is then given by
 %
-\begin{align}
-    \mu(c, n) & = \mathrm{E} \Big[ \mathbf{f} (c, n) \Big] \nonumber                                      \\
-              & = 1 - c \, \mathrm{E} \bigg[ \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \bigg] \nonumber \\
-              & = 1 - c \, n \, \alpha
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \mu(c, n) & = \mathrm{E} \Big[ \mathbf{f} (c, n) \Big] \nonumber                                      \\
+                  & = 1 - c \, \mathrm{E} \bigg[ \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \bigg] \nonumber \\
+                  & = 1 - c \, n \, \alpha
+        \quad,
+    \end{align}\end{linenomath}
 %
 where $\mathrm{E}\big[\cdots\big]$ denotes the expected value and
 %
-\begin{align}
-    \alpha \equiv \int \mathbf{g} (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
-\end{align}
+\begin{linenomath}\begin{align}
+        \alpha \equiv \int \mathbf{g} (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
+    \end{align}\end{linenomath}
 %
 is the expected value of $\mathbf{g}$.
 %
 Similarly, the variance of the distribution may be computed as
 %
-\begin{align}
-    \sigma^2(c, n) & = \mathrm{Var} \Big[ \mathbf{f}(c, n) \Big] \nonumber                         \nonumber \\
-                   & = \mathrm{Var} \Big[ c \, \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
-                   & = c^2 \, \mathrm{Var} \Big[ \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big] \nonumber \\
-                   & = c^2 \sum_{i=0}^{n-1} \mathrm{Var} \Big[  \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
-                   & = c^2 \, n \, (\beta^2 - \alpha^2)
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \sigma^2(c, n) & = \mathrm{Var} \Big[ \mathbf{f}(c, n) \Big] \nonumber                         \nonumber \\
+                       & = \mathrm{Var} \Big[ c \, \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
+                       & = c^2 \, \mathrm{Var} \Big[ \sum_{i=0}^{n-1} \mathbf{g}(\pmb{\theta}_i) \Big] \nonumber \\
+                       & = c^2 \sum_{i=0}^{n-1} \mathrm{Var} \Big[  \mathbf{g}(\pmb{\theta}_i) \Big]   \nonumber \\
+                       & = c^2 \, n \, (\beta^2 - \alpha^2)
+        \quad,
+    \end{align}\end{linenomath}
 %
 where $\mathrm{Var}\big[\cdots\big]$ denotes the variance,
 %
-\begin{align}
-    \beta^2 \equiv \int \mathbf{g}^2 (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
-\end{align}
+\begin{linenomath}\begin{align}
+        \beta^2 \equiv \int \mathbf{g}^2 (\pmb{\theta}) p(\pmb{\theta}) \mathrm{d} \pmb{\theta}
+    \end{align}\end{linenomath}
 %
 is the expected value of $\mathbf{g}^2$, and we used the fact that the variance
 of the sum of independent random variables is equal to the sum of their variances.
@@ -1283,12 +1287,12 @@ of the sum of independent random variables is equal to the sum of their variance
 To summarize, the mean and variance of the ensemble of stellar light curves
 in fractional units is
 %
-\begin{align}
-    \mu      & = 1 - c \, n \, \alpha
-    \nonumber                                     \\
-    \sigma^2 & = c^2 \, n \, (\beta^2 - \alpha^2)
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \mu      & = 1 - c \, n \, \alpha
+        \nonumber                                     \\
+        \sigma^2 & = c^2 \, n \, (\beta^2 - \alpha^2)
+        \quad,
+    \end{align}\end{linenomath}
 %
 for some complicated functions $\alpha$ and $\beta$ of the distribution of
 stellar inclinations,
@@ -1304,11 +1308,11 @@ However, because of observations are made in \emph{relative} units, in which
 we typically normalize to the mean, the amplitudes of features in light curves
 can only tell us about the \emph{ratio}
 %
-\begin{align}
-    \label{eq:ratio}
-    \frac{\sigma}{\mu}
-     & \propto \frac{c \sqrt{n}}{1 - c n \alpha}
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:ratio}
+        \frac{\sigma}{\mu}
+         & \propto \frac{c \sqrt{n}}{1 - c n \alpha}
+    \end{align}\end{linenomath}
 %
 for some value of $\alpha$.
 In other words, even photometric ensemble analyses may not be able to tell
@@ -1322,11 +1326,11 @@ is simply the (average) area of a spot
 times the total number of spots divided by the total area of the sphere, which
 may be expressed as
 %
-\begin{proof}{test_fS}
-    \label{eq:fS}
-    f_S = \frac{1}{2}\left(1 - \left<\cos r\right>\right)n
-    \quad,
-\end{proof}
+\begin{linenomath}\begin{proof}{test_fS}
+        \label{eq:fS}
+        f_S = \frac{1}{2}\left(1 - \left<\cos r\right>\right)n
+        \quad,
+    \end{proof}\end{linenomath}
 %
 given an angular spot radius $r$.
 While $r$ may be uniquely constrained from the covariance structure of the data
@@ -1710,11 +1714,11 @@ to decompose a surface map
 into its preimage and its null space (see \S\ref{sec:svd}). By performing SVD, we
 may express the flux design matrix as
 %
-\begin{align}
-    \label{eq:svd}
-    \pmb{\mathcal{A}} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
-    \quad,
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:svd}
+        \pmb{\mathcal{A}} = \mathbf{U} \, \mathbf{S} \, \mathbf{V}^\top
+        \quad,
+    \end{align}\end{linenomath}
 %
 where $\mathbf{U}$ is a $(K \times K)$ orthogonal matrix,
 $\mathbf{V}$ is a $(N \times N)$ orthogonal matrix,
@@ -1731,75 +1735,75 @@ If we assume for definitess that $K > N$ (i.e., we have more flux observations
 than surface map coefficients we're trying to constrain), we can express the
 matrices in Equation~(\ref{eq:svd}) as
 %
-\begin{align}
-    \mathbf{U}
-     & =
-    \left(
-    \begin{array}{ccc|ccc}
-            \mathbf{U}_{0,0}          & \cdots & \mathbf{U}_{0,R\text{-}1}          & \mathbf{U}_{0,R}          & \cdots & \mathbf{U}_{0,K\text{-}1}          \\
-            \vdots                    & \cdots & \vdots                             & \vdots                    & \cdots & \vdots                             \\
-            \mathbf{U}_{K\text{-}1,0} & \cdots & \mathbf{U}_{K\text{-}1,R\text{-}1} & \mathbf{U}_{K\text{-}1,R} & \cdots & \mathbf{U}_{K\text{-}1,K\text{-}1}
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    %
-    \\[1.5em]
-    %
-    \label{eq:S}
-    \mathbf{S}
-     & =
-    \left(
-    \begin{array}{ccc|ccc}
-            \mathbf{S}_{0,0}\phantom{y} &                                     &                                    &                             &                                     &                                    \\
-                                        & \ddots                              &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
-                                        &                                     & \mathbf{S}_{R\text{-}1,R\text{-}1} &                             &                                     &                                    \\
-            \hline
-                                        &                                     &                                    & \mathbf{S}_{R,R}\phantom{y} &                                     &                                    \\
-                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \ddots                              &                                    \\
-                                        &                                     &                                    &                             &                                     & \mathbf{S}_{N\text{-}1,N\text{-}1} \\
-                                        &                                     &                                    &                             &                                     &                                    \\
-                                        & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
-                                        &                                     &                                    &                             &                                     &
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    %
-    \\[1.5em]
-    %
-    \mathbf{V}^\top
-     & =
-    \left(
-    \begin{array}{cccccc}
-            \mathbf{V}_{0,0}^\top          & \cdots & \mathbf{V}_{0,N\text{-}1}^\top          \\
-            \vdots                         & \cdots & \vdots                                  \\
-            \mathbf{V}_{R\text{-}1,0}^\top & \cdots & \mathbf{V}_{R\text{-}1,N\text{-}1}^\top \\[0.5em]
-            \hline                                                                            \\[-0.85em]
-            \mathbf{V}_{R,0}^\top          & \cdots & \mathbf{V}_{R,N\text{-}1}^\top          \\
-            \vdots                         & \cdots & \vdots                                  \\
-            \mathbf{V}_{N\text{-}1,0}^\top & \cdots & \mathbf{V}_{N\text{-}1,N\text{-}1}^\top
-        \end{array}
-    \right)
-    \equiv
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right)
-\end{align}
+\begin{linenomath}\begin{align}
+        \mathbf{U}
+         & =
+        \left(
+        \begin{array}{ccc|ccc}
+                \mathbf{U}_{0,0}          & \cdots & \mathbf{U}_{0,R\text{-}1}          & \mathbf{U}_{0,R}          & \cdots & \mathbf{U}_{0,K\text{-}1}          \\
+                \vdots                    & \cdots & \vdots                             & \vdots                    & \cdots & \vdots                             \\
+                \mathbf{U}_{K\text{-}1,0} & \cdots & \mathbf{U}_{K\text{-}1,R\text{-}1} & \mathbf{U}_{K\text{-}1,R} & \cdots & \mathbf{U}_{K\text{-}1,K\text{-}1}
+            \end{array}
+        \right)
+        \equiv
+        \left(
+        \begin{array}{c|c}
+                \mathbf{U}_\bullet & \mathbf{U}_\circ
+            \end{array}
+        \right)
+        %
+        \\[1.5em]
+        %
+        \label{eq:S}
+        \mathbf{S}
+         & =
+        \left(
+        \begin{array}{ccc|ccc}
+                \mathbf{S}_{0,0}\phantom{y} &                                     &                                    &                             &                                     &                                    \\
+                                            & \ddots                              &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                            &                                     & \mathbf{S}_{R\text{-}1,R\text{-}1} &                             &                                     &                                    \\
+                \hline
+                                            &                                     &                                    & \mathbf{S}_{R,R}\phantom{y} &                                     &                                    \\
+                                            & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \ddots                              &                                    \\
+                                            &                                     &                                    &                             &                                     & \mathbf{S}_{N\text{-}1,N\text{-}1} \\
+                                            &                                     &                                    &                             &                                     &                                    \\
+                                            & \mbox{\normalfont\Large\bfseries 0} &                                    &                             & \mbox{\normalfont\Large\bfseries 0} &                                    \\
+                                            &                                     &                                    &                             &                                     &
+            \end{array}
+        \right)
+        \equiv
+        \left(
+        \begin{array}{c|c}
+                \mathbf{S}_\bullet & \mathbf{0}       \\
+                \hline
+                \mathbf{0}         & \mathbf{S}_\circ
+            \end{array}
+        \right)
+        %
+        \\[1.5em]
+        %
+        \mathbf{V}^\top
+         & =
+        \left(
+        \begin{array}{cccccc}
+                \mathbf{V}_{0,0}^\top          & \cdots & \mathbf{V}_{0,N\text{-}1}^\top          \\
+                \vdots                         & \cdots & \vdots                                  \\
+                \mathbf{V}_{R\text{-}1,0}^\top & \cdots & \mathbf{V}_{R\text{-}1,N\text{-}1}^\top \\[0.5em]
+                \hline                                                                            \\[-0.85em]
+                \mathbf{V}_{R,0}^\top          & \cdots & \mathbf{V}_{R,N\text{-}1}^\top          \\
+                \vdots                         & \cdots & \vdots                                  \\
+                \mathbf{V}_{N\text{-}1,0}^\top & \cdots & \mathbf{V}_{N\text{-}1,N\text{-}1}^\top
+            \end{array}
+        \right)
+        \equiv
+        \left(
+        \begin{array}{cc}
+                \mathbf{V}_\bullet^\top \\
+                \hline
+                \mathbf{V}_\circ^\top
+            \end{array}
+        \right)
+    \end{align}\end{linenomath}
 %
 where
 $\mathbf{U}_\bullet$ is $(K \times R)$,
@@ -1812,128 +1816,128 @@ $\mathbf{V}_\circ^\top$ is $(N - R \times N)$.
 %
 We may then express the decomposition of $\pmb{\mathcal{A}}$ as
 %
-\begin{align}
-    \label{eq:A}
-    \pmb{\mathcal{A}} =
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right)
-    \quad.
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:A}
+        \pmb{\mathcal{A}} =
+        \left(
+        \begin{array}{c|c}
+                \mathbf{U}_\bullet & \mathbf{U}_\circ
+            \end{array}
+        \right)
+        \left(
+        \begin{array}{c|c}
+                \mathbf{S}_\bullet & \mathbf{0}       \\
+                \hline
+                \mathbf{0}         & \mathbf{S}_\circ
+            \end{array}
+        \right)
+        \left(
+        \begin{array}{cc}
+                \mathbf{V}_\bullet^\top \\
+                \hline
+                \mathbf{V}_\circ^\top
+            \end{array}
+        \right)
+        \quad.
+    \end{align}\end{linenomath}
 %
 Inserting this into Equation~(\ref{eq:fAy}), we have
 %
-\begin{proof}{test_decomposition}
-    \label{eq:ydecomp}
-    \mathbf{f} - \mathbf{1} & = \pmb{\mathcal{A}} \, \mathbf{y}
-    \nonumber                               \\
-    & =
-    \left(
-    \begin{array}{c|c}
-            \mathbf{U}_\bullet & \mathbf{U}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{c|c}
-            \mathbf{S}_\bullet & \mathbf{0}       \\
-            \hline
-            \mathbf{0}         & \mathbf{S}_\circ
-        \end{array}
-    \right)
-    \left(
-    \begin{array}{cc}
-            \mathbf{V}_\bullet^\top \\
-            \hline
-            \mathbf{V}_\circ^\top
-        \end{array}
-    \right) \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\,\mathbf{I}\,) \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ (\,\mathbf{I}\,) \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    \mathbf{U}_\circ \, \mathbf{S}_\circ (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \, \mathbf{y}
-    +
-    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \, \mathbf{y}
-    \nonumber                               \\[0.5em]
-    & =
-    (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \, \mathbf{y}_\bullet
-    +
-    (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \, \mathbf{y}_\circ
-\end{proof}
+\begin{linenomath}\begin{proof}{test_decomposition}
+        \label{eq:ydecomp}
+        \mathbf{f} - \mathbf{1} & = \pmb{\mathcal{A}} \, \mathbf{y}
+        \nonumber                               \\
+        & =
+        \left(
+        \begin{array}{c|c}
+                \mathbf{U}_\bullet & \mathbf{U}_\circ
+            \end{array}
+        \right)
+        \left(
+        \begin{array}{c|c}
+                \mathbf{S}_\bullet & \mathbf{0}       \\
+                \hline
+                \mathbf{0}         & \mathbf{S}_\circ
+            \end{array}
+        \right)
+        \left(
+        \begin{array}{cc}
+                \mathbf{V}_\bullet^\top \\
+                \hline
+                \mathbf{V}_\circ^\top
+            \end{array}
+        \right) \mathbf{y}
+        \nonumber                               \\[0.5em]
+        & =
+        \mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top \, \mathbf{y}
+        +
+        \mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top \, \mathbf{y}
+        \nonumber                               \\[0.5em]
+        & =
+        \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\,\mathbf{I}\,) \mathbf{V}_\bullet^\top \, \mathbf{y}
+        +
+        \mathbf{U}_\circ \, \mathbf{S}_\circ (\,\mathbf{I}\,) \mathbf{V}_\circ^\top \, \mathbf{y}
+        \nonumber                               \\[0.5em]
+        & =
+        \mathbf{U}_\bullet \, \mathbf{S}_\bullet (\mathbf{V}_\bullet^\top \mathbf{V}_\bullet) \mathbf{V}_\bullet^\top \, \mathbf{y}
+        +
+        \mathbf{U}_\circ \, \mathbf{S}_\circ (\mathbf{V}_\circ^\top \mathbf{V}_\circ) \mathbf{V}_\circ^\top \, \mathbf{y}
+        \nonumber                               \\[0.5em]
+        & =
+        (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \mathbf{V}_\bullet \mathbf{V}_\bullet^\top \, \mathbf{y}
+        +
+        (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \mathbf{V}_\circ \mathbf{V}_\circ^\top \, \mathbf{y}
+        \nonumber                               \\[0.5em]
+        & =
+        (\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top) \, \mathbf{y}_\bullet
+        +
+        (\mathbf{U}_\circ \, \mathbf{S}_\circ \, \mathbf{V}_\circ^\top) \, \mathbf{y}_\circ
+    \end{proof}\end{linenomath}
 %
 where we define
 %
-\begin{proof}{test_PN}
-    \label{eq:yrow}
-    \mathbf{y}_\bullet & \equiv \mathbf{P} \, \mathbf{y}
-    \\
-    \label{eq:ynull}
-    \mathbf{y}_\circ   & \equiv \mathbf{N} \, \mathbf{y}
-    \\[0.5em]
-    \mathbf{P} & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top
-    \\
-    \mathbf{N} & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top
-    \quad,
-\end{proof}
+\begin{linenomath}\begin{proof}{test_PN}
+        \label{eq:yrow}
+        \mathbf{y}_\bullet & \equiv \mathbf{P} \, \mathbf{y}
+        \\
+        \label{eq:ynull}
+        \mathbf{y}_\circ   & \equiv \mathbf{N} \, \mathbf{y}
+        \\[0.5em]
+        \mathbf{P} & \equiv \mathbf{V}_\bullet \mathbf{V}_\bullet^\top
+        \\
+        \mathbf{N} & \equiv \mathbf{V}_\circ \mathbf{V}_\circ^\top
+        \quad,
+    \end{proof}\end{linenomath}
 %
 and we used the fact that since $\mathbf{V}^\top$ is orthogonal,
 %
-\begin{proof}{test_orthogonality}
-    \mathbf{V}_\bullet^\top \mathbf{V}_\bullet & = \mathbf{I}
-    \nonumber                                                 \\
-    \mathbf{V}_\circ^\top \mathbf{V}_\circ     & = \mathbf{I}
-    \quad,
-\end{proof}
+\begin{linenomath}\begin{proof}{test_orthogonality}
+        \mathbf{V}_\bullet^\top \mathbf{V}_\bullet & = \mathbf{I}
+        \nonumber                                                 \\
+        \mathbf{V}_\circ^\top \mathbf{V}_\circ     & = \mathbf{I}
+        \quad,
+    \end{proof}\end{linenomath}
 %
 where $\mathbf{I}$ is the identity matrix.
 %
 Now, recalling that $R$ is the number of nonzero singular values in
 $\mathbf{S}$, it is evident from Equation~(\ref{eq:S}) that
 %
-\begin{align}
-    \label{eq:S0}
-    \mathbf{S}_\circ = \mathbf{0}
-    \quad.
-\end{align}
+\begin{linenomath}\begin{align}
+        \label{eq:S0}
+        \mathbf{S}_\circ = \mathbf{0}
+        \quad.
+    \end{align}\end{linenomath}
 %
 Therefore we may write Equation~(\ref{eq:ydecomp}) as
 %
-\begin{proof}{test_decomposition}
-    \boxed{
-        \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}_\bullet
-        +
-        \mathbf{0} \, \mathbf{y}_\circ
-    }
-\end{proof}
+\begin{linenomath}\begin{proof}{test_decomposition}
+        \boxed{
+            \mathbf{f} = \mathbf{1} + \pmb{\mathcal{A}} \, \mathbf{y}_\bullet
+            +
+            \mathbf{0} \, \mathbf{y}_\circ
+        }
+    \end{proof}\end{linenomath}
 %
 where the fact that $\mathbf{U}_\bullet \, \mathbf{S}_\bullet \, \mathbf{V}_\bullet^\top = \pmb{\mathcal{A}}$
 follows directly from Equations~(\ref{eq:A}) and (\ref{eq:S0}).
@@ -1946,14 +1950,14 @@ $\mathbf{y}_\circ$ components.
 Two things should be noted concerning this derivation. First,
 because of the orthogonality of $\mathbf{V}$,
 %
-\begin{proof}{test_PN}
-    \mathbf{V} \mathbf{V}^\top &= \mathbf{I}
-    \nonumber                                                 \\
-    \mathbf{V}_\bullet \mathbf{V}_\bullet^\top  + \mathbf{V}_\circ \mathbf{V}_\circ^\top &= \mathbf{I}
-    \nonumber \\
-    \mathbf{P} + \mathbf{N} &= \mathbf{I}
-    \quad,
-\end{proof}
+\begin{linenomath}\begin{proof}{test_PN}
+        \mathbf{V} \mathbf{V}^\top &= \mathbf{I}
+        \nonumber                                                 \\
+        \mathbf{V}_\bullet \mathbf{V}_\bullet^\top  + \mathbf{V}_\circ \mathbf{V}_\circ^\top &= \mathbf{I}
+        \nonumber \\
+        \mathbf{P} + \mathbf{N} &= \mathbf{I}
+        \quad,
+    \end{proof}\end{linenomath}
 %
 so it follows from Equations~(\ref{eq:yrow}) and (\ref{eq:ynull})
 that $\mathbf{y} = \mathbf{y}_\bullet + \mathbf{y}_\circ$.
