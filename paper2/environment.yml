@@ -26,6 +26,6 @@ dependencies:
     - pytest>=6.2.1
     - pytest-dependency>=0.5.1
     - pytest-env>=0.6.2
-    - git+git://github.com/rodluger/starry.git#master
-    - git+git://github.com/rodluger/starry_process.git#master
+    - starry==1.1.1
+    - starry_process==0.9.7
     - tqdm>=4.56.0
